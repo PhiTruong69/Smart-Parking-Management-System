@@ -1,48 +1,58 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Users, Car, Clock } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Car, Clock } from 'lucide-react';
 
 export default function Analytics() {
-  const dailyOccupancy = [
-    { time: '00:00', rate: 15 },
-    { time: '02:00', rate: 8 },
-    { time: '04:00', rate: 5 },
-    { time: '06:00', rate: 25 },
-    { time: '08:00', rate: 78 },
-    { time: '10:00', rate: 85 },
-    { time: '12:00', rate: 72 },
-    { time: '14:00', rate: 88 },
-    { time: '16:00', rate: 92 },
-    { time: '18:00', rate: 65 },
-    { time: '20:00', rate: 42 },
-    { time: '22:00', rate: 28 }
-  ];
+  const [dailyOccupancy, setDailyOccupancy] = useState<any[]>([]);
+  const [weeklyRevenue, setWeeklyRevenue] = useState<any[]>([]);
+  const [zoneUsage, setZoneUsage] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
+  const [summary, setSummary] = useState({ occupied: 0, totalSlots: 0, todayRevenue: 0, activeSessions: 0 });
+  const API_BASE = 'http://localhost:5000/api';
 
-  const weeklyRevenue = [
-    { day: 'Mon', revenue: 850000 },
-    { day: 'Tue', revenue: 920000 },
-    { day: 'Wed', revenue: 880000 },
-    { day: 'Thu', revenue: 950000 },
-    { day: 'Fri', revenue: 1100000 },
-    { day: 'Sat', revenue: 450000 },
-    { day: 'Sun', revenue: 380000 }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const [analyticsRes, zonesRes, usersRes, summaryRes] = await Promise.all([
+        fetch(`${API_BASE}/analytics`),
+        fetch(`${API_BASE}/parking/zones`),
+        fetch(`${API_BASE}/users`),
+        fetch(`${API_BASE}/dashboard/summary`)
+      ]);
+      const analytics = await analyticsRes.json();
+      const zones = await zonesRes.json();
+      const users = await usersRes.json();
+      const dashboard = await summaryRes.json();
 
-  const zoneUsage = [
-    { zone: 'Zone A', usage: 142, color: '#3b82f6' },
-    { zone: 'Zone B', usage: 85, color: '#10b981' },
-    { zone: 'Zone C', usage: 63, color: '#a855f7' },
-    { zone: 'Zone D', usage: 35, color: '#f97316' },
-    { zone: 'Zone E', usage: 17, color: '#ec4899' }
-  ];
+      setDailyOccupancy(analytics.dailyOccupancy || []);
+      setWeeklyRevenue(analytics.weeklyRevenue || []);
+      setZoneUsage((zones || []).map((z: any, idx: number) => ({
+        zone: `Zone ${z.id}`,
+        usage: z.occupied,
+        color: ['#3b82f6', '#10b981', '#a855f7', '#f97316', '#ec4899'][idx % 5]
+      })));
+      setUsersData(users.items || []);
+      setSummary(dashboard);
+    };
+    fetchData();
+  }, []);
 
-  const userTypeDistribution = [
-    { type: 'Students', value: 945, color: '#3b82f6' },
-    { type: 'Faculty', value: 156, color: '#10b981' },
-    { type: 'Staff', value: 89, color: '#f97316' },
-    { type: 'Visitors', value: 44, color: '#a855f7' }
-  ];
+  const userTypeDistribution = useMemo(() => {
+    const dist = { Students: 0, Faculty: 0, Staff: 0, Visitors: 0 };
+    usersData.forEach((u) => {
+      if (['Student', 'Graduate', 'Doctoral'].includes(u.role)) dist.Students += 1;
+      else if (u.role === 'Faculty') dist.Faculty += 1;
+      else if (u.role === 'Staff') dist.Staff += 1;
+      else dist.Visitors += 1;
+    });
+    return [
+      { type: 'Students', value: dist.Students, color: '#3b82f6' },
+      { type: 'Faculty', value: dist.Faculty, color: '#10b981' },
+      { type: 'Staff', value: dist.Staff, color: '#f97316' },
+      { type: 'Visitors', value: dist.Visitors, color: '#a855f7' }
+    ];
+  }, [usersData]);
 
   const peakHours = [
     { hour: '8 AM', entries: 145, exits: 23 },
@@ -72,7 +82,9 @@ export default function Analytics() {
             <CardTitle className="text-sm text-slate-600">Avg. Occupancy Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">68.4%</div>
+            <div className="text-2xl font-bold text-slate-900">
+              {summary.totalSlots ? ((summary.occupied / summary.totalSlots) * 100).toFixed(1) : 0}%
+            </div>
             <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3 h-3" />
               +5.2% vs last month
@@ -96,7 +108,7 @@ export default function Analytics() {
             <CardTitle className="text-sm text-slate-600">Daily Avg. Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">₫557k</div>
+            <div className="text-2xl font-bold text-slate-900">₫{Number(summary.todayRevenue || 0).toLocaleString()}</div>
             <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3 h-3" />
               +18% vs last month
@@ -108,7 +120,9 @@ export default function Analytics() {
             <CardTitle className="text-sm text-slate-600">Space Utilization</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">85.3%</div>
+            <div className="text-2xl font-bold text-slate-900">
+              {summary.totalSlots ? ((summary.occupied / summary.totalSlots) * 100).toFixed(1) : 0}%
+            </div>
             <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3 h-3" />
               +3.1% efficiency gain

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -15,115 +15,87 @@ import {
   Send
 } from 'lucide-react';
 
-export default function BillingPanel() {
+type BillingPanelProps = {
+  isAdmin: boolean;
+  actorRole: string;
+};
+
+export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [stats, setStats] = useState({ totalRevenue: 0, thisMonth: 0, pending: 0, overdue: 0 });
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionMessage, setActionMessage] = useState('');
 
-  const transactions = [
-    {
-      id: 'TXN-2026-001234',
-      userId: '1952001',
-      userName: 'Nguyen Van A',
-      type: 'Monthly Parking',
-      amount: 150000,
-      period: 'April 2026',
-      status: 'Paid',
-      date: '2026-04-01 10:30',
-      method: 'BKPay'
-    },
-    {
-      id: 'TXN-2026-001235',
-      userId: '1952045',
-      userName: 'Tran Thi B',
-      type: 'Monthly Parking',
-      amount: 150000,
-      period: 'April 2026',
-      status: 'Pending',
-      date: '2026-04-01 14:20',
-      method: 'BKPay'
-    },
-    {
-      id: 'TXN-2026-001236',
-      userId: 'V-2341',
-      userName: 'Visitor',
-      type: 'Hourly Parking',
-      amount: 20000,
-      period: '3 hours',
-      status: 'Paid',
-      date: '2026-04-07 08:45',
-      method: 'Cash'
-    },
-    {
-      id: 'TXN-2026-001237',
-      userId: '2152078',
-      userName: 'Vo Thi F',
-      type: 'Monthly Parking',
-      amount: 150000,
-      period: 'April 2026',
-      status: 'Paid',
-      date: '2026-04-02 09:15',
-      method: 'BKPay'
-    },
-    {
-      id: 'TXN-2026-001238',
-      userId: '1951234',
-      userName: 'Dang Van G',
-      type: 'Monthly Parking',
-      amount: 150000,
-      period: 'March 2026',
-      status: 'Overdue',
-      date: '2026-03-01 00:00',
-      method: 'BKPay'
-    },
-    {
-      id: 'TXN-2026-001239',
-      userId: 'D3001',
-      userName: 'Bui Thi H',
-      type: 'Monthly Parking',
-      amount: 150000,
-      period: 'April 2026',
-      status: 'Paid',
-      date: '2026-04-01 16:30',
-      method: 'BKPay'
-    }
-  ];
+  const API_BASE = 'http://localhost:5000/api';
 
-  const stats = {
-    totalRevenue: 4580000,
-    thisMonth: 1250000,
-    pending: 450000,
-    overdue: 180000
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [overviewRes, txnRes] = await Promise.all([
+          fetch(`${API_BASE}/billing/overview`),
+          fetch(`${API_BASE}/billing/transactions`),
+        ]);
+        const overview = await overviewRes.json();
+        const txns = await txnRes.json();
+        setStats({
+          totalRevenue: overview.totalRevenue ?? 0,
+          thisMonth: overview.thisMonth ?? 0,
+          pending: overview.pending ?? 0,
+          overdue: overview.overdue ?? 0,
+        });
+        setPricingPlans(overview.pricingPlans ?? []);
+        setTransactions(txns.items ?? []);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const runBillingCycle = async () => {
+    const res = await fetch(`${API_BASE}/billing/run-cycle`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-role': actorRole || 'END_USER' },
+      body: JSON.stringify({ period: 'April 2026' }),
+    });
+    const data = await res.json();
+    setActionMessage(res.ok ? `Created ${data.createdInvoices} learner invoices` : data.message || 'Run cycle failed');
   };
 
-  const pricingPlans = [
-    {
-      category: 'Students',
-      monthly: 150000,
-      daily: 10000,
-      hourly: 5000,
-      description: 'Undergraduate, Graduate, Doctoral candidates'
-    },
-    {
-      category: 'Faculty',
-      monthly: 0,
-      daily: 0,
-      hourly: 0,
-      description: 'Reserved parking included'
-    },
-    {
-      category: 'Staff',
-      monthly: 100000,
-      daily: 8000,
-      hourly: 4000,
-      description: 'Administration and support staff'
-    },
-    {
-      category: 'Visitors',
-      monthly: null,
-      daily: 50000,
-      hourly: 10000,
-      description: 'Temporary access only'
+  const payTransaction = async (id: string) => {
+    const res = await fetch(`${API_BASE}/payments/${id}/request`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'Paid', method: 'BKPay' } : t)));
+      setActionMessage(`Payment success for ${id} (${data.bkpayRef})`);
+    } else {
+      setActionMessage(data.message || 'Payment failed');
     }
-  ];
+  };
+
+  const updatePolicy = async (category: string) => {
+    const hourly = Number(window.prompt(`New hourly price for ${category}`, '5000'));
+    if (Number.isNaN(hourly)) return;
+    const res = await fetch(`${API_BASE}/admin/pricing-policies/${encodeURIComponent(category)}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json', 'x-role': actorRole || 'END_USER' },
+      body: JSON.stringify({ hourly }),
+    });
+    const data = await res.json();
+    setActionMessage(res.ok ? `Updated ${category} hourly to ₫${hourly.toLocaleString()}` : data.message || 'Update failed');
+    if (res.ok) setPricingPlans((prev) => prev.map((p) => (p.category === data.category ? data : p)));
+  };
+
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery) return transactions;
+    const q = searchQuery.toLowerCase();
+    return transactions.filter((txn) =>
+      [txn.id, txn.userName, txn.userId, txn.date, txn.period].join(' ').toLowerCase().includes(q),
+    );
+  }, [transactions, searchQuery]);
 
   return (
     <div className="space-y-4">
@@ -218,6 +190,11 @@ export default function BillingPanel() {
                       {plan.hourly === 0 ? 'Free' : `₫${plan.hourly.toLocaleString()}`}
                     </span>
                   </div>
+                  {isAdmin && (
+                    <Button size="sm" variant="outline" onClick={() => updatePolicy(plan.category)}>
+                      Adjust Price
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -226,6 +203,7 @@ export default function BillingPanel() {
       </Card>
 
       {/* Transaction History */}
+      {isAdmin ? (
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -241,6 +219,9 @@ export default function BillingPanel() {
               <Button size="sm">
                 <Send className="w-4 h-4 mr-2" />
                 Send Reminders
+              </Button>
+              <Button size="sm" variant="outline" onClick={runBillingCycle}>
+                Run Learner Billing Cycle
               </Button>
             </div>
           </div>
@@ -291,7 +272,7 @@ export default function BillingPanel() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((txn) => (
+                {filteredTransactions.map((txn) => (
                   <tr
                     key={txn.id}
                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
@@ -338,6 +319,11 @@ export default function BillingPanel() {
                     </td>
                     <td className="py-3 px-4">
                       <Badge variant="outline">{txn.method}</Badge>
+                      {txn.status !== 'Paid' && (
+                        <Button size="sm" className="ml-2" onClick={() => payTransaction(txn.id)}>
+                          Pay
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -346,6 +332,17 @@ export default function BillingPanel() {
           </div>
         </CardContent>
       </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Finance Access Restricted</CardTitle>
+            <CardDescription>Only admin can view transaction logs and billing actions.</CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
+      {loading && <div className="text-sm text-slate-500">Loading billing data...</div>}
+      {actionMessage && <div className="text-sm text-blue-700">{actionMessage}</div>}
 
       {/* BKPay Integration */}
       <Card>

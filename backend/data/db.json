@@ -1,0 +1,1421 @@
+{
+  "users": [
+    {
+      "id": "1952001",
+      "name": "Nguyen Van A",
+      "role": "Student",
+      "program": "Computer Science",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 50000,
+      "entryCount": 45
+    },
+    {
+      "id": "1952045",
+      "name": "Tran Thi B",
+      "role": "Student",
+      "program": "Electrical Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 38
+    },
+    {
+      "id": "F2001",
+      "name": "Le Van C",
+      "role": "Faculty",
+      "program": "Mathematics Department",
+      "status": "Active",
+      "parkingPass": "Reserved",
+      "balance": 0,
+      "entryCount": 89
+    },
+    {
+      "id": "S1023",
+      "name": "Hoang Van E",
+      "role": "Staff",
+      "program": "Administration",
+      "status": "Active",
+      "parkingPass": "Standard",
+      "balance": 25000,
+      "entryCount": 67
+    },
+    {
+      "id": "2152078",
+      "name": "Vo Thi F",
+      "role": "Graduate",
+      "program": "Civil Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 15000,
+      "entryCount": 22
+    },
+    {
+      "id": "D3001",
+      "name": "Bui Thi H",
+      "role": "Doctoral",
+      "program": "Chemical Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 35000,
+      "entryCount": 56
+    }
+  ],
+  "zones": [
+    {
+      "id": "A",
+      "name": "Zone A - Main Building",
+      "total": 30,
+      "occupied": 28
+    },
+    {
+      "id": "B",
+      "name": "Zone B - Engineering",
+      "total": 24,
+      "occupied": 17
+    },
+    {
+      "id": "C",
+      "name": "Zone C - Library",
+      "total": 20,
+      "occupied": 13
+    },
+    {
+      "id": "D",
+      "name": "Zone D - Sports Center",
+      "total": 16,
+      "occupied": 7
+    },
+    {
+      "id": "E",
+      "name": "Zone E - Visitor",
+      "total": 10,
+      "occupied": 4
+    }
+  ],
+  "sessions": [
+    {
+      "id": "SES-c71bd301",
+      "userId": "1952001",
+      "zoneId": "B",
+      "gate": "Gate B1",
+      "vehicleId": "59A-12345",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:06:26.344Z",
+      "exitAt": "2026-04-21T08:06:26.358Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-ce2d0f8b",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:21:06.700Z",
+      "exitAt": "2026-04-21T08:22:38.618Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-e48c137e",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:21:08.528Z",
+      "exitAt": "2026-04-21T08:22:37.768Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-88f84c38",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:21:14.294Z",
+      "exitAt": "2026-04-21T08:22:35.132Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-eda2f4a2",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:21:55.492Z",
+      "exitAt": "2026-04-21T08:22:30.349Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-45367301",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:22:47.938Z",
+      "exitAt": "2026-04-21T08:40:24.704Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-41e5e5e4",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:23:14.252Z",
+      "exitAt": "2026-04-21T08:40:38.913Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-c5a4ba3e",
+      "userId": null,
+      "zoneId": "A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:35:51.296Z",
+      "exitAt": "2026-04-21T09:00:15.830Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-bbcad8ed",
+      "userId": null,
+      "zoneId": "C",
+      "gate": "Gate A1",
+      "vehicleId": "78",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:36:30.408Z",
+      "exitAt": "2026-04-21T09:04:30.013Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-499b1dbe",
+      "userId": null,
+      "zoneId": "A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T08:36:51.605Z",
+      "exitAt": "2026-04-21T09:04:28.388Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-b1eda2f7",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:00:03.509Z",
+      "exitAt": "2026-04-21T09:04:26.304Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-ea48f670",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:00:45.146Z",
+      "exitAt": "2026-04-21T09:04:23.976Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-24d8cf10",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "fe",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:02:25.128Z",
+      "exitAt": "2026-04-21T09:02:50.078Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-3bbeb81e",
+      "userId": null,
+      "zoneId": "B",
+      "gate": "Gate A1",
+      "vehicleId": "rewre",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:03:50.207Z",
+      "exitAt": "2026-04-21T09:03:55.952Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-f71ff586",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:05:18.922Z",
+      "exitAt": "2026-04-21T09:08:05.310Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-d6e0b5da",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:05:46.989Z",
+      "exitAt": "2026-04-21T09:05:55.228Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-9e902173",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:06:08.011Z",
+      "exitAt": "2026-04-21T09:08:06.950Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-bb42b7f6",
+      "userId": null,
+      "zoneId": "E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-21T09:06:18.699Z",
+      "exitAt": "2026-04-21T09:08:08.651Z",
+      "status": "CLOSED",
+      "fee": 10000
+    }
+  ],
+  "tickets": [
+    {
+      "ticketNo": "TKT-dceeb703",
+      "issuedAt": "2026-04-21T08:21:05.783Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-e16df1bf",
+      "issuedAt": "2026-04-21T08:21:06.228Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-b61efb5e",
+      "issuedAt": "2026-04-21T08:21:07.423Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-dae357eb",
+      "issuedAt": "2026-04-21T08:21:10.753Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-57441dd2",
+      "issuedAt": "2026-04-21T08:21:12.798Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-7532b238",
+      "issuedAt": "2026-04-21T08:21:54.869Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-a27092b0",
+      "issuedAt": "2026-04-21T08:22:47.185Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-2363bb5a",
+      "issuedAt": "2026-04-21T08:23:12.692Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-304f0c42",
+      "issuedAt": "2026-04-21T08:23:13.729Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-b5314120",
+      "issuedAt": "2026-04-21T09:00:44.084Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-cfe25277",
+      "issuedAt": "2026-04-21T09:00:45.722Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    }
+  ],
+  "iot": {
+    "gateways": [
+      {
+        "id": "GW-001",
+        "name": "Gateway Zone A",
+        "zone": "A",
+        "status": "online",
+        "sensors": 150,
+        "sensorsOnline": 148,
+        "uptime": "99.8%",
+        "signalStrength": 95,
+        "lastUpdate": "2 sec ago"
+      },
+      {
+        "id": "GW-002",
+        "name": "Gateway Zone B",
+        "zone": "B",
+        "status": "online",
+        "sensors": 120,
+        "sensorsOnline": 118,
+        "uptime": "99.5%",
+        "signalStrength": 92,
+        "lastUpdate": "3 sec ago"
+      },
+      {
+        "id": "GW-003",
+        "name": "Gateway Zone C",
+        "zone": "C",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 99,
+        "uptime": "99.9%",
+        "signalStrength": 98,
+        "lastUpdate": "1 sec ago"
+      },
+      {
+        "id": "GW-004",
+        "name": "Gateway Zone D",
+        "zone": "D",
+        "status": "online",
+        "sensors": 80,
+        "sensorsOnline": 78,
+        "uptime": "98.7%",
+        "signalStrength": 88,
+        "lastUpdate": "4 sec ago"
+      },
+      {
+        "id": "GW-005",
+        "name": "Gateway Zone E",
+        "zone": "E",
+        "status": "warning",
+        "sensors": 50,
+        "sensorsOnline": 44,
+        "uptime": "95.2%",
+        "signalStrength": 65,
+        "lastUpdate": "15 sec ago"
+      }
+    ],
+    "sensors": [
+      {
+        "id": "S-A-001",
+        "zone": "A",
+        "slot": "A-1",
+        "status": "online",
+        "battery": 85,
+        "signal": 92,
+        "lastUpdate": "2 sec ago"
+      },
+      {
+        "id": "S-A-023",
+        "zone": "A",
+        "slot": "A-23",
+        "status": "offline",
+        "battery": 0,
+        "signal": 0,
+        "lastUpdate": "2 hours ago"
+      },
+      {
+        "id": "S-B-015",
+        "zone": "B",
+        "slot": "B-15",
+        "status": "online",
+        "battery": 92,
+        "signal": 88,
+        "lastUpdate": "3 sec ago"
+      },
+      {
+        "id": "S-D-008",
+        "zone": "D",
+        "slot": "D-8",
+        "status": "maintenance",
+        "battery": 45,
+        "signal": 0,
+        "lastUpdate": "1 day ago"
+      }
+    ],
+    "signage": [
+      {
+        "id": "SIGN-001",
+        "location": "Main Entrance",
+        "zone": "All",
+        "status": "online",
+        "message": "Zone A: Full • Zone B: Available",
+        "uptime": "99.9%"
+      },
+      {
+        "id": "SIGN-005",
+        "location": "Visitor Entrance",
+        "zone": "E",
+        "status": "offline",
+        "message": "N/A",
+        "uptime": "92.3%"
+      }
+    ]
+  },
+  "billing": {
+    "pricingPlans": [
+      {
+        "category": "Students",
+        "monthly": 150000,
+        "daily": 10000,
+        "hourly": 5000,
+        "description": "Undergraduate, Graduate, Doctoral candidates"
+      },
+      {
+        "category": "Faculty",
+        "monthly": 0,
+        "daily": 0,
+        "hourly": 0,
+        "description": "Reserved parking included"
+      },
+      {
+        "category": "Staff",
+        "monthly": 100000,
+        "daily": 8000,
+        "hourly": 4000,
+        "description": "Administration and support staff"
+      },
+      {
+        "category": "Visitors",
+        "monthly": null,
+        "daily": 50000,
+        "hourly": 10000,
+        "description": "Temporary access only"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "TXN-2026-0a325cfe",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:08",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-80b8f6eb",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:08",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-e9e7a72b",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:08",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-be78f3bf",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:05",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-6e1ec30f",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:04",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-316964f2",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:04",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-82dcb73b",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:04",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-32180065",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:04",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-c967083c",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:03",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-e655fa4d",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:02",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-6de7cbb8",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 09:00",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-0687bd1e",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:40",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-5ad6bfcb",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:40",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-760305ac",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:22",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-706f096d",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:22",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-0cea670e",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:22",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-f7093a73",
+        "userId": "Visitor",
+        "userName": "Visitor",
+        "type": "Hourly Parking",
+        "amount": 10000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:22",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-e0a799c4",
+        "userId": "1952001",
+        "userName": "Nguyen Van A",
+        "type": "Hourly Parking",
+        "amount": 5000,
+        "period": "Session",
+        "status": "Pending",
+        "date": "2026-04-21 08:06",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-001234",
+        "userId": "1952001",
+        "userName": "Nguyen Van A",
+        "type": "Monthly Parking",
+        "amount": 150000,
+        "period": "April 2026",
+        "status": "Paid",
+        "date": "2026-04-01 10:30",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-001235",
+        "userId": "1952045",
+        "userName": "Tran Thi B",
+        "type": "Monthly Parking",
+        "amount": 150000,
+        "period": "April 2026",
+        "status": "Pending",
+        "date": "2026-04-01 14:20",
+        "method": "BKPay"
+      },
+      {
+        "id": "TXN-2026-001238",
+        "userId": "1951234",
+        "userName": "Dang Van G",
+        "type": "Monthly Parking",
+        "amount": 150000,
+        "period": "March 2026",
+        "status": "Overdue",
+        "date": "2026-03-01 00:00",
+        "method": "BKPay"
+      }
+    ]
+  },
+  "activityLogs": [
+    {
+      "id": 1776762488651,
+      "timestamp": "2026-04-21 09:08:08",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762486950,
+      "timestamp": "2026-04-21 09:08:06",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762485310,
+      "timestamp": "2026-04-21 09:08:05",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762378699,
+      "timestamp": "2026-04-21 09:06:18",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762368011,
+      "timestamp": "2026-04-21 09:06:08",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762355228,
+      "timestamp": "2026-04-21 09:05:55",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762346989,
+      "timestamp": "2026-04-21 09:05:46",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762318922,
+      "timestamp": "2026-04-21 09:05:18",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762270013,
+      "timestamp": "2026-04-21 09:04:30",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone C",
+      "gate": "Gate A1",
+      "vehicleId": "78",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762268388,
+      "timestamp": "2026-04-21 09:04:28",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762266304,
+      "timestamp": "2026-04-21 09:04:26",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762263976,
+      "timestamp": "2026-04-21 09:04:23",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762235952,
+      "timestamp": "2026-04-21 09:03:55",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone B",
+      "gate": "Gate A1",
+      "vehicleId": "rewre",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762230207,
+      "timestamp": "2026-04-21 09:03:50",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone B",
+      "gate": "Gate A1",
+      "vehicleId": "rewre",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762170078,
+      "timestamp": "2026-04-21 09:02:50",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "fe",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762145128,
+      "timestamp": "2026-04-21 09:02:25",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "fe",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762045722,
+      "timestamp": "2026-04-21 09:00:45",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-cfe25277",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776762045146,
+      "timestamp": "2026-04-21 09:00:45",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776762044084,
+      "timestamp": "2026-04-21 09:00:44",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-b5314120",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776762015830,
+      "timestamp": "2026-04-21 09:00:15",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776762003509,
+      "timestamp": "2026-04-21 09:00:03",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776760838913,
+      "timestamp": "2026-04-21 08:40:38",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776760824704,
+      "timestamp": "2026-04-21 08:40:24",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776760611605,
+      "timestamp": "2026-04-21 08:36:51",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776760590408,
+      "timestamp": "2026-04-21 08:36:30",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone C",
+      "gate": "Gate A1",
+      "vehicleId": "78",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776760551296,
+      "timestamp": "2026-04-21 08:35:51",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759794252,
+      "timestamp": "2026-04-21 08:23:14",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759793729,
+      "timestamp": "2026-04-21 08:23:13",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-304f0c42",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759792692,
+      "timestamp": "2026-04-21 08:23:12",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-2363bb5a",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759767938,
+      "timestamp": "2026-04-21 08:22:47",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759767185,
+      "timestamp": "2026-04-21 08:22:47",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-a27092b0",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759758618,
+      "timestamp": "2026-04-21 08:22:38",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776759757768,
+      "timestamp": "2026-04-21 08:22:37",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776759755132,
+      "timestamp": "2026-04-21 08:22:35",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776759750349,
+      "timestamp": "2026-04-21 08:22:30",
+      "type": "exit",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776759715492,
+      "timestamp": "2026-04-21 08:21:55",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759714869,
+      "timestamp": "2026-04-21 08:21:54",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-7532b238",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759674294,
+      "timestamp": "2026-04-21 08:21:14",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759672798,
+      "timestamp": "2026-04-21 08:21:12",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-57441dd2",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759670753,
+      "timestamp": "2026-04-21 08:21:10",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-dae357eb",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759668528,
+      "timestamp": "2026-04-21 08:21:08",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759667423,
+      "timestamp": "2026-04-21 08:21:07",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-b61efb5e",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759666700,
+      "timestamp": "2026-04-21 08:21:06",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "EndUser",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776759666228,
+      "timestamp": "2026-04-21 08:21:06",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-e16df1bf",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776759665783,
+      "timestamp": "2026-04-21 08:21:05",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-dceeb703",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
+    {
+      "id": 1776758786358,
+      "timestamp": "2026-04-21 08:06:26",
+      "type": "exit",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone B",
+      "gate": "Gate B1",
+      "vehicleId": "59A-12345",
+      "action": "Vehicle exited parking zone"
+    },
+    {
+      "id": 1776758786344,
+      "timestamp": "2026-04-21 08:06:26",
+      "type": "entry",
+      "user": "1952001",
+      "userId": "1952001",
+      "role": "EndUser",
+      "zone": "Zone B",
+      "gate": "Gate B1",
+      "vehicleId": "59A-12345",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1,
+      "timestamp": "2026-04-07 10:42:15",
+      "type": "entry",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone B",
+      "gate": "Gate B1",
+      "vehicleId": "59A-12345",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 2,
+      "timestamp": "2026-04-07 10:38:42",
+      "type": "exit",
+      "user": "Tran Thi B",
+      "userId": "F2001",
+      "role": "Faculty",
+      "zone": "Zone A",
+      "gate": "Gate A2",
+      "vehicleId": "59B-67890",
+      "action": "Vehicle exited parking zone",
+      "duration": "3h 25m"
+    },
+    {
+      "id": 3,
+      "timestamp": "2026-04-07 10:35:18",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "V-2345",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    }
+  ],
+  "analytics": {
+    "dailyOccupancy": [
+      {
+        "time": "08:00",
+        "rate": 78
+      },
+      {
+        "time": "12:00",
+        "rate": 72
+      },
+      {
+        "time": "16:00",
+        "rate": 92
+      }
+    ],
+    "weeklyRevenue": [
+      {
+        "day": "Mon",
+        "revenue": 850000
+      },
+      {
+        "day": "Tue",
+        "revenue": 920000
+      },
+      {
+        "day": "Fri",
+        "revenue": 1100000
+      }
+    ]
+  },
+  "metadata": {
+    "createdAt": "2026-04-21T09:00:00.000Z",
+    "updatedAt": "2026-04-21T09:08:08.651Z"
+  }
+}

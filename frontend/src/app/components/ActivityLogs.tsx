@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -9,7 +9,6 @@ import {
   LogIn,
   LogOut,
   Clock,
-  User,
   MapPin,
   Search,
   Filter,
@@ -18,132 +17,25 @@ import {
 
 export default function ActivityLogs() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activities, setActivities] = useState<any[]>([]);
+  const API_BASE = 'http://localhost:5000/api';
 
-  const activities = [
-    {
-      id: 1,
-      timestamp: '2026-04-07 10:42:15',
-      type: 'entry',
-      user: 'Nguyen Van A',
-      userId: '1952001',
-      role: 'Student',
-      zone: 'Zone B',
-      gate: 'Gate B1',
-      vehicleId: '59A-12345',
-      action: 'Vehicle entered parking zone'
-    },
-    {
-      id: 2,
-      timestamp: '2026-04-07 10:38:42',
-      type: 'exit',
-      user: 'Tran Thi B',
-      userId: 'F2001',
-      role: 'Faculty',
-      zone: 'Zone A',
-      gate: 'Gate A2',
-      vehicleId: '59B-67890',
-      action: 'Vehicle exited parking zone',
-      duration: '3h 25m'
-    },
-    {
-      id: 3,
-      timestamp: '2026-04-07 10:35:18',
-      type: 'ticket',
-      user: 'Visitor',
-      userId: 'V-2345',
-      role: 'Visitor',
-      zone: 'Zone E',
-      gate: 'Gate E1',
-      vehicleId: 'N/A',
-      action: 'Temporary ticket issued'
-    },
-    {
-      id: 4,
-      timestamp: '2026-04-07 10:30:05',
-      type: 'entry',
-      user: 'Le Van C',
-      userId: '2152078',
-      role: 'Graduate',
-      zone: 'Zone C',
-      gate: 'Gate C1',
-      vehicleId: '59C-11223',
-      action: 'Vehicle entered parking zone'
-    },
-    {
-      id: 5,
-      timestamp: '2026-04-07 10:25:33',
-      type: 'payment',
-      user: 'Pham Thi D',
-      userId: '1951234',
-      role: 'Student',
-      zone: 'N/A',
-      gate: 'N/A',
-      vehicleId: 'N/A',
-      action: 'Payment processed via BKPay',
-      amount: 150000
-    },
-    {
-      id: 6,
-      timestamp: '2026-04-07 10:20:47',
-      type: 'exit',
-      user: 'Hoang Van E',
-      userId: 'S1023',
-      role: 'Staff',
-      zone: 'Zone A',
-      gate: 'Gate A1',
-      vehicleId: '59D-44556',
-      action: 'Vehicle exited parking zone',
-      duration: '8h 15m'
-    },
-    {
-      id: 7,
-      timestamp: '2026-04-07 10:15:22',
-      type: 'sensor',
-      user: 'System',
-      userId: 'SYSTEM',
-      role: 'System',
-      zone: 'Zone B',
-      gate: 'N/A',
-      vehicleId: 'N/A',
-      action: 'Sensor B-23 status changed: online'
-    },
-    {
-      id: 8,
-      timestamp: '2026-04-07 10:10:58',
-      type: 'entry',
-      user: 'Vo Thi F',
-      userId: 'D3001',
-      role: 'Doctoral',
-      zone: 'Zone A',
-      gate: 'Gate A1',
-      vehicleId: '59E-77889',
-      action: 'Vehicle entered parking zone'
-    },
-    {
-      id: 9,
-      timestamp: '2026-04-07 10:05:14',
-      type: 'ticket',
-      user: 'Visitor',
-      userId: 'V-2346',
-      role: 'Visitor',
-      zone: 'Zone E',
-      gate: 'Gate E1',
-      vehicleId: 'N/A',
-      action: 'Temporary ticket issued'
-    },
-    {
-      id: 10,
-      timestamp: '2026-04-07 10:00:00',
-      type: 'system',
-      user: 'System',
-      userId: 'SYSTEM',
-      role: 'System',
-      zone: 'All Zones',
-      gate: 'N/A',
-      vehicleId: 'N/A',
-      action: 'Daily system health check completed'
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`${API_BASE}/activity-logs`);
+      const data = await res.json();
+      setActivities(data.items || []);
+    };
+    fetchData();
+    const timer = setInterval(fetchData, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const filteredActivities = useMemo(() => {
+    if (!searchQuery) return activities;
+    const q = searchQuery.toLowerCase();
+    return activities.filter((a) => JSON.stringify(a).toLowerCase().includes(q));
+  }, [activities, searchQuery]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -288,7 +180,7 @@ export default function ActivityLogs() {
                 </tr>
               </thead>
               <tbody>
-                {activities.map((activity) => (
+                {filteredActivities.map((activity) => (
                   <tr
                     key={activity.id}
                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
@@ -361,7 +253,7 @@ export default function ActivityLogs() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
             <div className="text-sm text-slate-600">
-              Showing 1-10 of 1,247 activities today
+              Showing 1-{Math.min(filteredActivities.length, 10)} of {filteredActivities.length} activities
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>

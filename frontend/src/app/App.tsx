@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Badge } from './components/ui/badge';
@@ -31,22 +31,125 @@ import BillingPanel from './components/BillingPanel';
 import ActivityLogs from './components/ActivityLogs';
 import IoTMonitoring from './components/IoTMonitoring';
 import Analytics from './components/Analytics';
+import TrafficSimulation from './components/TrafficSimulation';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [auth, setAuth] = useState<any>(() => {
+    const raw = localStorage.getItem('spms-auth');
+    return raw ? JSON.parse(raw) : null;
+  });
+  const [authForm, setAuthForm] = useState({
+    studentId: '',
+    password: '',
+    name: '',
+    role: 'Student',
+    program: 'N/A',
+  });
+  const [authError, setAuthError] = useState('');
+  const [stats, setStats] = useState({
+    totalSpaces: 0,
+    occupied: 0,
+    available: 0,
+    revenue: 0,
+    activeUsers: 0,
+    sensors: 0,
+    sensorsOnline: 0
+  });
+  const [zones, setZones] = useState<any[]>([]);
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const API_BASE = 'http://localhost:5000/api';
+  const isAdmin = auth?.user?.role === 'Admin';
+  const actorRole = auth?.actorRole || 'END_USER';
 
-  // Mock data for dashboard statistics
-  const stats = {
-    totalSpaces: 500,
-    occupied: 342,
-    available: 158,
-    revenue: 125000,
-    activeUsers: 1234,
-    sensors: 500,
-    sensorsOnline: 487
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      const [summaryRes, zonesRes, iotRes, logsRes] = await Promise.all([
+        fetch(`${API_BASE}/dashboard/summary`),
+        fetch(`${API_BASE}/parking/zones`),
+        fetch(`${API_BASE}/iot/status`),
+        fetch(`${API_BASE}/activity-logs`)
+      ]);
+      const summary = await summaryRes.json();
+      const zonesData = await zonesRes.json();
+      const iot = await iotRes.json();
+      const logs = await logsRes.json();
+      setStats({
+        totalSpaces: summary.totalSlots || 0,
+        occupied: summary.occupied || 0,
+        available: summary.available || 0,
+        revenue: summary.todayRevenue || 0,
+        activeUsers: summary.activeSessions || 0,
+        sensors: iot.totalSensors || 0,
+        sensorsOnline: iot.online || 0
+      });
+      setZones(zonesData || []);
+      setRecentLogs((logs.items || []).slice(0, 5));
+    };
+    fetchDashboard();
+    const timer = setInterval(fetchDashboard, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const occupancyRate = stats.totalSpaces ? (stats.occupied / stats.totalSpaces) * 100 : 0;
+
+  const handleAuth = async () => {
+    setAuthError('');
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const payload =
+      authMode === 'login'
+        ? { studentId: authForm.studentId, password: authForm.password }
+        : authForm;
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) return setAuthError(data.message || 'Authentication failed');
+    if (authMode === 'register') {
+      setAuthMode('login');
+      setAuthError('Register thành công, vui lòng đăng nhập.');
+      return;
+    }
+    setAuth(data);
+    localStorage.setItem('spms-auth', JSON.stringify(data));
   };
 
-  const occupancyRate = (stats.occupied / stats.totalSpaces) * 100;
+  const logout = async () => {
+    await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+    setAuth(null);
+    localStorage.removeItem('spms-auth');
+  };
+
+  if (!auth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>{authMode === 'login' ? 'Đăng nhập hệ thống' : 'Đăng ký tài khoản'}</CardTitle>
+            <CardDescription>Admin demo: `admin` / `admin123`; User demo: `1952001` / `123456`</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input placeholder="Mã số / Username" value={authForm.studentId} onChange={(e) => setAuthForm((p) => ({ ...p, studentId: e.target.value }))} />
+            <Input placeholder="Mật khẩu" type="password" value={authForm.password} onChange={(e) => setAuthForm((p) => ({ ...p, password: e.target.value }))} />
+            {authMode === 'register' && (
+              <>
+                <Input placeholder="Họ tên" value={authForm.name} onChange={(e) => setAuthForm((p) => ({ ...p, name: e.target.value }))} />
+                <Input placeholder="Chương trình / Đơn vị" value={authForm.program} onChange={(e) => setAuthForm((p) => ({ ...p, program: e.target.value }))} />
+              </>
+            )}
+            {authError && <div className="text-sm text-red-600">{authError}</div>}
+            <Button onClick={handleAuth} className="w-full">{authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}</Button>
+            <Button variant="ghost" className="w-full" onClick={() => setAuthMode((m) => (m === 'login' ? 'register' : 'login'))}>
+              {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -68,6 +171,8 @@ export default function App() {
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 System Online
               </Badge>
+              <Badge variant="secondary">{auth.user.role}</Badge>
+              <Button variant="outline" onClick={logout}>Đăng xuất</Button>
               <Button variant="ghost" size="icon">
                 <Settings className="w-5 h-5" />
               </Button>
@@ -87,6 +192,10 @@ export default function App() {
             <TabsTrigger value="parking" className="gap-2">
               <MapPin className="w-4 h-4" />
               Parking Map
+            </TabsTrigger>
+            <TabsTrigger value="simulation" className="gap-2">
+              <Car className="w-4 h-4" />
+              Simulation
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
@@ -189,27 +298,21 @@ export default function App() {
                   <CardDescription>Overview of parking zones</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[
-                    { zone: 'Zone A - Main Building', total: 150, occupied: 142, status: 'full' },
-                    { zone: 'Zone B - Engineering', total: 120, occupied: 85, status: 'available' },
-                    { zone: 'Zone C - Library', total: 100, occupied: 63, status: 'available' },
-                    { zone: 'Zone D - Sports Center', total: 80, occupied: 35, status: 'available' },
-                    { zone: 'Zone E - Visitor', total: 50, occupied: 17, status: 'available' }
-                  ].map((zone) => {
+                  {zones.map((zone) => {
                     const zoneOccupancy = (zone.occupied / zone.total) * 100;
                     return (
-                      <div key={zone.zone} className="space-y-2">
+                      <div key={zone.id} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-slate-700">{zone.zone}</span>
+                          <span className="text-sm font-medium text-slate-700">{zone.name}</span>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-slate-500">
                               {zone.occupied}/{zone.total}
                             </span>
                             <Badge
-                              variant={zone.status === 'full' ? 'destructive' : 'secondary'}
-                              className={zone.status === 'full' ? '' : 'bg-green-100 text-green-700'}
+                              variant={zone.state === 'full' ? 'destructive' : 'secondary'}
+                              className={zone.state === 'full' ? '' : 'bg-green-100 text-green-700'}
                             >
-                              {zone.status === 'full' ? 'Full' : 'Available'}
+                              {zone.state === 'full' ? 'Full' : zone.state === 'nearly_full' ? 'Nearly Full' : 'Available'}
                             </Badge>
                           </div>
                         </div>
@@ -293,44 +396,8 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[
-                    {
-                      time: '2 min ago',
-                      user: 'Nguyen Van A (Student)',
-                      action: 'Entered',
-                      zone: 'Zone B',
-                      type: 'entry'
-                    },
-                    {
-                      time: '5 min ago',
-                      user: 'Tran Thi B (Faculty)',
-                      action: 'Exited',
-                      zone: 'Zone A',
-                      type: 'exit'
-                    },
-                    {
-                      time: '8 min ago',
-                      user: 'Visitor #2341',
-                      action: 'Ticket Issued',
-                      zone: 'Zone E',
-                      type: 'ticket'
-                    },
-                    {
-                      time: '12 min ago',
-                      user: 'Le Van C (Student)',
-                      action: 'Payment Processed',
-                      zone: 'BKPay',
-                      type: 'payment'
-                    },
-                    {
-                      time: '15 min ago',
-                      user: 'System',
-                      action: 'Sensor B-23 reconnected',
-                      zone: 'Zone B',
-                      type: 'system'
-                    }
-                  ].map((activity, idx) => (
-                    <div key={idx} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
+                  {recentLogs.map((activity, idx) => (
+                    <div key={activity.id || idx} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           activity.type === 'entry' ? 'bg-green-100' :
@@ -350,7 +417,7 @@ export default function App() {
                         <p className="text-sm font-medium text-slate-900">{activity.user}</p>
                         <p className="text-xs text-slate-500">{activity.action} • {activity.zone}</p>
                       </div>
-                      <span className="text-xs text-slate-400 flex-shrink-0">{activity.time}</span>
+                      <span className="text-xs text-slate-400 flex-shrink-0">{activity.timestamp}</span>
                     </div>
                   ))}
                 </div>
@@ -363,6 +430,10 @@ export default function App() {
             <ParkingMap />
           </TabsContent>
 
+          <TabsContent value="simulation">
+            <TrafficSimulation actorRole={actorRole} />
+          </TabsContent>
+
           {/* Users Tab */}
           <TabsContent value="users">
             <UserManagement />
@@ -370,7 +441,7 @@ export default function App() {
 
           {/* Billing Tab */}
           <TabsContent value="billing">
-            <BillingPanel />
+            <BillingPanel isAdmin={isAdmin} actorRole={actorRole} />
           </TabsContent>
 
           {/* IoT Monitoring Tab */}

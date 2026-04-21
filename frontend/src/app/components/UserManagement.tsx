@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Table } from './ui/table';
 import {
   Users,
   UserCheck,
@@ -19,105 +18,41 @@ import {
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [users, setUsers] = useState<any[]>([]);
+  const API_BASE = 'http://localhost:5000/api';
 
-  const users = [
-    {
-      id: '1952001',
-      name: 'Nguyen Van A',
-      role: 'Student',
-      program: 'Computer Science',
-      status: 'Active',
-      parkingPass: 'Monthly',
-      lastActivity: '2026-04-07 08:30',
-      balance: 50000,
-      entryCount: 45
-    },
-    {
-      id: '1952045',
-      name: 'Tran Thi B',
-      role: 'Student',
-      program: 'Electrical Engineering',
-      status: 'Active',
-      parkingPass: 'Monthly',
-      lastActivity: '2026-04-07 09:15',
-      balance: 0,
-      entryCount: 38
-    },
-    {
-      id: 'F2001',
-      name: 'Le Van C',
-      role: 'Faculty',
-      program: 'Mathematics Department',
-      status: 'Active',
-      parkingPass: 'Reserved',
-      lastActivity: '2026-04-07 07:45',
-      balance: 0,
-      entryCount: 89
-    },
-    {
-      id: 'F2034',
-      name: 'Pham Thi D',
-      role: 'Faculty',
-      program: 'Physics Department',
-      status: 'Active',
-      parkingPass: 'Reserved',
-      lastActivity: '2026-04-06 17:20',
-      balance: 0,
-      entryCount: 102
-    },
-    {
-      id: 'S1023',
-      name: 'Hoang Van E',
-      role: 'Staff',
-      program: 'Administration',
-      status: 'Active',
-      parkingPass: 'Standard',
-      lastActivity: '2026-04-07 08:00',
-      balance: 25000,
-      entryCount: 67
-    },
-    {
-      id: '2152078',
-      name: 'Vo Thi F',
-      role: 'Graduate',
-      program: 'Civil Engineering',
-      status: 'Active',
-      parkingPass: 'Monthly',
-      lastActivity: '2026-04-07 10:30',
-      balance: 15000,
-      entryCount: 22
-    },
-    {
-      id: '1951234',
-      name: 'Dang Van G',
-      role: 'Student',
-      program: 'Mechanical Engineering',
-      status: 'Suspended',
-      parkingPass: 'None',
-      lastActivity: '2026-03-28 14:20',
-      balance: -20000,
-      entryCount: 31
-    },
-    {
-      id: 'D3001',
-      name: 'Bui Thi H',
-      role: 'Doctoral',
-      program: 'Chemical Engineering',
-      status: 'Active',
-      parkingPass: 'Monthly',
-      lastActivity: '2026-04-07 09:00',
-      balance: 35000,
-      entryCount: 56
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const q = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+      const res = await fetch(`${API_BASE}/users${q}`);
+      const data = await res.json();
+      setUsers(data.items || []);
+    };
+    fetchUsers();
+  }, [searchQuery]);
+
+  const stats = useMemo(() => {
+    const totalUsers = users.length;
+    const activeUsers = users.filter((u) => u.status === 'Active').length;
+    const students = users.filter((u) => ['Student', 'Graduate', 'Doctoral'].includes(u.role)).length;
+    const faculty = users.filter((u) => u.role === 'Faculty').length;
+    const staff = users.filter((u) => u.role === 'Staff').length;
+    const visitors = users.filter((u) => u.role === 'Visitor').length;
+    return { totalUsers, activeUsers, students, faculty, staff, visitors };
+  }, [users]);
+
+  const updateRole = async (user: any) => {
+    const nextRole = window.prompt(`Update role for ${user.name}`, user.role);
+    if (!nextRole || nextRole === user.role) return;
+    const res = await fetch(`${API_BASE}/users/${user.id}/role`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ role: nextRole }),
+    });
+    const updated = await res.json();
+    if (res.ok) {
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, role: updated.role } : u)));
     }
-  ];
-
-  const stats = {
-    totalUsers: 1234,
-    activeUsers: 1198,
-    students: 945,
-    faculty: 156,
-    staff: 89,
-    visitors: 44
   };
 
   const getRoleIcon = (role: string) => {
@@ -268,7 +203,7 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, idx) => (
+                {users.map((user) => (
                   <tr
                     key={user.id}
                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
@@ -276,7 +211,7 @@ export default function UserManagement() {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                          {user.name.split(' ').map(n => n[0]).join('')}
+                          {user.name.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div>
                           <div className="text-sm font-medium text-slate-900">{user.name}</div>
@@ -317,7 +252,7 @@ export default function UserManagement() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => updateRole(user)}>
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </td>

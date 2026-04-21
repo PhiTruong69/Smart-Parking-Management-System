@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -17,90 +17,48 @@ import {
 
 export default function IoTMonitoring() {
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [gateways, setGateways] = useState<any[]>([]);
+  const [sensors, setSensors] = useState<any[]>([]);
+  const [signage, setSignage] = useState<any[]>([]);
+  const API_BASE = 'http://localhost:5000/api';
 
-  const sensorStats = {
-    total: 500,
-    online: 487,
-    offline: 8,
-    maintenance: 5
+  useEffect(() => {
+    const fetchData = async () => {
+      const [statusRes, sensorsRes, signageRes] = await Promise.all([
+        fetch(`${API_BASE}/iot/status`),
+        fetch(`${API_BASE}/iot/sensors`),
+        fetch(`${API_BASE}/iot/signage`),
+      ]);
+      const status = await statusRes.json();
+      const sensorsData = await sensorsRes.json();
+      const signageData = await signageRes.json();
+      setGateways(status.gateways || []);
+      setSensors(sensorsData || []);
+      setSignage(signageData || []);
+    };
+    fetchData();
+    if (!autoRefresh) return;
+    const timer = setInterval(fetchData, 10000);
+    return () => clearInterval(timer);
+  }, [autoRefresh]);
+
+  const sensorStats = useMemo(() => {
+    const total = sensors.length;
+    const online = sensors.filter((s) => s.status === 'online').length;
+    const offline = sensors.filter((s) => s.status === 'offline').length;
+    const maintenance = sensors.filter((s) => s.status === 'maintenance').length;
+    return { total, online, offline, maintenance };
+  }, [sensors]);
+
+  const toggleSensorStatus = async (sensor: any) => {
+    const nextStatus = sensor.status === 'online' ? 'offline' : 'online';
+    await fetch(`${API_BASE}/iot/events/slot-occupancy`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sensorId: sensor.id, status: nextStatus }),
+    });
+    setSensors((prev) => prev.map((s) => (s.id === sensor.id ? { ...s, status: nextStatus, lastUpdate: 'just now' } : s)));
   };
-
-  const gateways = [
-    {
-      id: 'GW-001',
-      name: 'Gateway Zone A',
-      zone: 'Zone A',
-      status: 'online',
-      sensors: 150,
-      sensorsOnline: 148,
-      uptime: '99.8%',
-      lastUpdate: '2 sec ago',
-      signalStrength: 95
-    },
-    {
-      id: 'GW-002',
-      name: 'Gateway Zone B',
-      zone: 'Zone B',
-      status: 'online',
-      sensors: 120,
-      sensorsOnline: 118,
-      uptime: '99.5%',
-      lastUpdate: '3 sec ago',
-      signalStrength: 92
-    },
-    {
-      id: 'GW-003',
-      name: 'Gateway Zone C',
-      zone: 'Zone C',
-      status: 'online',
-      sensors: 100,
-      sensorsOnline: 99,
-      uptime: '99.9%',
-      lastUpdate: '1 sec ago',
-      signalStrength: 98
-    },
-    {
-      id: 'GW-004',
-      name: 'Gateway Zone D',
-      zone: 'Zone D',
-      status: 'online',
-      sensors: 80,
-      sensorsOnline: 78,
-      uptime: '98.7%',
-      lastUpdate: '4 sec ago',
-      signalStrength: 88
-    },
-    {
-      id: 'GW-005',
-      name: 'Gateway Zone E',
-      zone: 'Zone E',
-      status: 'warning',
-      sensors: 50,
-      sensorsOnline: 44,
-      uptime: '95.2%',
-      lastUpdate: '15 sec ago',
-      signalStrength: 65
-    }
-  ];
-
-  const sensors = [
-    { id: 'S-A-001', zone: 'Zone A', slot: 'A-1', status: 'online', battery: 85, signal: 92, lastUpdate: '2 sec ago' },
-    { id: 'S-A-023', zone: 'Zone A', slot: 'A-23', status: 'offline', battery: 0, signal: 0, lastUpdate: '2 hours ago' },
-    { id: 'S-B-015', zone: 'Zone B', slot: 'B-15', status: 'online', battery: 92, signal: 88, lastUpdate: '3 sec ago' },
-    { id: 'S-B-023', zone: 'Zone B', slot: 'B-23', status: 'online', battery: 78, signal: 85, lastUpdate: '1 sec ago' },
-    { id: 'S-C-042', zone: 'Zone C', slot: 'C-42', status: 'online', battery: 95, signal: 96, lastUpdate: '2 sec ago' },
-    { id: 'S-D-008', zone: 'Zone D', slot: 'D-8', status: 'maintenance', battery: 45, signal: 0, lastUpdate: '1 day ago' },
-    { id: 'S-E-003', zone: 'Zone E', slot: 'E-3', status: 'online', battery: 88, signal: 72, lastUpdate: '5 sec ago' },
-    { id: 'S-A-089', zone: 'Zone A', slot: 'A-89', status: 'offline', battery: 12, signal: 0, lastUpdate: '6 hours ago' }
-  ];
-
-  const signage = [
-    { id: 'SIGN-001', location: 'Main Entrance', zone: 'All', status: 'online', message: 'Zone A: Full • Zone B: Available', uptime: '99.9%' },
-    { id: 'SIGN-002', location: 'Zone A Entrance', zone: 'Zone A', status: 'online', message: 'Nearly Full - 2 spaces', uptime: '99.7%' },
-    { id: 'SIGN-003', location: 'Zone B Entrance', zone: 'Zone B', status: 'online', message: 'Available - 35 spaces', uptime: '99.8%' },
-    { id: 'SIGN-004', location: 'Junction 1', zone: 'All', status: 'online', message: 'Zone C: Available • Zone D: Available', uptime: '99.5%' },
-    { id: 'SIGN-005', location: 'Visitor Entrance', zone: 'Zone E', status: 'offline', message: 'N/A', uptime: '92.3%' }
-  ];
 
   return (
     <div className="space-y-4">
@@ -315,7 +273,7 @@ export default function IoTMonitoring() {
                       <div className="text-sm text-slate-600">{sensor.lastUpdate}</div>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => toggleSensorStatus(sensor)}>
                         <Settings className="w-4 h-4" />
                       </Button>
                     </td>

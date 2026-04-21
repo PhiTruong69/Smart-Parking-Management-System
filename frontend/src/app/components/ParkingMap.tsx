@@ -1,66 +1,79 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Select } from './ui/select';
-import { Car, MapPin, Navigation, Maximize2 } from 'lucide-react';
-import { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Car, Navigation, Maximize2 } from 'lucide-react';
 
 export default function ParkingMap() {
-  const parkingSpaces = [
-    // Zone A - Main Building
-    ...Array.from({ length: 30 }, (_, i) => ({
-      id: `A-${i + 1}`,
-      zone: 'A',
-      status: i < 28 ? 'occupied' : 'available',
-      type: i < 10 ? 'student' : i < 25 ? 'faculty' : 'visitor',
-      x: 50 + (i % 10) * 80,
-      y: 50 + Math.floor(i / 10) * 60
-    })),
-    // Zone B - Engineering
-    ...Array.from({ length: 24 }, (_, i) => ({
-      id: `B-${i + 1}`,
-      zone: 'B',
-      status: i < 17 ? 'occupied' : 'available',
-      type: i < 8 ? 'student' : i < 20 ? 'faculty' : 'visitor',
-      x: 900 + (i % 8) * 80,
-      y: 50 + Math.floor(i / 8) * 60
-    })),
-    // Zone C - Library
-    ...Array.from({ length: 20 }, (_, i) => ({
-      id: `C-${i + 1}`,
-      zone: 'C',
-      status: i < 13 ? 'occupied' : 'available',
-      type: 'student',
-      x: 50 + (i % 10) * 80,
-      y: 300 + Math.floor(i / 10) * 60
-    })),
-    // Zone D - Sports Center
-    ...Array.from({ length: 16 }, (_, i) => ({
-      id: `D-${i + 1}`,
-      zone: 'D',
-      status: i < 7 ? 'occupied' : 'available',
-      type: 'visitor',
-      x: 900 + (i % 8) * 80,
-      y: 300 + Math.floor(i / 8) * 60
-    })),
-    // Zone E - Visitor
-    ...Array.from({ length: 10 }, (_, i) => ({
-      id: `E-${i + 1}`,
-      zone: 'E',
-      status: i < 4 ? 'occupied' : 'available',
-      type: 'visitor',
-      x: 450 + (i % 5) * 80,
-      y: 450
-    }))
-  ];
+  const [zones, setZones] = useState<any[]>([]);
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [entryForm, setEntryForm] = useState({ userId: '', zoneId: 'E', gate: 'Gate E1', vehicleId: '' });
+  const [message, setMessage] = useState('');
+  const API_BASE = 'http://localhost:5000/api';
 
-  const zones = [
-    { id: 'A', name: 'Zone A - Main Building', total: 30, occupied: 28, color: 'bg-blue-500' },
-    { id: 'B', name: 'Zone B - Engineering', total: 24, occupied: 17, color: 'bg-green-500' },
-    { id: 'C', name: 'Zone C - Library', total: 20, occupied: 13, color: 'bg-purple-500' },
-    { id: 'D', name: 'Zone D - Sports Center', total: 16, occupied: 7, color: 'bg-orange-500' },
-    { id: 'E', name: 'Zone E - Visitor', total: 10, occupied: 4, color: 'bg-pink-500' }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const [zonesRes, sessionsRes] = await Promise.all([
+        fetch(`${API_BASE}/parking/zones`),
+        fetch(`${API_BASE}/parking/sessions/active`)
+      ]);
+      const zonesData = await zonesRes.json();
+      const sessionsData = await sessionsRes.json();
+      setZones(zonesData || []);
+      setActiveSessions(sessionsData || []);
+    };
+    fetchData();
+    const timer = setInterval(fetchData, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleEntry = async () => {
+    const res = await fetch(`${API_BASE}/parking/sessions/entry`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(entryForm),
+    });
+    const data = await res.json();
+    setMessage(res.ok ? `Entry success: ${data.id}` : data.message || 'Entry failed');
+  };
+
+  const handleExit = async (sessionId: string) => {
+    const res = await fetch(`${API_BASE}/parking/sessions/${sessionId}/exit`, { method: 'POST' });
+    const data = await res.json();
+    setMessage(res.ok ? `Exit success: ${sessionId}, fee ₫${(data.fee || 0).toLocaleString()}` : data.message || 'Exit failed');
+  };
+
+  const issueTicket = async () => {
+    const res = await fetch(`${API_BASE}/parking/tickets/issue`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ zoneId: entryForm.zoneId, gate: entryForm.gate }),
+    });
+    const data = await res.json();
+    setMessage(res.ok ? `Ticket issued: ${data.ticketNo}` : data.message || 'Issue ticket failed');
+  };
+
+  const zoneColors: Record<string, string> = {
+    A: 'bg-blue-500',
+    B: 'bg-green-500',
+    C: 'bg-purple-500',
+    D: 'bg-orange-500',
+    E: 'bg-pink-500',
+  };
+
+  const parkingSpaces = useMemo(
+    () =>
+      zones.flatMap((zone) =>
+        Array.from({ length: zone.total }, (_, i) => ({
+          id: `${zone.id}-${i + 1}`,
+          zone: zone.id,
+          status: i < zone.occupied ? 'occupied' : 'available',
+          x: zone.id === 'A' || zone.id === 'C' ? 50 + (i % 10) * 80 : zone.id === 'B' || zone.id === 'D' ? 900 + (i % 8) * 80 : 450 + (i % 5) * 80,
+          y: zone.id === 'A' ? 50 + Math.floor(i / 10) * 60 : zone.id === 'B' ? 50 + Math.floor(i / 8) * 60 : zone.id === 'C' ? 300 + Math.floor(i / 10) * 60 : zone.id === 'D' ? 300 + Math.floor(i / 8) * 60 : 450,
+        })),
+      ),
+    [zones],
+  );
 
   return (
     <div className="space-y-4">
@@ -70,7 +83,7 @@ export default function ParkingMap() {
           <Card key={zone.id}>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${zone.color}`}></div>
+                <div className={`w-3 h-3 rounded-full ${zoneColors[zone.id] || 'bg-slate-400'}`}></div>
                 <CardTitle className="text-sm">Zone {zone.id}</CardTitle>
               </div>
             </CardHeader>
@@ -186,6 +199,30 @@ export default function ParkingMap() {
           </div>
 
           {/* Space Details */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input className="border rounded px-3 py-2 text-sm" placeholder="User ID (empty for visitor)" value={entryForm.userId} onChange={(e) => setEntryForm((p) => ({ ...p, userId: e.target.value }))} />
+            <input className="border rounded px-3 py-2 text-sm" placeholder="Vehicle ID / Plate" value={entryForm.vehicleId} onChange={(e) => setEntryForm((p) => ({ ...p, vehicleId: e.target.value }))} />
+            <input className="border rounded px-3 py-2 text-sm" placeholder="Zone ID (A-E)" value={entryForm.zoneId} onChange={(e) => setEntryForm((p) => ({ ...p, zoneId: e.target.value.toUpperCase() }))} />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button onClick={handleEntry}>Record Entry</Button>
+            <Button variant="outline" onClick={issueTicket}>Issue Visitor Ticket</Button>
+          </div>
+          {message && <p className="text-xs text-blue-700 mt-2">{message}</p>}
+
+          <div className="mt-4 border rounded-lg p-3">
+            <div className="text-sm font-semibold mb-2">Active Sessions</div>
+            <div className="space-y-2">
+              {activeSessions.map((s) => (
+                <div key={s.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-b-0">
+                  <span>{s.id} • Zone {s.zoneId} • {s.vehicleId}</span>
+                  <Button size="sm" variant="outline" onClick={() => handleExit(s.id)}>Record Exit</Button>
+                </div>
+              ))}
+              {!activeSessions.length && <div className="text-xs text-slate-500">No active sessions</div>}
+            </div>
+          </div>
+
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
