@@ -109,11 +109,16 @@ useEffect(() => {
         headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
-        setMessage("Xe đã ra khỏi bãi. Vị trí đã được giải phóng.");
-        await refreshGlobalData(); // Làm mới bản đồ ngay lập tức
+        const data = await res.json();
+        setMessage(`Xe đã ra khỏi bãi. Phí: ₫${data.fee?.toLocaleString() || '0'}. Vị trí đã được giải phóng.`);
+        await refreshGlobalData(); // Làm mới bản đồ và doanh thu ngay lập tức
+      } else {
+        const error = await res.json();
+        setMessage(`Lỗi: ${error.message}`);
       }
     } catch (err) {
       console.error("Lỗi khi cho xe ra:", err);
+      setMessage("Không thể kết nối đến server.");
     }
   };
 

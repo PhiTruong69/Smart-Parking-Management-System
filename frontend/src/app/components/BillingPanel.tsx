@@ -99,6 +99,20 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
     }
   };
 
+  const resetMonthlyRevenue = async () => {
+    const res = await fetch(`${API_BASE}/billing/reset-monthly`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-role': actorRole || 'END_USER' },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setActionMessage('Monthly revenue has been reset.');
+      await fetchData();
+    } else {
+      setActionMessage(data.message || 'Reset failed');
+    }
+  };
+
   const updatePolicy = async (category: string) => {
     const hourly = Number(window.prompt(`New hourly price for ${category}`, '5000'));
     if (Number.isNaN(hourly)) return;
@@ -202,12 +216,15 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
             <CardDescription>System-wide billing operations</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               <Button onClick={runBillingCycle} variant="outline">
                 Run Monthly Billing Cycle
               </Button>
               <Button onClick={resetDailyRevenue} variant="destructive">
                 Reset Daily Revenue
+              </Button>
+              <Button onClick={resetMonthlyRevenue} variant="destructive">
+                Reset Monthly Revenue
               </Button>
             </div>
             {actionMessage && (

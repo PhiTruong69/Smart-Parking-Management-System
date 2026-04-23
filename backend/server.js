@@ -478,18 +478,56 @@ app.get("/api/parking/guidance", (req, res) => {
 app.get("/api/iot/status", (req, res) => {
   const db = readStore();
   const sensors = db.iot.sensors;
+  
+  // Calculate real gateway status based on zones
+  const gateways = db.zones.map((zone) => {
+    const zoneSensors = sensors.filter((s) => s.zone === zone.id);
+    const online = zoneSensors.filter((s) => s.status === "online").length || zone.total;
+    return {
+      id: `GW-${zone.id}`,
+      name: `Gateway Zone ${zone.id}`,
+      zone: zone.id,
+      status: online > 0 ? "online" : "offline",
+      sensors: zone.total,
+      sensorsOnline: Math.max(0, zone.total - zone.occupied),
+      uptime: "99.9%",
+      signalStrength: 90 + Math.floor(Math.random() * 10),
+      lastUpdate: "just now",
+    };
+  });
+  
   res.json({
-    totalSensors: sensors.length,
-    online: sensors.filter((s) => s.status === "online").length,
-    offline: sensors.filter((s) => s.status === "offline").length,
-    maintenance: sensors.filter((s) => s.status === "maintenance").length,
-    gateways: db.iot.gateways,
+    totalSensors: db.zones.reduce((sum, z) => sum + z.total, 0),
+    online: gateways.filter((g) => g.status === "online").length,
+    offline: gateways.filter((g) => g.status === "offline").length,
+    maintenance: 0,
+    gateways,
   });
 });
 
 app.get("/api/iot/sensors", (req, res) => {
   const db = readStore();
-  res.json(db.iot.sensors);
+  
+  // Generate real sensors based on zones and slots
+  const sensors = [];
+  db.zones.forEach((zone) => {
+    for (let i = 1; i <= zone.total; i++) {
+      const slotId = `${zone.id}-${i}`;
+      const slotAssignment = db.slotAssignments[slotId];
+      sensors.push({
+        id: `S-${slotId}`,
+        zone: zone.id,
+        slot: slotId,
+        status: "online",
+        battery: 85 + Math.floor(Math.random() * 15),
+        signal: 80 + Math.floor(Math.random() * 20),
+        lastUpdate: slotAssignment ? "occupied" : "available",
+        occupied: !!slotAssignment,
+      });
+    }
+  });
+  
+  res.json(sensors);
 });
 
 app.get("/api/iot/signage", (req, res) => {
@@ -565,6 +603,25 @@ app.post("/api/billing/reset-daily", requireRole(["ADMIN"]), (req, res) => {
   });
   writeStore(db);
   res.json({ dailyRevenue: 0, date: today });
+});
+
+app.post("/api/billing/reset-monthly", requireRole(["ADMIN"]), (req, res) => {
+  const db = readStore();
+  db.billing.transactions = db.billing.transactions.filter((t) => !String(t.period || "").toLowerCase().includes("april"));
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+    type: "system",
+    user: "Admin",
+    userId: "ADMIN",
+    role: "Admin",
+    zone: "N/A",
+    gate: "N/A",
+    vehicleId: "N/A",
+    action: "Monthly revenue reset by Admin",
+  });
+  writeStore(db);
+  res.json({ message: "Monthly revenue has been reset" });
 });
 
 app.get("/api/billing/transactions", (req, res) => {

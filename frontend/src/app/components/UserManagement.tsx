@@ -142,13 +142,9 @@ export default function UserManagement() {
               <CardDescription>Manage parking system users and permissions</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              <Button size="sm">
+              <Button size="sm" variant="outline">
                 <UserPlus className="w-4 h-4 mr-2" />
-                Add User
+                Filler
               </Button>
             </div>
           </div>

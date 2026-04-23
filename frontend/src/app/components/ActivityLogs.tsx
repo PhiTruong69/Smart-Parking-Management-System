@@ -38,9 +38,11 @@ export default function ActivityLogs({ isAdmin, actorRole }: ActivityLogsProps) 
   }, []);
 
   const filteredActivities = useMemo(() => {
-    if (!searchQuery) return activities;
+    // Only show entry and exit events
+    const entryExitActivities = activities.filter((a) => ['entry', 'exit'].includes(a.type));
+    if (!searchQuery) return entryExitActivities;
     const q = searchQuery.toLowerCase();
-    return activities.filter((a) => JSON.stringify(a).toLowerCase().includes(q));
+    return entryExitActivities.filter((a) => JSON.stringify(a).toLowerCase().includes(q));
   }, [activities, searchQuery]);
 
   const getActivityIcon = (type: string) => {
