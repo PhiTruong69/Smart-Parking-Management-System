@@ -1,6 +1,17 @@
 {
   "users": [
     {
+      "id": "admin",
+      "password": "admin123",
+      "name": "System Admin",
+      "role": "Admin",
+      "program": "IT Center",
+      "status": "Active",
+      "parkingPass": "Reserved",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
       "id": "1952001",
       "name": "Nguyen Van A",
       "role": "Student",
@@ -8,7 +19,8 @@
       "status": "Active",
       "parkingPass": "Monthly",
       "balance": 50000,
-      "entryCount": 45
+      "entryCount": 45,
+      "password": "123456"
     },
     {
       "id": "1952045",
@@ -18,7 +30,8 @@
       "status": "Active",
       "parkingPass": "Monthly",
       "balance": 0,
-      "entryCount": 38
+      "entryCount": 38,
+      "password": "123456"
     },
     {
       "id": "F2001",
@@ -28,7 +41,8 @@
       "status": "Active",
       "parkingPass": "Reserved",
       "balance": 0,
-      "entryCount": 89
+      "entryCount": 89,
+      "password": "123456"
     },
     {
       "id": "S1023",
@@ -38,7 +52,8 @@
       "status": "Active",
       "parkingPass": "Standard",
       "balance": 25000,
-      "entryCount": 67
+      "entryCount": 67,
+      "password": "123456"
     },
     {
       "id": "2152078",
@@ -48,7 +63,8 @@
       "status": "Active",
       "parkingPass": "Monthly",
       "balance": 15000,
-      "entryCount": 22
+      "entryCount": 22,
+      "password": "123456"
     },
     {
       "id": "D3001",
@@ -58,40 +74,71 @@
       "status": "Active",
       "parkingPass": "Monthly",
       "balance": 35000,
-      "entryCount": 56
+      "entryCount": 56,
+      "password": "123456"
+    },
+    {
+      "id": "STU-f3ccad1c",
+      "password": "123456",
+      "name": "aaa",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "STU-48201471",
+      "password": "123456",
+      "name": "qqqq",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "STU-bf69d345",
+      "password": "123456",
+      "name": "đasdsadda",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "V-c8c878fb",
+      "password": "123456",
+      "name": "a",
+      "role": "Staff",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "STU-71d1bdd0",
+      "password": "123456",
+      "name": "sffasssdsadf",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
     }
   ],
   "zones": [
-    {
-      "id": "A",
-      "name": "Zone A - Main Building",
-      "total": 30,
-      "occupied": 28
-    },
-    {
-      "id": "B",
-      "name": "Zone B - Engineering",
-      "total": 24,
-      "occupied": 17
-    },
-    {
-      "id": "C",
-      "name": "Zone C - Library",
-      "total": 20,
-      "occupied": 13
-    },
-    {
-      "id": "D",
-      "name": "Zone D - Sports Center",
-      "total": 16,
-      "occupied": 7
-    },
-    {
-      "id": "E",
-      "name": "Zone E - Visitor",
-      "total": 10,
-      "occupied": 4
-    }
+    { "id": "A", "name": "Zone A", "total": 100, "occupied": 0 },
+    { "id": "B", "name": "Zone B", "total": 100, "occupied": 0 },
+    { "id": "C", "name": "Zone C", "total": 100, "occupied": 0 },
+    { "id": "D", "name": "Zone D", "total": 100, "occupied": 0 },
+    { "id": "E", "name": "Zone E", "total": 100, "occupied": 0 }
   ],
   "sessions": [
     {
@@ -309,6 +356,96 @@
       "exitAt": "2026-04-21T09:08:08.651Z",
       "status": "CLOSED",
       "fee": 10000
+    },
+    {
+      "id": "SES-06dc3677",
+      "userId": null,
+      "userName": "Visitor",
+      "userType": "Visitor",
+      "zoneId": "E",
+      "slotId": null,
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-23T04:19:13.655Z",
+      "exitAt": "2026-04-23T04:42:46.627Z",
+      "status": "CLOSED",
+      "fee": 10000
+    },
+    {
+      "id": "SES-7560f9c7",
+      "userId": "STU-f3ccad1c",
+      "userName": "aaa",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-1",
+      "gate": "Gate A1",
+      "vehicleId": "dsdasdsd",
+      "method": "CARD",
+      "entryAt": "2026-04-23T04:25:12.711Z",
+      "exitAt": "2026-04-23T04:42:48.875Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-76a73415",
+      "userId": "STU-48201471",
+      "userName": "qqqq",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-1",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "method": "CARD",
+      "entryAt": "2026-04-23T04:44:29.364Z",
+      "exitAt": "2026-04-23T04:57:27.102Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-1b7f133e",
+      "userId": "STU-bf69d345",
+      "userName": "đasdsadda",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-21",
+      "gate": "Gate A1",
+      "vehicleId": "dsdad",
+      "method": "CARD",
+      "entryAt": "2026-04-23T04:44:49.535Z",
+      "exitAt": "2026-04-23T04:57:27.719Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-ae7ed9e4",
+      "userId": "V-c8c878fb",
+      "userName": "a",
+      "userType": "Staff",
+      "zoneId": "A",
+      "slotId": "A-27",
+      "gate": "Gate A1",
+      "vehicleId": "dsdadd",
+      "method": "CARD",
+      "entryAt": "2026-04-23T04:57:42.814Z",
+      "exitAt": "2026-04-23T04:59:38.881Z",
+      "status": "CLOSED",
+      "fee": 4000
+    },
+    {
+      "id": "SES-dcbb8802",
+      "userId": "STU-71d1bdd0",
+      "userName": "sffasssdsadf",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-19",
+      "gate": "Gate A1",
+      "vehicleId": "sdsadsd",
+      "method": "CARD",
+      "entryAt": "2026-04-23T05:02:15.133Z",
+      "exitAt": "2026-04-23T05:13:57.977Z",
+      "status": "CLOSED",
+      "fee": 5000
     }
   ],
   "tickets": [
@@ -395,6 +532,14 @@
     {
       "ticketNo": "TKT-cfe25277",
       "issuedAt": "2026-04-21T09:00:45.722Z",
+      "zoneId": "E",
+      "gate": "Gate E1",
+      "note": "",
+      "status": "ACTIVE"
+    },
+    {
+      "ticketNo": "TKT-99c261c6",
+      "issuedAt": "2026-04-23T04:19:13.055Z",
       "zoneId": "E",
       "gate": "Gate E1",
       "note": "",
@@ -529,7 +674,7 @@
         "category": "Faculty",
         "monthly": 0,
         "daily": 0,
-        "hourly": 0,
+        "hourly": 5000,
         "description": "Reserved parking included"
       },
       {
@@ -782,6 +927,102 @@
     ]
   },
   "activityLogs": [
+    {
+      "id": 1776920535133,
+      "timestamp": "2026-04-23 05:02:15",
+      "type": "entry",
+      "user": "sffasssdsadf",
+      "userId": "STU-71d1bdd0",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "sdsadsd",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776920262814,
+      "timestamp": "2026-04-23 04:57:42",
+      "type": "entry",
+      "user": "a",
+      "userId": "V-c8c878fb",
+      "role": "Staff",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "dsdadd",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776919489535,
+      "timestamp": "2026-04-23 04:44:49",
+      "type": "entry",
+      "user": "đasdsadda",
+      "userId": "STU-bf69d345",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "dsdad",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776919469364,
+      "timestamp": "2026-04-23 04:44:29",
+      "type": "entry",
+      "user": "qqqq",
+      "userId": "STU-48201471",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776918312711,
+      "timestamp": "2026-04-23 04:25:12",
+      "type": "entry",
+      "user": "aaa",
+      "userId": "STU-f3ccad1c",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "dsdasdsd",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776918301839,
+      "timestamp": "2026-04-23 04:25:01",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Pricing policy updated: Faculty"
+    },
+    {
+      "id": 1776917953655,
+      "timestamp": "2026-04-23 04:19:13",
+      "type": "entry",
+      "user": "Visitor",
+      "userId": "V-UNKNOWN",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1776917953055,
+      "timestamp": "2026-04-23 04:19:13",
+      "type": "ticket",
+      "user": "Visitor",
+      "userId": "TKT-99c261c6",
+      "role": "Visitor",
+      "zone": "Zone E",
+      "gate": "Gate E1",
+      "vehicleId": "N/A",
+      "action": "Temporary ticket issued"
+    },
     {
       "id": 1776762488651,
       "timestamp": "2026-04-21 09:08:08",
@@ -1416,6 +1657,13 @@
   },
   "metadata": {
     "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-04-21T09:08:08.651Z"
+    "updatedAt": "2026-04-23T05:13:57.977Z"
+  },
+  "slotAssignments": {
+    "A": [],
+    "B": [],
+    "C": [],
+    "D": [],
+    "E": []
   }
 }

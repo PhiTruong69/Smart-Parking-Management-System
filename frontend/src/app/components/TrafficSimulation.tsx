@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 type Props = {
   actorRole: string;
@@ -8,127 +9,198 @@ type Props = {
 
 export default function TrafficSimulation({ actorRole }: Props) {
   const API_BASE = 'http://localhost:5000/api';
-  const [zones, setZones] = useState<any[]>([]);
-  const [slots, setSlots] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
+  
+  // State quản lý danh sách Zone và Slot thực tế từ Server
+  const [zonesData, setZonesData] = useState<Record<string, any[]>>({});
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  
   const [form, setForm] = useState({
     userName: '',
     userType: 'Student',
     zoneId: 'A',
-    slotId: 'A-1',
+    slotId: '',
     vehicleId: '',
     gate: 'Gate A1',
   });
+  
   const [message, setMessage] = useState('');
 
-  const loadData = async () => {
-    const [zonesRes, sessionsRes] = await Promise.all([
-      fetch(`${API_BASE}/parking/zones`),
+  // 1. Hàm tải dữ liệu tổng thể (Đồng bộ với cấu trúc của ParkingMap)
+  const refreshGlobalData = async () => {
+  try {
+    const [slotsRes, sessionsRes] = await Promise.all([
+      fetch(`${API_BASE}/parking/slots/all`),
       fetch(`${API_BASE}/parking/sessions/active`),
     ]);
-    const zonesData = await zonesRes.json();
-    const sessionsData = await sessionsRes.json();
-    setZones(zonesData || []);
-    setSessions(sessionsData || []);
-  };
+    
+    if (slotsRes.ok) {
+      const data = await slotsRes.json();
+      console.log("Dữ liệu Zones nhận được:", data); // Kiểm tra log này ở Console
+      setZonesData(data);
+    }
+    
+    if (sessionsRes.ok) {
+      setActiveSessions(await sessionsRes.json());
+    }
+  } catch (err) {
+    console.error("Lỗi đồng bộ dữ liệu:", err);
+  }
+};
 
-  const loadSlots = async (zoneId: string) => {
-    const res = await fetch(`${API_BASE}/parking/slots/${zoneId}`);
-    const data = await res.json();
-    const available = (data.slots || []).filter((s: any) => !s.occupied);
-    setSlots(available);
-    if (available.length) setForm((p) => ({ ...p, slotId: available[0].slotId }));
-  };
-
+  // Tải dữ liệu lần đầu
   useEffect(() => {
-    loadData();
+    refreshGlobalData();
   }, []);
 
-  useEffect(() => {
-    loadSlots(form.zoneId);
-  }, [form.zoneId]);
+  // Lấy danh sách các slot trống của Zone đang chọn từ dữ liệu tổng thể
+// TrafficSimulation.tsx - Thay thế đoạn lọc cũ
+const availableSlotsInZone = React.useMemo(() => {
+  const slots = zonesData[form.zoneId] || [];
+  return slots.filter(slot => slot.status === 'available');
+}, [zonesData, form.zoneId]);
+useEffect(() => {
+  if (availableSlotsInZone.length > 0 && !form.slotId) {
+    setForm(p => ({ ...p, slotId: availableSlotsInZone[0].id }));
+  }
+}, [availableSlotsInZone]);
+  // 2. Xử lý khi xe VÀO (Entry)
+  const handleEntry = async () => {
+  if (!form.slotId || !form.vehicleId) {
+    setMessage("Vui lòng điền đầy đủ biển số và chọn vị trí!");
+    return;
+  }
 
-  const addVehicle = async () => {
-    const res = await fetch(`${API_BASE}/parking/sessions/entry`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        userName: form.userName,
-        userType: form.userType,
-        zoneId: form.zoneId,
-        slotId: form.slotId,
-        gate: form.gate,
-        vehicleId: form.vehicleId,
-        method: form.userType === 'Visitor' ? 'TICKET' : 'CARD',
-      }),
-    });
-    const data = await res.json();
-    setMessage(res.ok ? `Added ${form.userType} vehicle: ${data.id}` : data.message || 'Failed');
-    await loadData();
-    await loadSlots(form.zoneId);
+  // Khớp với cấu trúc body tại dòng 206 trong server.js
+ const payload = {
+    userName: form.userName || "Guest",
+    userType: form.userType,
+    zoneId: form.zoneId, // Phải khớp với các ID như "A", "B"...
+    slotId: form.slotId, // Phải là "A-1", "A-2"...
+    vehicleId: form.vehicleId,
+    gate: form.gate
   };
 
-  const exitVehicle = async (sessionId: string) => {
-    const customFeeRaw = window.prompt('Custom fee (admin only, optional):', '');
-    const customFee = customFeeRaw ? Number(customFeeRaw) : undefined;
-    const res = await fetch(`${API_BASE}/parking/sessions/${sessionId}/exit`, {
+  try {
+    const res = await fetch(`${API_BASE}/parking/sessions/entry`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-role': actorRole || 'END_USER' },
-      body: JSON.stringify(Number.isNaN(customFee) ? {} : { customFee }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
-    const data = await res.json();
-    setMessage(res.ok ? `Exit done for ${sessionId}, fee: ₫${(data.fee || 0).toLocaleString()}` : data.message || 'Failed');
-    await loadData();
-    await loadSlots(form.zoneId);
+
+    if (res.ok) {
+      setMessage(`Thành công: Vị trí ${form.slotId} đã được chiếm dụng.`);
+      // Xóa form để nhập xe tiếp theo
+      setForm(p => ({ ...p, vehicleId: '', userName: '' }));
+      await refreshGlobalData(); 
+    } else {
+      const error = await res.json();
+      setMessage(`Lỗi: ${error.message}`);
+    }
+  } catch (err) {
+    setMessage("Không thể kết nối đến server.");
+  }
+};
+
+  // 3. Xử lý khi xe RA (Exit)
+  const handleExit = async (sessionId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/parking/sessions/${sessionId}/exit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        setMessage("Xe đã ra khỏi bãi. Vị trí đã được giải phóng.");
+        await refreshGlobalData(); // Làm mới bản đồ ngay lập tức
+      }
+    } catch (err) {
+      console.error("Lỗi khi cho xe ra:", err);
+    }
   };
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="border-blue-500 shadow-md">
         <CardHeader>
-          <CardTitle>Vehicle Flow Simulation</CardTitle>
-          <CardDescription>Add learner/faculty/visitor vehicles, pick zone/slot, and simulate entry/exit.</CardDescription>
+          <CardTitle className="text-blue-700">Mô phỏng xe vào (Entry Logic)</CardTitle>
+          <CardDescription>Dữ liệu này sẽ được đồng bộ trực tiếp lên sơ đồ bãi xe.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input className="border rounded px-3 py-2 text-sm" placeholder="Name" value={form.userName} onChange={(e) => setForm((p) => ({ ...p, userName: e.target.value }))} />
-            <select className="border rounded px-3 py-2 text-sm" value={form.userType} onChange={(e) => setForm((p) => ({ ...p, userType: e.target.value }))}>
-              <option>Student</option>
-              <option>Graduate</option>
-              <option>Doctoral</option>
-              <option>Faculty</option>
-              <option>Staff</option>
-              <option>Visitor</option>
+            <input className="border rounded px-3 py-2 text-sm" placeholder="Tên người dùng" value={form.userName} onChange={(e) => setForm(p => ({ ...p, userName: e.target.value }))} />
+            
+            <select className="border rounded px-3 py-2 text-sm" value={form.userType} onChange={(e) => setForm(p => ({ ...p, userType: e.target.value }))}>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Staff">Staff</option>
+              <option value="Visitor">Visitor</option>
             </select>
-            <input className="border rounded px-3 py-2 text-sm" placeholder="Vehicle Plate" value={form.vehicleId} onChange={(e) => setForm((p) => ({ ...p, vehicleId: e.target.value }))} />
-            <select className="border rounded px-3 py-2 text-sm" value={form.zoneId} onChange={(e) => setForm((p) => ({ ...p, zoneId: e.target.value }))}>
-              {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+
+            <input className="border rounded px-3 py-2 text-sm" placeholder="Biển số xe" value={form.vehicleId} onChange={(e) => setForm(p => ({ ...p, vehicleId: e.target.value }))} />
+            
+            {/* Chọn Zone */}
+            <select className="border rounded px-3 py-2 text-sm font-semibold" value={form.zoneId} onChange={(e) => {
+                setForm(p => ({ ...p, zoneId: e.target.value, slotId: '' }));
+            }}>
+              {Object.keys(zonesData).length > 0 
+                ? Object.keys(zonesData).map(z => <option key={z} value={z}>Khu vực {z}</option>)
+                : ['A', 'B', 'C', 'D', 'E'].map(z => <option key={z} value={z}>Khu vực {z}</option>)
+              }
             </select>
-            <select className="border rounded px-3 py-2 text-sm" value={form.slotId} onChange={(e) => setForm((p) => ({ ...p, slotId: e.target.value }))}>
-              {slots.map((s) => <option key={s.slotId} value={s.slotId}>{s.slotId}</option>)}
-            </select>
-            <input className="border rounded px-3 py-2 text-sm" placeholder="Gate" value={form.gate} onChange={(e) => setForm((p) => ({ ...p, gate: e.target.value }))} />
+
+            {/* Chọn Slot trống từ dữ liệu đã đồng bộ */}
+            <select 
+            className="border rounded px-3 py-2 text-sm bg-green-50 font-bold" 
+             value={form.slotId} 
+             onChange={(e) => setForm(p => ({ ...p, slotId: e.target.value }))}
+            >
+            <option value="">-- Chọn vị trí trống ({availableSlotsInZone.length}) --</option>
+              {availableSlotsInZone.map(s => (
+             <option key={s.id} value={s.id}>
+            {s.id} (Trống)
+            </option>
+           ))}
+</select>
+
+            <input className="border rounded px-3 py-2 text-sm" placeholder="Cổng vào" value={form.gate} onChange={(e) => setForm(p => ({ ...p, gate: e.target.value }))} />
           </div>
-          <div className="mt-3">
-            <Button onClick={addVehicle}>Add Vehicle Entry</Button>
-          </div>
-          {message && <div className="text-sm text-blue-700 mt-2">{message}</div>}
+          
+          <Button 
+            className="w-full bg-blue-600 hover:bg-blue-700" 
+            onClick={handleEntry} 
+            disabled={!form.slotId || !form.vehicleId}
+          >
+            Xác nhận xe vào bãi
+          </Button>
+          
+          {message && <p className="text-sm font-medium text-blue-600 bg-blue-50 p-2 rounded border border-blue-100">{message}</p>}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Vehicles</CardTitle>
+          <CardTitle>Danh sách xe đang trong bãi</CardTitle>
+          <CardDescription>Bấm "Cho xe ra" để giải phóng vị trí trên bản đồ.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {sessions.map((s) => (
-              <div key={s.id} className="flex items-center justify-between border rounded p-2 text-sm">
-                <span>{s.id} • {s.userName || s.userId} • Zone {s.zoneId} • {s.slotId || 'N/A'} • {s.vehicleId}</span>
-                <Button size="sm" variant="outline" onClick={() => exitVehicle(s.id)}>Exit</Button>
-              </div>
-            ))}
-            {!sessions.length && <div className="text-xs text-slate-500">No active vehicles</div>}
+          <div className="max-h-64 overflow-auto space-y-2">
+            {activeSessions.length === 0 ? (
+              <p className="text-center text-slate-400 py-4 italic">Hiện không có xe nào trong bãi.</p>
+            ) : (
+              activeSessions.map((s) => (
+                <div key={s.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-slate-50 transition-colors">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-800">{s.vehicleId}</span>
+                    <span className="text-xs text-slate-500">{s.userType} | Gate: {s.gate}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 font-mono">
+                      {s.slotId}
+                    </Badge>
+                    <Button size="sm" variant="destructive" onClick={() => handleExit(s.id)}>Cho xe ra</Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

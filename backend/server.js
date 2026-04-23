@@ -28,17 +28,24 @@ function makeId(prefix) {
   return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
-function calculateFee(entryTime, exitTime, role) {
+function calculateFee(entryTime, exitTime, role, db) {
   const durationHours = Math.max(1, Math.ceil((new Date(exitTime) - new Date(entryTime)) / 36e5));
   const normalizedRole = String(role || "Visitor").toLowerCase();
-  const rate =
-    normalizedRole.includes("student") || normalizedRole.includes("graduate") || normalizedRole.includes("doctoral")
-      ? 5000
-      : normalizedRole.includes("staff")
-      ? 4000
-      : normalizedRole.includes("faculty")
-      ? 0
-      : 10000;
+  
+  // Tìm chính sách giá từ Database do Admin cấu hình
+  const plans = db.billing.pricingPlans;
+  let rate = 10000; // Mặc định cho Visitor
+
+  if (normalizedRole.includes("student") || normalizedRole.includes("graduate") || normalizedRole.includes("doctoral")) {
+    rate = plans.find(p => p.category === "Students")?.hourly || 5000;
+  } else if (normalizedRole.includes("staff")) {
+    rate = plans.find(p => p.category === "Staff")?.hourly || 4000;
+  } else if (normalizedRole.includes("faculty")) {
+    rate = plans.find(p => p.category === "Faculty")?.hourly || 0;
+  } else {
+    rate = plans.find(p => p.category === "Visitors")?.hourly || 10000;
+  }
+
   return durationHours * rate;
 }
 
@@ -334,42 +341,21 @@ app.post("/api/parking/sessions/:id/exit", (req, res) => {
   const db = readStore();
   const session = db.sessions.find((s) => s.id === req.params.id);
   if (!session) return res.status(404).json({ message: "Session not found" });
-  if (session.status !== "ACTIVE") return res.status(409).json({ message: "Session already closed" });
-  const zone = db.zones.find((z) => z.id === session.zoneId);
+  
   const user = db.users.find((u) => u.id === session.userId);
   session.exitAt = new Date().toISOString();
   session.status = "CLOSED";
-  session.fee = calculateFee(session.entryAt, session.exitAt, user?.role || "Visitor");
-  const customFee = Number(req.body?.customFee);
-  if (!Number.isNaN(customFee) && req.actorRole === "ADMIN") session.fee = Math.max(0, customFee);
+  
+  // Truyền thêm biến db để lấy giá admin đã cấu hình
+  session.fee = calculateFee(session.entryAt, session.exitAt, session.userType, db);
+  
+  // Logic giải phóng Slot và cập nhật Zone như cũ...
+  const zone = db.zones.find((z) => z.id === session.zoneId);
   if (zone) zone.occupied = Math.max(0, zone.occupied - 1);
-  if (session.slotId && db.slotAssignments?.[session.zoneId]) {
-    db.slotAssignments[session.zoneId] = db.slotAssignments[session.zoneId].filter((s) => s !== session.slotId);
+  if (session.slotId) {
+    db.slotAssignments[session.zoneId] = (db.slotAssignments[session.zoneId] || []).filter(id => id !== session.slotId);
   }
 
-  db.billing.transactions.unshift({
-    id: makeId("TXN-2026"),
-    userId: session.userId || "Visitor",
-    userName: user?.name || "Visitor",
-    type: "Hourly Parking",
-    amount: session.fee,
-    period: "Session",
-    status: "Pending",
-    date: new Date().toISOString().replace("T", " ").slice(0, 16),
-    method: "BKPay",
-  });
-  db.activityLogs.unshift({
-    id: Date.now(),
-    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
-    type: "exit",
-    user: user?.name || "Visitor",
-    userId: session.userId || "V-UNKNOWN",
-    role: user?.role || "Visitor",
-    zone: `Zone ${session.zoneId}`,
-    gate: session.gate,
-    vehicleId: session.vehicleId,
-    action: "Vehicle exited parking zone",
-  });
   writeStore(db);
   res.json(session);
 });
@@ -573,7 +559,31 @@ app.get("/api/activity-logs", (req, res) => {
 app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error", detail: err.message });
 });
+// Thêm đoạn này vào server.js (trước đoạn app.listen)
+// server.js
+app.get("/api/parking/slots/all", (req, res) => {
+  const db = readStore();
+  ensureBaselineData(db);
+  
+  const allZonesData = {};
+  const zones = ['A', 'B', 'C', 'D', 'E'];
 
+  zones.forEach((zoneId) => {
+    // Mặc định mỗi zone có 100 slot theo yêu cầu mới của bạn
+    const totalSlots = 100; 
+    const occupiedSlots = db.slotAssignments[zoneId] || [];
+    
+    allZonesData[zoneId] = Array.from({ length: totalSlots }, (_, i) => {
+      const slotId = `${zoneId}-${i + 1}`;
+      return { 
+        id: slotId, 
+        status: occupiedSlots.includes(slotId) ? 'occupied' : 'available' 
+      };
+    });
+  });
+  
+  res.json(allZonesData);
+});
 app.listen(PORT, () => {
   console.log(`SPMS backend running at http://localhost:${PORT}`);
 });
