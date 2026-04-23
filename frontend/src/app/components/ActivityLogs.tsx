@@ -15,9 +15,15 @@ import {
   Download
 } from 'lucide-react';
 
-export default function ActivityLogs() {
+type ActivityLogsProps = {
+  isAdmin: boolean;
+  actorRole: string;
+};
+
+export default function ActivityLogs({ isAdmin, actorRole }: ActivityLogsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activities, setActivities] = useState<any[]>([]);
+  const [actionMessage, setActionMessage] = useState('');
   const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
@@ -66,6 +72,43 @@ export default function ActivityLogs() {
     return styles[type as keyof typeof styles] || 'bg-slate-100 text-slate-700';
   };
 
+  const summaryCounts = useMemo(() => {
+    const entries = activities.filter((a) => a.type === 'entry').length;
+    const exits = activities.filter((a) => a.type === 'exit').length;
+    const tickets = activities.filter((a) => a.type === 'ticket').length;
+    const payments = activities.filter((a) => a.type === 'payment').length;
+    const systemEvents = activities.filter((a) => a.type === 'system').length;
+    const durationValues = activities
+      .filter((a) => a.duration)
+      .map((a) => {
+        const match = String(a.duration).match(/(\d+)h/);
+        return match ? Number(match[1]) : 0;
+      });
+    const avgDuration = durationValues.length ? `${Math.round(durationValues.reduce((sum, value) => sum + value, 0) / durationValues.length)}h` : '-';
+    return { entries, exits, tickets, payments, systemEvents, avgDuration };
+  }, [activities]);
+
+  const deleteActivity = async (id: string | number) => {
+    try {
+      const res = await fetch(`${API_BASE}/activity-logs/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'content-type': 'application/json',
+          'x-role': actorRole || 'END_USER',
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionMessage(data.message || 'Delete failed');
+        return;
+      }
+      setActivities((prev) => prev.filter((activity) => String(activity.id) !== String(id)));
+      setActionMessage(`Deleted log entry ${data.deleted}`);
+    } catch (err) {
+      setActionMessage('Unable to delete log entry');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Activity Summary */}
@@ -75,7 +118,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">Today's Entries</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">342</div>
+            <div className="text-2xl font-bold text-green-600">{summaryCounts.entries}</div>
           </CardContent>
         </Card>
         <Card>
@@ -83,7 +126,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">Today's Exits</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">298</div>
+            <div className="text-2xl font-bold text-blue-600">{summaryCounts.exits}</div>
           </CardContent>
         </Card>
         <Card>
@@ -91,7 +134,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">Visitor Tickets</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">47</div>
+            <div className="text-2xl font-bold text-purple-600">{summaryCounts.tickets}</div>
           </CardContent>
         </Card>
         <Card>
@@ -99,7 +142,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">Payments</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">156</div>
+            <div className="text-2xl font-bold text-yellow-600">{summaryCounts.payments}</div>
           </CardContent>
         </Card>
         <Card>
@@ -107,7 +150,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">Avg. Duration</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">4.2h</div>
+            <div className="text-2xl font-bold text-slate-900">{summaryCounts.avgDuration}</div>
           </CardContent>
         </Card>
         <Card>
@@ -115,7 +158,7 @@ export default function ActivityLogs() {
             <CardTitle className="text-sm text-slate-600">System Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">12</div>
+            <div className="text-2xl font-bold text-orange-600">{summaryCounts.systemEvents}</div>
           </CardContent>
         </Card>
       </div>
@@ -152,6 +195,9 @@ export default function ActivityLogs() {
                 className="pl-9"
               />
             </div>
+            {actionMessage && (
+              <p className="mt-2 text-sm text-slate-600">{actionMessage}</p>
+            )}
           </div>
 
           {/* Table */}
@@ -177,6 +223,11 @@ export default function ActivityLogs() {
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
                     Details
                   </th>
+                  {isAdmin && (
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Actions
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -244,6 +295,13 @@ export default function ActivityLogs() {
                         </div>
                       )}
                     </td>
+                    {isAdmin && (
+                      <td className="py-3 px-4 text-right">
+                        <Button variant="destructive" size="sm" onClick={() => deleteActivity(activity.id)}>
+                          Delete
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

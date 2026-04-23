@@ -28,12 +28,16 @@ function makeId(prefix) {
   return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
+function getCurrentDateString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function calculateFee(entryTime, exitTime, role, db) {
   const durationHours = Math.max(1, Math.ceil((new Date(exitTime) - new Date(entryTime)) / 36e5));
   const normalizedRole = String(role || "Visitor").toLowerCase();
   
   // Tìm chính sách giá từ Database do Admin cấu hình
-  const plans = db.billing.pricingPlans;
+  const plans = db.billing.pricingPlans || [];
   let rate = 10000; // Mặc định cho Visitor
 
   if (normalizedRole.includes("student") || normalizedRole.includes("graduate") || normalizedRole.includes("doctoral")) {
@@ -54,10 +58,11 @@ function getDashboardSummary(db) {
   const occupied = db.zones.reduce((sum, z) => sum + z.occupied, 0);
   const available = totalSlots - occupied;
   const activeSessions = db.sessions.filter((s) => s.status === "ACTIVE").length;
-  const todayRevenue = db.billing.transactions
+  const todayRevenue = db.billing.dailyRevenueDate === getCurrentDateString() ? db.billing.dailyRevenue : 0;
+  const totalRevenue = (db.billing.transactions || [])
     .filter((t) => t.status === "Paid")
     .reduce((sum, t) => sum + t.amount, 0);
-  return { totalSlots, occupied, available, activeSessions, todayRevenue };
+  return { totalSlots, occupied, available, activeSessions, todayRevenue, totalRevenue };
 }
 
 function generateGuidance(zones) {
@@ -81,6 +86,12 @@ function generateGuidance(zones) {
 
 function ensureBaselineData(db) {
   if (!db.slotAssignments) db.slotAssignments = {};
+  if (!db.billing) db.billing = { pricingPlans: [], transactions: [], dailyRevenue: 0, dailyRevenueDate: getCurrentDateString() };
+  if (!Array.isArray(db.billing.pricingPlans)) db.billing.pricingPlans = [];
+  if (!Array.isArray(db.billing.transactions)) db.billing.transactions = [];
+  if (typeof db.billing.dailyRevenue !== "number") db.billing.dailyRevenue = 0;
+  if (!db.billing.dailyRevenueDate) db.billing.dailyRevenueDate = getCurrentDateString();
+  if (!Array.isArray(db.activityLogs)) db.activityLogs = [];
   if (!db.users.some((u) => u.id === "admin")) {
     db.users.unshift({
       id: "admin",
@@ -237,6 +248,27 @@ app.patch("/api/admin/pricing-policies/:category", requireRole(["ADMIN"]), (req,
   res.json(policy);
 });
 
+app.get("/api/parking/slots/all", (req, res) => {
+  const db = readStore();
+  ensureBaselineData(db);
+  const allZonesData = {};
+  const zones = ['A', 'B', 'C', 'D', 'E'];
+
+  zones.forEach((zoneId) => {
+    const totalSlots = 100;
+    const occupiedSlots = db.slotAssignments[zoneId] || [];
+    allZonesData[zoneId] = Array.from({ length: totalSlots }, (_, i) => {
+      const slotId = `${zoneId}-${i + 1}`;
+      return {
+        id: slotId,
+        status: occupiedSlots.includes(slotId) ? 'occupied' : 'available',
+      };
+    });
+  });
+
+  res.json(allZonesData);
+});
+
 app.get("/api/parking/slots/:zoneId", (req, res) => {
   const db = readStore();
   ensureBaselineData(db);
@@ -341,23 +373,59 @@ app.post("/api/parking/sessions/:id/exit", (req, res) => {
   const db = readStore();
   const session = db.sessions.find((s) => s.id === req.params.id);
   if (!session) return res.status(404).json({ message: "Session not found" });
-  
-  const user = db.users.find((u) => u.id === session.userId);
+
   session.exitAt = new Date().toISOString();
   session.status = "CLOSED";
-  
-  // Truyền thêm biến db để lấy giá admin đã cấu hình
   session.fee = calculateFee(session.entryAt, session.exitAt, session.userType, db);
-  
-  // Logic giải phóng Slot và cập nhật Zone như cũ...
+
+  const durationMs = new Date(session.exitAt) - new Date(session.entryAt);
+  const durationHours = Math.max(1, Math.ceil(durationMs / 36e5));
+  const duration = `${durationHours}h`;
+
   const zone = db.zones.find((z) => z.id === session.zoneId);
   if (zone) zone.occupied = Math.max(0, zone.occupied - 1);
   if (session.slotId) {
     db.slotAssignments[session.zoneId] = (db.slotAssignments[session.zoneId] || []).filter(id => id !== session.slotId);
   }
 
+  const today = getCurrentDateString();
+  if (db.billing.dailyRevenueDate !== today) {
+    db.billing.dailyRevenueDate = today;
+    db.billing.dailyRevenue = 0;
+  }
+  db.billing.dailyRevenue += session.fee;
+
+  const payment = {
+    id: makeId("TXN"),
+    userId: session.userId || "UNKNOWN",
+    userName: session.userName,
+    type: "Parking Fee",
+    amount: session.fee,
+    period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
+    status: "Paid",
+    date: session.exitAt.replace("T", " ").slice(0, 16),
+    method: "Cash",
+  };
+  db.billing.transactions.unshift(payment);
+
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: session.exitAt.replace("T", " ").slice(0, 19),
+    type: "exit",
+    user: session.userName,
+    userId: session.userId || "V-UNKNOWN",
+    role: session.userType,
+    zone: `Zone ${session.zoneId}`,
+    gate: session.gate,
+    vehicleId: session.vehicleId,
+    action: "Vehicle exited parking zone",
+    duration,
+    amount: session.fee,
+    transactionId: payment.id,
+  });
+
   writeStore(db);
-  res.json(session);
+  res.json({ ...session, payment });
 });
 
 app.post("/api/parking/tickets/issue", (req, res) => {
@@ -474,7 +542,29 @@ app.get("/api/billing/overview", (req, res) => {
   const thisMonth = all
     .filter((t) => String(t.period).toLowerCase().includes("april"))
     .reduce((sum, t) => sum + t.amount, 0);
-  res.json({ totalRevenue, thisMonth, pending, overdue, pricingPlans: db.billing.pricingPlans });
+  const dailyRevenue = db.billing.dailyRevenueDate === getCurrentDateString() ? db.billing.dailyRevenue : 0;
+  res.json({ totalRevenue, dailyRevenue, thisMonth, pending, overdue, pricingPlans: db.billing.pricingPlans });
+});
+
+app.post("/api/billing/reset-daily", requireRole(["ADMIN"]), (req, res) => {
+  const db = readStore();
+  const today = getCurrentDateString();
+  db.billing.dailyRevenueDate = today;
+  db.billing.dailyRevenue = 0;
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+    type: "system",
+    user: "Admin",
+    userId: "ADMIN",
+    role: "Admin",
+    zone: "N/A",
+    gate: "N/A",
+    vehicleId: "N/A",
+    action: "Daily revenue reset by Admin",
+  });
+  writeStore(db);
+  res.json({ dailyRevenue: 0, date: today });
 });
 
 app.get("/api/billing/transactions", (req, res) => {
@@ -556,34 +646,20 @@ app.get("/api/activity-logs", (req, res) => {
   res.json({ items, total: items.length });
 });
 
+app.delete("/api/activity-logs/:id", requireRole(["ADMIN"]), (req, res) => {
+  const db = readStore();
+  const id = req.params.id;
+  const index = db.activityLogs.findIndex((log) => String(log.id) === String(id));
+  if (index === -1) return res.status(404).json({ message: "Log entry not found" });
+  const [removed] = db.activityLogs.splice(index, 1);
+  writeStore(db);
+  res.json({ deleted: removed.id });
+});
+
 app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error", detail: err.message });
 });
-// Thêm đoạn này vào server.js (trước đoạn app.listen)
-// server.js
-app.get("/api/parking/slots/all", (req, res) => {
-  const db = readStore();
-  ensureBaselineData(db);
-  
-  const allZonesData = {};
-  const zones = ['A', 'B', 'C', 'D', 'E'];
 
-  zones.forEach((zoneId) => {
-    // Mặc định mỗi zone có 100 slot theo yêu cầu mới của bạn
-    const totalSlots = 100; 
-    const occupiedSlots = db.slotAssignments[zoneId] || [];
-    
-    allZonesData[zoneId] = Array.from({ length: totalSlots }, (_, i) => {
-      const slotId = `${zoneId}-${i + 1}`;
-      return { 
-        id: slotId, 
-        status: occupiedSlots.includes(slotId) ? 'occupied' : 'available' 
-      };
-    });
-  });
-  
-  res.json(allZonesData);
-});
 app.listen(PORT, () => {
   console.log(`SPMS backend running at http://localhost:${PORT}`);
 });

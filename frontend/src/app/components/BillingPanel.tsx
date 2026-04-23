@@ -23,35 +23,43 @@ type BillingPanelProps = {
 export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [stats, setStats] = useState({ totalRevenue: 0, thisMonth: 0, pending: 0, overdue: 0 });
+  const [stats, setStats] = useState<{ totalRevenue: number | null; dailyRevenue: number | null; thisMonth: number | null; pending: number | null; overdue: number | null }>({
+    totalRevenue: null,
+    dailyRevenue: null,
+    thisMonth: null,
+    pending: null,
+    overdue: null,
+  });
   const [pricingPlans, setPricingPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState('');
 
   const API_BASE = 'http://localhost:5000/api';
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [overviewRes, txnRes] = await Promise.all([
+        fetch(`${API_BASE}/billing/overview`),
+        fetch(`${API_BASE}/billing/transactions`),
+      ]);
+      const overview = await overviewRes.json();
+      const txns = await txnRes.json();
+      setStats({
+        totalRevenue: overview.totalRevenue ?? null,
+        dailyRevenue: overview.dailyRevenue ?? null,
+        thisMonth: overview.thisMonth ?? null,
+        pending: overview.pending ?? null,
+        overdue: overview.overdue ?? null,
+      });
+      setPricingPlans(overview.pricingPlans ?? []);
+      setTransactions(txns.items ?? []);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [overviewRes, txnRes] = await Promise.all([
-          fetch(`${API_BASE}/billing/overview`),
-          fetch(`${API_BASE}/billing/transactions`),
-        ]);
-        const overview = await overviewRes.json();
-        const txns = await txnRes.json();
-        setStats({
-          totalRevenue: overview.totalRevenue ?? 0,
-          thisMonth: overview.thisMonth ?? 0,
-          pending: overview.pending ?? 0,
-          overdue: overview.overdue ?? 0,
-        });
-        setPricingPlans(overview.pricingPlans ?? []);
-        setTransactions(txns.items ?? []);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -63,6 +71,7 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
     });
     const data = await res.json();
     setActionMessage(res.ok ? `Created ${data.createdInvoices} learner invoices` : data.message || 'Run cycle failed');
+    if (res.ok) await fetchData();
   };
 
   const payTransaction = async (id: string) => {
@@ -73,6 +82,20 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
       setActionMessage(`Payment success for ${id} (${data.bkpayRef})`);
     } else {
       setActionMessage(data.message || 'Payment failed');
+    }
+  };
+
+  const resetDailyRevenue = async () => {
+    const res = await fetch(`${API_BASE}/billing/reset-daily`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-role': actorRole || 'END_USER' },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setActionMessage('Daily revenue has been reset.');
+      await fetchData();
+    } else {
+      setActionMessage(data.message || 'Reset failed');
     }
   };
 
@@ -124,12 +147,37 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
     <div className="space-y-4">
       {/* Admin mới thấy stats tổng doanh thu */}
       <div className="grid grid-cols-4 gap-4">
-        <Card><CardContent className="pt-4">Total: ₫{stats.totalRevenue.toLocaleString()}</CardContent></Card>
-        {/* ... các card khác */}
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-sm text-slate-600">Total Revenue</div>
+            <div className="text-2xl font-bold">₫{stats.totalRevenue?.toLocaleString() ?? '-'}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-sm text-slate-600">This Month</div>
+            <div className="text-2xl font-bold">₫{stats.thisMonth?.toLocaleString() ?? '-'}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-sm text-slate-600">Pending</div>
+            <div className="text-2xl font-bold">₫{stats.pending?.toLocaleString() ?? '-'}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="text-sm text-slate-600">Overdue</div>
+            <div className="text-2xl font-bold">₫{stats.overdue?.toLocaleString() ?? '-'}</div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Pricing Management</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Pricing Management</CardTitle>
+          <CardDescription>Configure hourly parking rates</CardDescription>
+        </CardHeader>
         <CardContent className="grid grid-cols-4 gap-4">
           {pricingPlans.map(plan => (
             <div key={plan.category} className="p-4 border rounded relative">
@@ -145,10 +193,32 @@ export default function BillingPanel({ isAdmin, actorRole }: BillingPanelProps) 
           ))}
         </CardContent>
       </Card>
-      
-      {/* Bảng Transaction History chỉ hiện cho Admin */}
-      <Card>... (Table code) ...</Card>
+
+      {/* Admin Controls */}
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Controls</CardTitle>
+            <CardDescription>System-wide billing operations</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-4">
+              <Button onClick={runBillingCycle} variant="outline">
+                Run Monthly Billing Cycle
+              </Button>
+              <Button onClick={resetDailyRevenue} variant="destructive">
+                Reset Daily Revenue
+              </Button>
+            </div>
+            {actionMessage && (
+              <p className="text-sm text-slate-600">{actionMessage}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
+  
+
 

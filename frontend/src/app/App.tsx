@@ -49,13 +49,13 @@ export default function App() {
   });
   const [authError, setAuthError] = useState('');
   const [stats, setStats] = useState({
-    totalSpaces: 0,
-    occupied: 0,
-    available: 0,
-    revenue: 0,
-    activeUsers: 0,
-    sensors: 0,
-    sensorsOnline: 0
+    totalSpaces: null,
+    occupied: null,
+    available: null,
+    revenue: null,
+    activeUsers: null,
+    sensors: null,
+    sensorsOnline: null
   });
   const [zones, setZones] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
@@ -76,13 +76,13 @@ export default function App() {
       const iot = await iotRes.json();
       const logs = await logsRes.json();
       setStats({
-        totalSpaces: summary.totalSlots || 0,
-        occupied: summary.occupied || 0,
-        available: summary.available || 0,
-        revenue: summary.todayRevenue || 0,
-        activeUsers: summary.activeSessions || 0,
-        sensors: iot.totalSensors || 0,
-        sensorsOnline: iot.online || 0
+        totalSpaces: summary.totalSlots ?? null,
+        occupied: summary.occupied ?? null,
+        available: summary.available ?? null,
+        revenue: summary.todayRevenue ?? null,
+        activeUsers: summary.activeSessions ?? null,
+        sensors: iot.totalSensors ?? null,
+        sensorsOnline: iot.online ?? null
       });
       setZones(zonesData || []);
       setRecentLogs((logs.items || []).slice(0, 5));
@@ -92,7 +92,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  const occupancyRate = stats.totalSpaces ? (stats.occupied / stats.totalSpaces) * 100 : 0;
+  const occupancyRate = (stats.totalSpaces && stats.occupied) ? (stats.occupied / stats.totalSpaces) * 100 : 0;
 
   const handleAuth = async () => {
     setAuthError('');
@@ -231,13 +231,13 @@ export default function App() {
                   <Car className="w-4 h-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{stats.totalSpaces}</div>
+                  <div className="text-2xl font-bold text-slate-900">{stats.totalSpaces ?? '-'}</div>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      {stats.available} Available
+                      {stats.available ?? '-'} Available
                     </Badge>
                     <Badge variant="secondary" className="bg-red-100 text-red-700">
-                      {stats.occupied} Occupied
+                      {stats.occupied ?? '-'} Occupied
                     </Badge>
                   </div>
                 </CardContent>
@@ -260,13 +260,13 @@ export default function App() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-slate-600">
-                    Monthly Revenue
+                    Daily Revenue
                   </CardTitle>
                   <DollarSign className="w-4 h-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-slate-900">
-                    ₫{stats.revenue.toLocaleString()}
+                    {stats.revenue != null ? `₫${(stats.revenue as number).toLocaleString()}` : '-'}
                   </div>
                   <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
@@ -283,7 +283,7 @@ export default function App() {
                   <Users className="w-4 h-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{stats.activeUsers}</div>
+                  <div className="text-2xl font-bold text-slate-900">{stats.activeUsers ?? '-'}</div>
                   <p className="text-xs text-slate-500 mt-2">Currently in parking areas</p>
                 </CardContent>
               </Card>
@@ -335,10 +335,10 @@ export default function App() {
                       <span className="text-sm text-slate-600">IoT Sensors</span>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        {stats.sensorsOnline}/{stats.sensors}
+                        {stats.sensorsOnline ?? '-'} / {stats.sensors ?? '-'}
                       </Badge>
                     </div>
-                    <Progress value={(stats.sensorsOnline / stats.sensors) * 100} />
+                    <Progress value={stats.sensors && stats.sensorsOnline ? (stats.sensorsOnline / stats.sensors) * 100 : 0} />
                   </div>
 
                   <Separator />
@@ -451,7 +451,7 @@ export default function App() {
 
           {/* Activity Logs Tab */}
           <TabsContent value="activity">
-            <ActivityLogs />
+            <ActivityLogs isAdmin={isAdmin} actorRole={actorRole} />
           </TabsContent>
 
           {/* Analytics Tab */}
