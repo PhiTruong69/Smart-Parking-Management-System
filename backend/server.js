@@ -1,7 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
+require('dotenv').config();
+
 const { initStore, readStore, writeStore } = require("./data/store");
+
+// Import authentication routes
+const authRoutes = require("./routes/auth");
+
+// Import data sync
+const { initializeSchedules } = require("./jobs/dataSyncJob");
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -14,6 +22,12 @@ app.use((req, res, next) => {
   req.actorRole = String(req.headers["x-role"] || "END_USER").toUpperCase();
   next();
 });
+
+// Mount new HCMUT SSO authentication routes (v2)
+app.use("/api/auth", authRoutes);
+
+// Initialize data sync schedules
+initializeSchedules();
 
 function requireRole(roles) {
   return (req, res, next) => {
