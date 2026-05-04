@@ -1,42 +1,23 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const { initStore, readStore, writeStore } = require("./data/store");
-
-// Import authentication routes
 const authRoutes = require("./routes/auth");
-
-// Import data sync
 const { initializeSchedules } = require("./jobs/dataSyncJob");
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
+const JWT_SECRET = process.env.JWT_SECRET || "spms-secret-key-change-in-production";
+const JWT_EXPIRY = process.env.JWT_EXPIRY || "8h";
 
 initStore();
 app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.actorRole = String(req.headers["x-role"] || "END_USER").toUpperCase();
-  next();
-});
-
-// Mount new HCMUT SSO authentication routes (v2)
-app.use("/api/auth", authRoutes);
-
-// Initialize data sync schedules
-initializeSchedules();
-
-function requireRole(roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.actorRole)) {
-      return res.status(403).json({ message: "Forbidden: insufficient role", required: roles, current: req.actorRole });
-    }
-    next();
-  };
-}
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function makeId(prefix) {
   return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
@@ -49,19 +30,17 @@ function getCurrentDateString() {
 function calculateFee(entryTime, exitTime, role, db) {
   const durationHours = Math.max(1, Math.ceil((new Date(exitTime) - new Date(entryTime)) / 36e5));
   const normalizedRole = String(role || "Visitor").toLowerCase();
-  
-  // Tìm chính sách giá từ Database do Admin cấu hình
   const plans = db.billing.pricingPlans || [];
-  let rate = 10000; // Mặc định cho Visitor
+  let rate = 10000;
 
   if (normalizedRole.includes("student") || normalizedRole.includes("graduate") || normalizedRole.includes("doctoral")) {
-    rate = plans.find(p => p.category === "Students")?.hourly || 5000;
+    rate = plans.find((p) => p.category === "Students")?.hourly || 5000;
   } else if (normalizedRole.includes("staff")) {
-    rate = plans.find(p => p.category === "Staff")?.hourly || 4000;
+    rate = plans.find((p) => p.category === "Staff")?.hourly || 4000;
   } else if (normalizedRole.includes("faculty")) {
-    rate = plans.find(p => p.category === "Faculty")?.hourly || 0;
+    rate = plans.find((p) => p.category === "Faculty")?.hourly || 0;
   } else {
-    rate = plans.find(p => p.category === "Visitors")?.hourly || 10000;
+    rate = plans.find((p) => p.category === "Visitors")?.hourly || 10000;
   }
 
   return durationHours * rate;
@@ -80,7 +59,7 @@ function getDashboardSummary(db) {
 }
 
 function generateGuidance(zones) {
-  const sorted = [...zones].sort((a, b) => (a.occupied / a.total) - (b.occupied / b.total));
+  const sorted = [...zones].sort((a, b) => a.occupied / a.total - b.occupied / b.total);
   return zones.map((z) => {
     const state = z.occupied / z.total >= 0.95 ? "full" : z.occupied / z.total >= 0.85 ? "nearly_full" : "available";
     const alternative = state === "full" ? sorted.find((x) => x.id !== z.id && x.occupied < x.total) : null;
@@ -122,33 +101,104 @@ function ensureBaselineData(db) {
   db.users = db.users.map((u) => ({ ...u, password: u.password || "123456" }));
 }
 
+// ─── JWT Middleware ──────────────────────────────────────────────────────────
+
+/**
+ * Xác thực JWT từ header Authorization: Bearer <token>
+ * Sau khi xác thực, gắn req.user = { userId, role, name }
+ */
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Access denied: no token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // { userId, role, name, iat, exp }
+    req.actorRole = decoded.role; // tương thích với requireRole
+    next();
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired, please login again" });
+    }
+    return res.status(403).json({ message: "Invalid token" });
+  }
+}
+
+/**
+ * Kiểm tra role sau khi đã xác thực JWT
+ */
+function requireRole(roles) {
+  return (req, res, next) => {
+    const role = req.actorRole || req.user?.role;
+    if (!role || !roles.includes(role)) {
+      return res.status(403).json({ message: "Forbidden: insufficient role", required: roles, current: role });
+    }
+    next();
+  };
+}
+
+// Mount routes từ auth.js (nếu có thêm route khác trong file đó)
+app.use("/api/auth", authRoutes);
+
+// Khởi động data sync
+initializeSchedules();
+
+// ─── Public Routes ───────────────────────────────────────────────────────────
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", service: "spms-backend", timestamp: new Date().toISOString() });
 });
 
+// Login — tạo JWT thật thay vì randomUUID
 app.post("/api/auth/login", (req, res) => {
   const { studentId, password } = req.body;
   if (!studentId || !password) {
     return res.status(400).json({ message: "studentId and password are required" });
   }
+
   const db = readStore();
   ensureBaselineData(db);
   writeStore(db);
+
   const user = db.users.find((u) => u.id === studentId && u.password === password);
   if (!user) return res.status(401).json({ message: "Invalid credentials" });
+
+  const actorRole =
+    user.role === "Admin" ? "ADMIN"
+    : user.role === "Faculty" || user.role === "Staff" ? "OPERATOR"
+    : "END_USER";
+
+  const token = jwt.sign(
+    { userId: user.id, role: actorRole, name: user.name },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRY }
+  );
+
   return res.json({
-    token: crypto.randomUUID(),
+    token,
     user: { ...user, password: undefined },
-    actorRole: user.role === "Admin" ? "ADMIN" : user.role === "Faculty" || user.role === "Staff" ? "OPERATOR" : "END_USER",
+    actorRole,
   });
 });
 
+// Register — public, không cần token
 app.post("/api/auth/register", (req, res) => {
   const { studentId, password, name, role = "Student", program = "N/A" } = req.body;
-  if (!studentId || !password || !name) return res.status(400).json({ message: "studentId, password, name are required" });
+  if (!studentId || !password || !name) {
+    return res.status(400).json({ message: "studentId, password, name are required" });
+  }
+
   const db = readStore();
   ensureBaselineData(db);
-  if (db.users.some((u) => u.id === studentId)) return res.status(409).json({ message: "Account already exists" });
+
+  if (db.users.some((u) => u.id === studentId)) {
+    return res.status(409).json({ message: "Account already exists" });
+  }
+
   const user = {
     id: studentId,
     password,
@@ -165,20 +215,26 @@ app.post("/api/auth/register", (req, res) => {
   res.status(201).json({ message: "Registered", user: { ...user, password: undefined } });
 });
 
+// Logout — client tự xóa token, server chỉ confirm
 app.post("/api/auth/logout", (req, res) => {
   res.json({ message: "Logged out" });
 });
 
-app.get("/api/auth/me", (req, res) => {
+// ─── Protected Routes ────────────────────────────────────────────────────────
+
+// /me — trả về đúng user đang đăng nhập từ JWT
+app.get("/api/auth/me", authenticateToken, (req, res) => {
   const db = readStore();
-  res.json(db.users[0]);
+  const user = db.users.find((u) => u.id === req.user.userId);
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json({ ...user, password: undefined });
 });
 
-app.get("/api/integrations/sso/status", (req, res) => {
+app.get("/api/integrations/sso/status", authenticateToken, (req, res) => {
   res.json({ service: "HCMUT_SSO", status: "connected", checkedAt: new Date().toISOString() });
 });
 
-app.get("/api/integrations/datacore/status", (req, res) => {
+app.get("/api/integrations/datacore/status", authenticateToken, (req, res) => {
   const db = readStore();
   res.json({
     service: "HCMUT_DATACORE",
@@ -189,7 +245,7 @@ app.get("/api/integrations/datacore/status", (req, res) => {
   });
 });
 
-app.post("/api/integrations/datacore/sync", requireRole(["ADMIN"]), (req, res) => {
+app.post("/api/integrations/datacore/sync", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
   db.activityLogs.unshift({
     id: Date.now(),
@@ -207,40 +263,40 @@ app.post("/api/integrations/datacore/sync", requireRole(["ADMIN"]), (req, res) =
   res.json({ status: "ok", syncedUsers: db.users.length, at: new Date().toISOString() });
 });
 
-app.get("/api/dashboard/summary", (req, res) => {
+app.get("/api/dashboard/summary", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(getDashboardSummary(db));
 });
 
-app.get("/api/analytics", (req, res) => {
+app.get("/api/analytics", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(db.analytics);
 });
 
-app.get("/api/users", (req, res) => {
+app.get("/api/users", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const q = String(req.query.q || "").toLowerCase();
   const users = q
     ? db.users.filter((u) => [u.id, u.name, u.program, u.role].join(" ").toLowerCase().includes(q))
     : db.users;
-  res.json({ items: users, total: users.length });
+  res.json({ items: users.map((u) => ({ ...u, password: undefined })), total: users.length });
 });
 
-app.patch("/api/users/:id/role", (req, res) => {
+app.patch("/api/users/:id/role", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
   const user = db.users.find((u) => u.id === req.params.id);
   if (!user) return res.status(404).json({ message: "User not found" });
   user.role = req.body.role || user.role;
   writeStore(db);
-  res.json(user);
+  res.json({ ...user, password: undefined });
 });
 
-app.get("/api/admin/pricing-policies", requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
+app.get("/api/admin/pricing-policies", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   res.json(db.billing.pricingPlans);
 });
 
-app.patch("/api/admin/pricing-policies/:category", requireRole(["ADMIN"]), (req, res) => {
+app.patch("/api/admin/pricing-policies/:category", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
   const category = req.params.category.toLowerCase();
   const policy = db.billing.pricingPlans.find((p) => String(p.category).toLowerCase() === category);
@@ -250,8 +306,8 @@ app.patch("/api/admin/pricing-policies/:category", requireRole(["ADMIN"]), (req,
     id: Date.now(),
     timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
     type: "system",
-    user: "Admin",
-    userId: "ADMIN",
+    user: req.user.name || "Admin",
+    userId: req.user.userId,
     role: "Admin",
     zone: "N/A",
     gate: "N/A",
@@ -262,28 +318,27 @@ app.patch("/api/admin/pricing-policies/:category", requireRole(["ADMIN"]), (req,
   res.json(policy);
 });
 
-app.get("/api/parking/slots/all", (req, res) => {
+// ─── Parking Routes ──────────────────────────────────────────────────────────
+
+app.get("/api/parking/slots/all", authenticateToken, (req, res) => {
   const db = readStore();
   ensureBaselineData(db);
   const allZonesData = {};
-  const zones = ['A', 'B', 'C', 'D', 'E'];
+  const zones = ["A", "B", "C", "D", "E"];
 
   zones.forEach((zoneId) => {
     const totalSlots = 100;
     const occupiedSlots = db.slotAssignments[zoneId] || [];
     allZonesData[zoneId] = Array.from({ length: totalSlots }, (_, i) => {
       const slotId = `${zoneId}-${i + 1}`;
-      return {
-        id: slotId,
-        status: occupiedSlots.includes(slotId) ? 'occupied' : 'available',
-      };
+      return { id: slotId, status: occupiedSlots.includes(slotId) ? "occupied" : "available" };
     });
   });
 
   res.json(allZonesData);
 });
 
-app.get("/api/parking/slots/:zoneId", (req, res) => {
+app.get("/api/parking/slots/:zoneId", authenticateToken, (req, res) => {
   const db = readStore();
   ensureBaselineData(db);
   const zoneId = req.params.zoneId;
@@ -298,7 +353,7 @@ app.get("/api/parking/slots/:zoneId", (req, res) => {
   res.json({ zoneId, slots });
 });
 
-app.get("/api/parking/zones", (req, res) => {
+app.get("/api/parking/zones", authenticateToken, (req, res) => {
   const db = readStore();
   const zones = db.zones.map((z) => ({
     ...z,
@@ -308,27 +363,29 @@ app.get("/api/parking/zones", (req, res) => {
   res.json(zones);
 });
 
-app.get("/api/parking/sessions/active", (req, res) => {
+app.get("/api/parking/sessions/active", authenticateToken, (req, res) => {
   const db = readStore();
-  const active = db.sessions.filter((s) => s.status === "ACTIVE");
-  res.json(active);
+  res.json(db.sessions.filter((s) => s.status === "ACTIVE"));
 });
 
-app.get("/api/parking/sessions", (req, res) => {
+app.get("/api/parking/sessions", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(db.sessions);
 });
 
-app.post("/api/parking/sessions/entry", (req, res) => {
+app.post("/api/parking/sessions/entry", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const { userId, userName, userType, zoneId = "E", slotId, gate = "Unknown", vehicleId = "N/A", method = "CARD" } = req.body;
   const db = readStore();
   ensureBaselineData(db);
+
   const zone = db.zones.find((z) => z.id === zoneId);
   if (!zone) return res.status(400).json({ message: "Invalid zoneId" });
   if (zone.occupied >= zone.total) return res.status(409).json({ message: "Zone is full" });
   if (!db.slotAssignments) db.slotAssignments = {};
   if (!db.slotAssignments[zoneId]) db.slotAssignments[zoneId] = [];
-  if (slotId && db.slotAssignments[zoneId].includes(slotId)) return res.status(409).json({ message: `Slot ${slotId} is already occupied` });
+  if (slotId && db.slotAssignments[zoneId].includes(slotId)) {
+    return res.status(409).json({ message: `Slot ${slotId} is already occupied` });
+  }
 
   let resolvedUserId = userId;
   let resolvedUser = resolvedUserId ? db.users.find((u) => u.id === resolvedUserId) : null;
@@ -367,6 +424,7 @@ app.post("/api/parking/sessions/entry", (req, res) => {
   db.sessions.push(session);
   if (slotId) db.slotAssignments[zoneId].push(slotId);
   zone.occupied += 1;
+
   db.activityLogs.unshift({
     id: Date.now(),
     timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -383,7 +441,7 @@ app.post("/api/parking/sessions/entry", (req, res) => {
   res.status(201).json(session);
 });
 
-app.post("/api/parking/sessions/:id/exit", (req, res) => {
+app.post("/api/parking/sessions/:id/exit", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const session = db.sessions.find((s) => s.id === req.params.id);
   if (!session) return res.status(404).json({ message: "Session not found" });
@@ -399,7 +457,7 @@ app.post("/api/parking/sessions/:id/exit", (req, res) => {
   const zone = db.zones.find((z) => z.id === session.zoneId);
   if (zone) zone.occupied = Math.max(0, zone.occupied - 1);
   if (session.slotId) {
-    db.slotAssignments[session.zoneId] = (db.slotAssignments[session.zoneId] || []).filter(id => id !== session.slotId);
+    db.slotAssignments[session.zoneId] = (db.slotAssignments[session.zoneId] || []).filter((id) => id !== session.slotId);
   }
 
   const today = getCurrentDateString();
@@ -442,7 +500,7 @@ app.post("/api/parking/sessions/:id/exit", (req, res) => {
   res.json({ ...session, payment });
 });
 
-app.post("/api/parking/tickets/issue", (req, res) => {
+app.post("/api/parking/tickets/issue", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const { zoneId = "E", gate = "Gate E1", note = "" } = req.body;
   const db = readStore();
   const ticket = {
@@ -470,12 +528,12 @@ app.post("/api/parking/tickets/issue", (req, res) => {
   res.status(201).json(ticket);
 });
 
-app.get("/api/parking/tickets", (req, res) => {
+app.get("/api/parking/tickets", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(db.tickets);
 });
 
-app.post("/api/parking/tickets/:ticketNo/close", (req, res) => {
+app.post("/api/parking/tickets/:ticketNo/close", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const ticket = db.tickets.find((t) => t.ticketNo === req.params.ticketNo);
   if (!ticket) return res.status(404).json({ message: "Ticket not found" });
@@ -484,16 +542,17 @@ app.post("/api/parking/tickets/:ticketNo/close", (req, res) => {
   res.json(ticket);
 });
 
-app.get("/api/parking/guidance", (req, res) => {
+app.get("/api/parking/guidance", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(generateGuidance(db.zones));
 });
 
-app.get("/api/iot/status", (req, res) => {
+// ─── IoT Routes ──────────────────────────────────────────────────────────────
+
+app.get("/api/iot/status", authenticateToken, (req, res) => {
   const db = readStore();
   const sensors = db.iot.sensors;
-  
-  // Calculate real gateway status based on zones
+
   const gateways = db.zones.map((zone) => {
     const zoneSensors = sensors.filter((s) => s.zone === zone.id);
     const online = zoneSensors.filter((s) => s.status === "online").length || zone.total;
@@ -509,7 +568,7 @@ app.get("/api/iot/status", (req, res) => {
       lastUpdate: "just now",
     };
   });
-  
+
   res.json({
     totalSensors: db.zones.reduce((sum, z) => sum + z.total, 0),
     online: gateways.filter((g) => g.status === "online").length,
@@ -519,10 +578,8 @@ app.get("/api/iot/status", (req, res) => {
   });
 });
 
-app.get("/api/iot/sensors", (req, res) => {
+app.get("/api/iot/sensors", authenticateToken, (req, res) => {
   const db = readStore();
-  
-  // Generate real sensors based on zones and slots
   const sensors = [];
   db.zones.forEach((zone) => {
     for (let i = 1; i <= zone.total; i++) {
@@ -540,16 +597,15 @@ app.get("/api/iot/sensors", (req, res) => {
       });
     }
   });
-  
   res.json(sensors);
 });
 
-app.get("/api/iot/signage", (req, res) => {
+app.get("/api/iot/signage", authenticateToken, (req, res) => {
   const db = readStore();
   res.json(db.iot.signage);
 });
 
-app.post("/api/iot/events/heartbeat", (req, res) => {
+app.post("/api/iot/events/heartbeat", authenticateToken, (req, res) => {
   const { gatewayId, status = "online" } = req.body;
   if (!gatewayId) return res.status(400).json({ message: "gatewayId is required" });
   const db = readStore();
@@ -561,7 +617,7 @@ app.post("/api/iot/events/heartbeat", (req, res) => {
   res.json(gateway);
 });
 
-app.post("/api/iot/events/slot-occupancy", (req, res) => {
+app.post("/api/iot/events/slot-occupancy", authenticateToken, (req, res) => {
   const { sensorId, status } = req.body;
   if (!sensorId || !status) return res.status(400).json({ message: "sensorId and status are required" });
   const db = readStore();
@@ -585,7 +641,9 @@ app.post("/api/iot/events/slot-occupancy", (req, res) => {
   res.json(sensor);
 });
 
-app.get("/api/billing/overview", (req, res) => {
+// ─── Billing Routes ───────────────────────────────────────────────────────────
+
+app.get("/api/billing/overview", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const all = db.billing.transactions;
   const totalRevenue = all.filter((t) => t.status === "Paid").reduce((sum, t) => sum + t.amount, 0);
@@ -598,7 +656,7 @@ app.get("/api/billing/overview", (req, res) => {
   res.json({ totalRevenue, dailyRevenue, thisMonth, pending, overdue, pricingPlans: db.billing.pricingPlans });
 });
 
-app.post("/api/billing/reset-daily", requireRole(["ADMIN"]), (req, res) => {
+app.post("/api/billing/reset-daily", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
   const today = getCurrentDateString();
   db.billing.dailyRevenueDate = today;
@@ -607,8 +665,8 @@ app.post("/api/billing/reset-daily", requireRole(["ADMIN"]), (req, res) => {
     id: Date.now(),
     timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
     type: "system",
-    user: "Admin",
-    userId: "ADMIN",
+    user: req.user.name || "Admin",
+    userId: req.user.userId,
     role: "Admin",
     zone: "N/A",
     gate: "N/A",
@@ -619,15 +677,17 @@ app.post("/api/billing/reset-daily", requireRole(["ADMIN"]), (req, res) => {
   res.json({ dailyRevenue: 0, date: today });
 });
 
-app.post("/api/billing/reset-monthly", requireRole(["ADMIN"]), (req, res) => {
+app.post("/api/billing/reset-monthly", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
-  db.billing.transactions = db.billing.transactions.filter((t) => !String(t.period || "").toLowerCase().includes("april"));
+  db.billing.transactions = db.billing.transactions.filter(
+    (t) => !String(t.period || "").toLowerCase().includes("april")
+  );
   db.activityLogs.unshift({
     id: Date.now(),
     timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
     type: "system",
-    user: "Admin",
-    userId: "ADMIN",
+    user: req.user.name || "Admin",
+    userId: req.user.userId,
     role: "Admin",
     zone: "N/A",
     gate: "N/A",
@@ -638,7 +698,7 @@ app.post("/api/billing/reset-monthly", requireRole(["ADMIN"]), (req, res) => {
   res.json({ message: "Monthly revenue has been reset" });
 });
 
-app.get("/api/billing/transactions", (req, res) => {
+app.get("/api/billing/transactions", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const q = String(req.query.q || "").toLowerCase();
   const items = q
@@ -647,7 +707,7 @@ app.get("/api/billing/transactions", (req, res) => {
   res.json({ items, total: items.length });
 });
 
-app.post("/api/billing/run-cycle", requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
+app.post("/api/billing/run-cycle", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const learners = db.users.filter((u) => ["Student", "Graduate", "Doctoral"].includes(u.role));
   const monthlyFee = db.billing.pricingPlans.find((p) => p.category === "Students")?.monthly || 150000;
@@ -667,8 +727,8 @@ app.post("/api/billing/run-cycle", requireRole(["ADMIN", "OPERATOR"]), (req, res
     id: Date.now(),
     timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
     type: "system",
-    user: "System",
-    userId: "SYSTEM",
+    user: req.user.name || "System",
+    userId: req.user.userId,
     role: "System",
     zone: "N/A",
     gate: "N/A",
@@ -679,14 +739,17 @@ app.post("/api/billing/run-cycle", requireRole(["ADMIN", "OPERATOR"]), (req, res
   res.json({ createdInvoices: created.length, sample: created.slice(0, 3) });
 });
 
-app.post("/api/billing/calculate", (req, res) => {
-    const { entryTime, exitTime, userType } = req.body;
+app.post("/api/billing/calculate", authenticateToken, (req, res) => {
+  const { entryTime, exitTime, userType } = req.body;
   if (!entryTime || !exitTime) return res.status(400).json({ message: "entryTime and exitTime are required" });
-  const totalFee = calculateFee(entryTime, exitTime, userType || "Visitor");
+  const db = readStore();
+  const totalFee = calculateFee(entryTime, exitTime, userType || "Visitor", db);
   res.json({ amount: totalFee, status: "Pending", method: "BKPay" });
 });
 
-app.post("/api/payments/:transactionId/request", (req, res) => {
+// ─── Payment Routes ───────────────────────────────────────────────────────────
+
+app.post("/api/payments/:transactionId/request", authenticateToken, (req, res) => {
   const db = readStore();
   const txn = db.billing.transactions.find((t) => t.id === req.params.transactionId);
   if (!txn) return res.status(404).json({ message: "Transaction not found" });
@@ -696,6 +759,7 @@ app.post("/api/payments/:transactionId/request", (req, res) => {
   res.json({ transactionId: txn.id, bkpayRef: makeId("BKPAY"), status: "SUCCESS" });
 });
 
+// Webhook từ BKPay — không cần JWT (gọi từ bên ngoài)
 app.post("/api/payments/bkpay/webhook", (req, res) => {
   const { transactionId, paymentStatus = "SUCCESS" } = req.body;
   if (!transactionId) return res.status(400).json({ message: "transactionId is required" });
@@ -708,7 +772,9 @@ app.post("/api/payments/bkpay/webhook", (req, res) => {
   res.json({ ok: true, transactionId, status: txn.status });
 });
 
-app.get("/api/activity-logs", (req, res) => {
+// ─── Activity Logs ────────────────────────────────────────────────────────────
+
+app.get("/api/activity-logs", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const q = String(req.query.q || "").toLowerCase();
   const items = q
@@ -717,7 +783,7 @@ app.get("/api/activity-logs", (req, res) => {
   res.json({ items, total: items.length });
 });
 
-app.delete("/api/activity-logs/:id", requireRole(["ADMIN"]), (req, res) => {
+app.delete("/api/activity-logs/:id", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
   const id = req.params.id;
   const index = db.activityLogs.findIndex((log) => String(log.id) === String(id));
@@ -727,7 +793,10 @@ app.delete("/api/activity-logs/:id", requireRole(["ADMIN"]), (req, res) => {
   res.json({ deleted: removed.id });
 });
 
+// ─── Error Handler ────────────────────────────────────────────────────────────
+
 app.use((err, req, res, next) => {
+  console.error(err.stack);
   res.status(500).json({ message: "Internal server error", detail: err.message });
 });
 
