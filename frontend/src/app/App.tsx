@@ -32,6 +32,9 @@ import ActivityLogs from './components/ActivityLogs';
 import IoTMonitoring from './components/IoTMonitoring';
 import Analytics from './components/Analytics';
 import TrafficSimulation from './components/TrafficSimulation';
+import { apiFetch } from './lib/apiFetch';
+
+const API_BASE = 'http://localhost:5000/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -59,41 +62,66 @@ export default function App() {
   });
   const [zones, setZones] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
-  const API_BASE = 'http://localhost:5000/api';
+
   const isAdmin = auth?.user?.role === 'Admin';
   const actorRole = auth?.actorRole || 'END_USER';
 
+  // Fetch dashboard — dùng apiFetch để tự gắn JWT
   useEffect(() => {
+    if (!auth) return; // chưa login thì không fetch
     const fetchDashboard = async () => {
-      const [summaryRes, zonesRes, iotRes, logsRes] = await Promise.all([
-        fetch(`${API_BASE}/dashboard/summary`),
-        fetch(`${API_BASE}/parking/zones`),
-        fetch(`${API_BASE}/iot/status`),
-        fetch(`${API_BASE}/activity-logs`)
-      ]);
-      const summary = await summaryRes.json();
-      const zonesData = await zonesRes.json();
-      const iot = await iotRes.json();
-      const logs = await logsRes.json();
-      setStats({
-        totalSpaces: summary.totalSlots ?? null,
-        occupied: summary.occupied ?? null,
-        available: summary.available ?? null,
-        revenue: summary.todayRevenue ?? null,
-        activeUsers: summary.activeSessions ?? null,
-        sensors: iot.totalSensors ?? null,
-        sensorsOnline: iot.online ?? null
-      });
-      setZones(zonesData || []);
-      setRecentLogs((logs.items || []).slice(0, 5));
+      try {
+        const [summaryRes, zonesRes, iotRes, logsRes] = await Promise.all([
+          apiFetch(`${API_BASE}/dashboard/summary`),
+          apiFetch(`${API_BASE}/parking/zones`),
+          apiFetch(`${API_BASE}/iot/status`),
+          apiFetch(`${API_BASE}/activity-logs`),
+        ]);
+
+        // Nếu token hết hạn → logout tự động
+        if (summaryRes.status === 401) {
+          logout();
+          return;
+        }
+        if (summaryRes.ok && zonesRes.ok && iotRes.ok && logsRes.ok) {
+          const summary = await summaryRes.json();
+          const zonesData = await zonesRes.json();
+          const iot = await iotRes.json();
+          const logs = await logsRes.json();
+
+          setStats({
+            totalSpaces: summary.totalSlots ?? null,
+            occupied: summary.occupied ?? null,
+            available: summary.available ?? null,
+            revenue: summary.todayRevenue ?? null,
+            activeUsers: summary.activeSessions ?? null,
+            sensors: iot.totalSensors ?? null,
+            sensorsOnline: iot.online ?? null,
+          });
+          setZones(zonesData || []);
+          setRecentLogs((logs.items || []).slice(0, 5));
+        } else {
+          console.error('Dashboard fetch failed:', {
+            summary: summaryRes.status,
+            zones: zonesRes.status,
+            iot: iotRes.status,
+            logs: logsRes.status,
+          });
+        }
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+      }
     };
+
     fetchDashboard();
     const timer = setInterval(fetchDashboard, 10000);
     return () => clearInterval(timer);
-  }, []);
+  }, [auth]); // re-run khi auth thay đổi (login/logout)
 
-  const occupancyRate = (stats.totalSpaces && stats.occupied) ? (stats.occupied / stats.totalSpaces) * 100 : 0;
+  const occupancyRate =
+    stats.totalSpaces && stats.occupied ? (stats.occupied / stats.totalSpaces) * 100 : 0;
 
+  // Login / Register — public, không cần token
   const handleAuth = async () => {
     setAuthError('');
     const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
@@ -101,48 +129,80 @@ export default function App() {
       authMode === 'login'
         ? { studentId: authForm.studentId, password: authForm.password }
         : authForm;
+
     const res = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     });
     const data = await res.json();
+
     if (!res.ok) return setAuthError(data.message || 'Authentication failed');
     if (authMode === 'register') {
       setAuthMode('login');
-      setAuthError('Register thành công, vui lòng đăng nhập.');
+      setAuthError('Đăng ký thành công, vui lòng đăng nhập.');
       return;
     }
+
+    // Lưu toàn bộ { token, user, actorRole } vào localStorage
     setAuth(data);
     localStorage.setItem('spms-auth', JSON.stringify(data));
   };
 
   const logout = async () => {
-    await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+    await fetch(`${API_BASE}/auth/logout`, { method: 'POST' }).catch(() => { });
     setAuth(null);
     localStorage.removeItem('spms-auth');
   };
 
+  // ── Login / Register Screen ─────────────────────────────────────────────────
   if (!auth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>{authMode === 'login' ? 'Đăng nhập hệ thống' : 'Đăng ký tài khoản'}</CardTitle>
-            <CardDescription>Admin demo: `admin` / `admin123`; User demo: `1952001` / `123456`</CardDescription>
+            <CardTitle>
+              {authMode === 'login' ? 'Đăng nhập hệ thống' : 'Đăng ký tài khoản'}
+            </CardTitle>
+            <CardDescription>
+              Admin demo: `admin` / `admin123`; User demo: `1952001` / `123456`
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Input placeholder="Mã số / Username" value={authForm.studentId} onChange={(e) => setAuthForm((p) => ({ ...p, studentId: e.target.value }))} />
-            <Input placeholder="Mật khẩu" type="password" value={authForm.password} onChange={(e) => setAuthForm((p) => ({ ...p, password: e.target.value }))} />
+            <Input
+              placeholder="Mã số / Username"
+              value={authForm.studentId}
+              onChange={(e) => setAuthForm((p) => ({ ...p, studentId: e.target.value }))}
+            />
+            <Input
+              placeholder="Mật khẩu"
+              type="password"
+              value={authForm.password}
+              onChange={(e) => setAuthForm((p) => ({ ...p, password: e.target.value }))}
+            />
             {authMode === 'register' && (
               <>
-                <Input placeholder="Họ tên" value={authForm.name} onChange={(e) => setAuthForm((p) => ({ ...p, name: e.target.value }))} />
-                <Input placeholder="Chương trình / Đơn vị" value={authForm.program} onChange={(e) => setAuthForm((p) => ({ ...p, program: e.target.value }))} />
+                <Input
+                  placeholder="Họ tên"
+                  value={authForm.name}
+                  onChange={(e) => setAuthForm((p) => ({ ...p, name: e.target.value }))}
+                />
+                <Input
+                  placeholder="Chương trình / Đơn vị"
+                  value={authForm.program}
+                  onChange={(e) => setAuthForm((p) => ({ ...p, program: e.target.value }))}
+                />
               </>
             )}
             {authError && <div className="text-sm text-red-600">{authError}</div>}
-            <Button onClick={handleAuth} className="w-full">{authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}</Button>
-            <Button variant="ghost" className="w-full" onClick={() => setAuthMode((m) => (m === 'login' ? 'register' : 'login'))}>
+            <Button onClick={handleAuth} className="w-full">
+              {authMode === 'login' ? 'Đăng nhập' : 'Đăng ký'}
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => setAuthMode((m) => (m === 'login' ? 'register' : 'login'))}
+            >
               {authMode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
             </Button>
           </CardContent>
@@ -151,6 +211,7 @@ export default function App() {
     );
   }
 
+  // ── Main App ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -172,7 +233,9 @@ export default function App() {
                 System Online
               </Badge>
               <Badge variant="secondary">{auth.user.role}</Badge>
-              <Button variant="outline" onClick={logout}>Đăng xuất</Button>
+              <Button variant="outline" onClick={logout}>
+                Đăng xuất
+              </Button>
               <Button variant="ghost" size="icon">
                 <Settings className="w-5 h-5" />
               </Button>
@@ -184,106 +247,81 @@ export default function App() {
       {/* Main Content */}
       <main className="max-w-[1600px] mx-auto px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white border border-slate-200 p-1">
-            <TabsTrigger value="dashboard" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="parking" className="gap-2">
-              <MapPin className="w-4 h-4" />
-              Parking Map
-            </TabsTrigger>
-            <TabsTrigger value="simulation" className="gap-2">
-              <Car className="w-4 h-4" />
-              Simulation
-            </TabsTrigger>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="w-4 h-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="billing" className="gap-2">
-              <CreditCard className="w-4 h-4" />
-              Billing
-            </TabsTrigger>
-            <TabsTrigger value="iot" className="gap-2">
-              <Wifi className="w-4 h-4" />
-              IoT Sensors
-            </TabsTrigger>
-            <TabsTrigger value="activity" className="gap-2">
-              <Activity className="w-4 h-4" />
-              Activity Logs
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-8">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="parking">Parking Map</TabsTrigger>
+            <TabsTrigger value="simulation">Simulation</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+            <TabsTrigger value="iot">IoT</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Dashboard Tab */}
           <TabsContent value="dashboard" className="space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-slate-600">
                     Total Parking Spaces
                   </CardTitle>
                   <Car className="w-4 h-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{stats.totalSpaces ?? '-'}</div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      {stats.available ?? '-'} Available
-                    </Badge>
-                    <Badge variant="secondary" className="bg-red-100 text-red-700">
-                      {stats.occupied ?? '-'} Occupied
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">
-                    Occupancy Rate
-                  </CardTitle>
-                  <Activity className="w-4 h-4 text-slate-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{occupancyRate.toFixed(1)}%</div>
-                  <Progress value={occupancyRate} className="mt-2" />
-                  <p className="text-xs text-slate-500 mt-2">Nearly Full - Consider guidance</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">
-                    Daily Revenue
-                  </CardTitle>
-                  <DollarSign className="w-4 h-4 text-slate-400" />
-                </CardHeader>
-                <CardContent>
                   <div className="text-2xl font-bold text-slate-900">
-                    {stats.revenue != null ? `₫${(stats.revenue as number).toLocaleString()}` : '-'}
+                    {stats.totalSpaces ?? '-'}
                   </div>
-                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +12% from last month
+                  <p className="text-xs text-slate-500 mt-2">Across all zones</p>
+                  <Progress value={occupancyRate} className="mt-3" />
+                  <p className="text-xs text-slate-400 mt-1">
+                    {occupancyRate.toFixed(1)}% occupied
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Available Spaces
+                  </CardTitle>
+                  <MapPin className="w-4 h-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">
+                    {stats.available ?? '-'}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">Ready for parking</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-600">
+                    Today's Revenue
+                  </CardTitle>
+                  <DollarSign className="w-4 h-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-slate-900">
+                    ₫{stats.revenue?.toLocaleString() ?? '-'}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">Parking fees collected</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-slate-600">
                     Active Users
                   </CardTitle>
                   <Users className="w-4 h-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{stats.activeUsers ?? '-'}</div>
+                  <div className="text-2xl font-bold text-slate-900">
+                    {stats.activeUsers ?? '-'}
+                  </div>
                   <p className="text-xs text-slate-500 mt-2">Currently in parking areas</p>
                 </CardContent>
               </Card>
@@ -298,7 +336,7 @@ export default function App() {
                   <CardDescription>Overview of parking zones</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {zones.map((zone) => {
+                  {Array.isArray(zones) && zones.map((zone) => {
                     const zoneOccupancy = (zone.occupied / zone.total) * 100;
                     return (
                       <div key={zone.id} className="space-y-2">
@@ -312,7 +350,11 @@ export default function App() {
                               variant={zone.state === 'full' ? 'destructive' : 'secondary'}
                               className={zone.state === 'full' ? '' : 'bg-green-100 text-green-700'}
                             >
-                              {zone.state === 'full' ? 'Full' : zone.state === 'nearly_full' ? 'Nearly Full' : 'Available'}
+                              {zone.state === 'full'
+                                ? 'Full'
+                                : zone.state === 'nearly_full'
+                                  ? 'Nearly Full'
+                                  : 'Available'}
                             </Badge>
                           </div>
                         </div>
@@ -338,7 +380,13 @@ export default function App() {
                         {stats.sensorsOnline ?? '-'} / {stats.sensors ?? '-'}
                       </Badge>
                     </div>
-                    <Progress value={stats.sensors && stats.sensorsOnline ? (stats.sensorsOnline / stats.sensors) * 100 : 0} />
+                    <Progress
+                      value={
+                        stats.sensors && stats.sensorsOnline
+                          ? (stats.sensorsOnline / stats.sensors) * 100
+                          : 0
+                      }
+                    />
                   </div>
 
                   <Separator />
@@ -397,27 +445,49 @@ export default function App() {
               <CardContent>
                 <div className="space-y-3">
                   {recentLogs.map((activity, idx) => (
-                    <div key={activity.id || idx} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
+                    <div
+                      key={activity.id || idx}
+                      className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0"
+                    >
                       <div className="flex-shrink-0">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          activity.type === 'entry' ? 'bg-green-100' :
-                          activity.type === 'exit' ? 'bg-blue-100' :
-                          activity.type === 'ticket' ? 'bg-purple-100' :
-                          activity.type === 'payment' ? 'bg-yellow-100' :
-                          'bg-slate-100'
-                        }`}>
-                          {activity.type === 'entry' && <Car className="w-4 h-4 text-green-600" />}
-                          {activity.type === 'exit' && <Car className="w-4 h-4 text-blue-600" />}
-                          {activity.type === 'ticket' && <Clock className="w-4 h-4 text-purple-600" />}
-                          {activity.type === 'payment' && <CreditCard className="w-4 h-4 text-yellow-600" />}
-                          {activity.type === 'system' && <Activity className="w-4 h-4 text-slate-600" />}
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === 'entry'
+                              ? 'bg-green-100'
+                              : activity.type === 'exit'
+                                ? 'bg-blue-100'
+                                : activity.type === 'ticket'
+                                  ? 'bg-purple-100'
+                                  : activity.type === 'payment'
+                                    ? 'bg-yellow-100'
+                                    : 'bg-slate-100'
+                            }`}
+                        >
+                          {activity.type === 'entry' && (
+                            <Car className="w-4 h-4 text-green-600" />
+                          )}
+                          {activity.type === 'exit' && (
+                            <Car className="w-4 h-4 text-blue-600" />
+                          )}
+                          {activity.type === 'ticket' && (
+                            <Clock className="w-4 h-4 text-purple-600" />
+                          )}
+                          {activity.type === 'payment' && (
+                            <CreditCard className="w-4 h-4 text-yellow-600" />
+                          )}
+                          {activity.type === 'system' && (
+                            <Activity className="w-4 h-4 text-slate-600" />
+                          )}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-900">{activity.user}</p>
-                        <p className="text-xs text-slate-500">{activity.action} • {activity.zone}</p>
+                        <p className="text-xs text-slate-500">
+                          {activity.action} • {activity.zone}
+                        </p>
                       </div>
-                      <span className="text-xs text-slate-400 flex-shrink-0">{activity.timestamp}</span>
+                      <span className="text-xs text-slate-400 flex-shrink-0">
+                        {activity.timestamp}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -425,38 +495,33 @@ export default function App() {
             </Card>
           </TabsContent>
 
-          {/* Parking Map Tab */}
+          {/* Other Tabs — truyền apiFetch xuống */}
           <TabsContent value="parking">
-            <ParkingMap />
+            <ParkingMap apiFetch={apiFetch} />
           </TabsContent>
 
           <TabsContent value="simulation">
-            <TrafficSimulation actorRole={actorRole} />
+            <TrafficSimulation actorRole={actorRole} apiFetch={apiFetch} />
           </TabsContent>
 
-          {/* Users Tab */}
           <TabsContent value="users">
-            <UserManagement />
+            <UserManagement apiFetch={apiFetch} />
           </TabsContent>
 
-          {/* Billing Tab */}
           <TabsContent value="billing">
-            <BillingPanel isAdmin={isAdmin} actorRole={actorRole} />
+            <BillingPanel isAdmin={isAdmin} actorRole={actorRole} apiFetch={apiFetch} />
           </TabsContent>
 
-          {/* IoT Monitoring Tab */}
           <TabsContent value="iot">
-            <IoTMonitoring />
+            <IoTMonitoring apiFetch={apiFetch} />
           </TabsContent>
 
-          {/* Activity Logs Tab */}
           <TabsContent value="activity">
-            <ActivityLogs isAdmin={isAdmin} actorRole={actorRole} />
+            <ActivityLogs isAdmin={isAdmin} actorRole={actorRole} apiFetch={apiFetch} />
           </TabsContent>
 
-          {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <Analytics />
+            <Analytics apiFetch={apiFetch} />
           </TabsContent>
         </Tabs>
       </main>
