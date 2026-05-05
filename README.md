@@ -4,8 +4,9 @@
 ![License](https://img.shields.io/badge/license-ISC-green)
 ![Node](https://img.shields.io/badge/node-18%2B-brightgreen)
 ![Status](https://img.shields.io/badge/status-development-orange)
+![Storage](https://img.shields.io/badge/storage-JSON-blue)
 
-An intelligent parking management system for Ho Chi Minh City University of Technology with HCMUT_SSO authentication, real-time IoT monitoring, and integrated billing.
+An intelligent parking management system for Ho Chi Minh City University of Technology with HCMUT_SSO authentication, real-time IoT monitoring, and integrated billing. **Now with lightweight JSON-based data storage** - no database setup required!
 
 ## 🎯 Overview
 
@@ -15,39 +16,239 @@ This system addresses HCMUT's parking challenges through:
 - **Automated Billing**: Integration with BKPay for student payments
 - **Traffic Guidance**: Dynamic signage with availability information
 - **User Management**: Support for students, faculty, staff, and visitors
-
-## 📖 Documentation
-
-| Document | Purpose | Time |
-|----------|---------|------|
-| **[QUICKSTART.md](./QUICKSTART.md)** | ⚡ Get running in 5 minutes | 5 min |
-| **[RUN_PROJECT.md](./RUN_PROJECT.md)** | 📚 Comprehensive guide | 20 min |
-| **[backend/SETUP.md](./backend/SETUP.md)** | 🔧 Backend setup details | 15 min |
-| **[frontend/README.md](./frontend/README.md)** | 🎨 Frontend documentation | 10 min |
+- **Simple Setup**: JSON-based data storage, no database installation needed
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+ ([Download](https://nodejs.org/))
-- Docker & Docker Compose ([Download](https://www.docker.com/))
-- Git ([Download](https://git-scm.com/))
-
-### Fastest Setup (30 seconds)
+### ⚡ Fastest Setup (2 minutes)
 
 ```bash
+# Clone repository
+git clone <repo-url>
+cd Smart_Parking_Management_System
+
+# Run setup script
 # Windows
 setup.bat
 
 # macOS/Linux
 bash setup.sh
+```
 
-# Or with Docker Compose
+That's it! The setup script will:
+✅ Check Node.js installation
+✅ Install backend dependencies
+✅ Install frontend dependencies
+✅ Initialize JSON data file
+
+### 📖 Documentation
+
+| Document | Purpose | Time |
+|----------|---------|------|
+| **[QUICKSTART.md](./QUICKSTART.md)** | ⚡ Get running in 5 minutes | 5 min |
+| **[RUN_PROJECT.md](./RUN_PROJECT.md)** | 📚 Comprehensive guide | 15 min |
+
+## 📋 Prerequisites
+
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Git** ([Download](https://git-scm.com/))
+
+That's all you need! No database installation required.
+
+## 🎮 Running the Project
+
+### Option 1: Automated (Recommended)
+
+```bash
+# Run all services
+npm run start-dev
+```
+
+### Option 2: Manual - Open 2 terminals
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+### Access Points
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
+- **Data File**: `backend/data/db.json`
+
+## 📁 Project Structure
+
+```
+Smart_Parking_Management_System/
+├── backend/
+│   ├── data/
+│   │   ├── db.json              # JSON data storage
+│   │   ├── store.js             # JSON storage interface
+│   │   └── seed.js              # Initial data
+│   ├── routes/
+│   │   └── auth.js              # Authentication routes
+│   ├── jobs/
+│   │   └── dataSyncJob.js       # Data synchronization
+│   ├── server.js                # Express server
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   └── styles/
+│   ├── vite.config.ts
+│   └── package.json
+├── setup.bat                    # Windows setup script
+├── setup.sh                     # macOS/Linux setup script
+├── docker-compose.yml           # Docker setup (optional)
+└── README.md
+```
+
+## 🔌 JSON Data Structure
+
+The application uses a single `backend/data/db.json` file with the following structure:
+
+```json
+{
+  "users": [...],           # User accounts
+  "zones": [...],           # Parking zones
+  "sessions": [...],        # Active parking sessions
+  "tickets": [...],         # Parking tickets
+  "iot": {                  # IoT devices
+    "gateways": [...],
+    "sensors": [...],
+    "signage": [...]
+  },
+  "billing": {              # Billing system
+    "pricingPlans": [...],
+    "transactions": [...]
+  },
+  "activityLogs": [...],    # System activity logs
+  "analytics": {...},       # Analytics data
+  "metadata": {...}         # Metadata
+}
+```
+
+### Reset Data
+
+To reset the database to its initial state:
+
+```bash
+cd backend
+npm run reset:data
+```
+
+This will restore the data file to the seed data.
+
+## 🛠️ Available Scripts
+
+### Backend
+
+```bash
+cd backend
+
+npm run start          # Start production server
+npm run dev           # Start with nodemon (development)
+npm run reset:data    # Reset JSON data to seed
+```
+
+### Frontend
+
+```bash
+cd frontend
+
+npm run dev           # Start dev server
+npm run build         # Build for production
+npm run preview       # Preview production build
+npm run lint          # Run ESLint
+```
+
+## 🌐 API Endpoints
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/me` - Get current user
+
+### Parking Zones
+- `GET /api/zones` - List all zones
+- `GET /api/zones/:id` - Get zone details
+- `POST /api/zones/:id/entry` - Record entry
+- `POST /api/zones/:id/exit` - Record exit
+
+### User Management
+- `GET /api/users` - List users (Admin only)
+- `GET /api/users/:id` - Get user details
+- `PUT /api/users/:id` - Update user (Admin only)
+
+### Billing
+- `GET /api/billing/plans` - Get pricing plans
+- `GET /api/billing/transactions` - Get transactions
+
+### Analytics
+- `GET /api/analytics/occupancy` - Occupancy data
+- `GET /api/analytics/revenue` - Revenue data
+
+## 🔐 Test Accounts
+
+```
+Username: admin          Password: admin123     (Admin)
+Username: 1952001        Password: 123456       (Student)
+Username: F2001          Password: 123456       (Faculty)
+Username: S1023          Password: 123456       (Staff)
+```
+
+## 📦 Dependencies
+
+### Backend
+- **express** - Web framework
+- **cors** - Cross-origin resource sharing
+- **jsonwebtoken** - JWT authentication
+- **dotenv** - Environment variables
+- **uuid** - Unique IDs
+
+### Frontend
+- **react** - UI library
+- **vite** - Build tool
+- **tailwindcss** - Styling
+- **shadcn/ui** - UI components
+
+## 🐳 Docker Support
+
+To run with Docker:
+
+```bash
 docker-compose up -d
 ```
 
-### Manual Setup
+Access:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
 
+Stop services:
 ```bash
+docker-compose down
+```
+
+## 📝 License
+
+ISC
+
+## 👥 Contributing
+
+For development and contribution guidelines, see individual component documentation.
+
+## 📧 Support
+
+For issues and questions, please refer to the documentation or contact the development team.
 # Backend
 cd backend
 npm install

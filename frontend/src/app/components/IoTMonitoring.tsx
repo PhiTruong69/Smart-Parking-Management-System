@@ -20,22 +20,70 @@ export default function IoTMonitoring() {
   const [gateways, setGateways] = useState<any[]>([]);
   const [sensors, setSensors] = useState<any[]>([]);
   const [signage, setSignage] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const API_BASE = 'http://localhost:5000/api';
 
-  useEffect(() => {
-    const fetchData = async () => {
+  // Mock signage data
+  const defaultSignage = [
+    { id: "SIGN-001", location: "Main Entrance", zone: "All", status: "online", message: "Zone A: Full • Zone B: Available", uptime: "99.9%" },
+    { id: "SIGN-005", location: "Visitor Entrance", zone: "E", status: "online", message: "Zone E: 6 Spaces Available", uptime: "98.5%" },
+  ];
+
+  const fetchData = async () => {
+    try {
+      setError(null);
+      
+      const createFallbackResponse = (data: any) => ({
+        ok: false,
+        json: async () => data,
+      });
+
       const [statusRes, sensorsRes, signageRes] = await Promise.all([
-        fetch(`${API_BASE}/iot/status`),
-        fetch(`${API_BASE}/iot/sensors`),
-        fetch(`${API_BASE}/iot/signage`),
+        fetch(`${API_BASE}/iot/status`).catch(() => createFallbackResponse({ gateways: [] })),
+        fetch(`${API_BASE}/iot/sensors`).catch(() => createFallbackResponse([])),
+        fetch(`${API_BASE}/iot/signage`).catch(() => createFallbackResponse(defaultSignage)),
       ]);
-      const status = await statusRes.json();
-      const sensorsData = await sensorsRes.json();
-      const signageData = await signageRes.json();
-      setGateways(status.gateways || []);
+
+      let status: any[] = [];
+      let sensorsData: any[] = [];
+      let signageData = defaultSignage;
+
+      if (statusRes.ok) {
+        const data = await statusRes.json();
+        status = data.gateways || [];
+      }
+
+      if (sensorsRes.ok) {
+        sensorsData = await sensorsRes.json();
+        if (Array.isArray(sensorsData)) {
+          // sensorsData is array
+        } else {
+          // sensorsData might be object, convert to array
+          sensorsData = [];
+        }
+      }
+
+      if (signageRes.ok) {
+        const data = await signageRes.json();
+        signageData = Array.isArray(data) ? data : defaultSignage;
+      }
+
+      setGateways(status);
       setSensors(sensorsData || []);
-      setSignage(signageData || []);
-    };
+      setSignage(signageData);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching IoT data:", err);
+      setError("Failed to load IoT data. Using default data.");
+      setGateways([]);
+      setSensors([]);
+      setSignage(defaultSignage);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
     if (!autoRefresh) return;
     const timer = setInterval(fetchData, 10000);
@@ -51,17 +99,62 @@ export default function IoTMonitoring() {
   }, [sensors]);
 
   const toggleSensorStatus = async (sensor: any) => {
-    const nextStatus = sensor.status === 'online' ? 'offline' : 'online';
-    await fetch(`${API_BASE}/iot/events/slot-occupancy`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sensorId: sensor.id, status: nextStatus }),
-    });
-    setSensors((prev) => prev.map((s) => (s.id === sensor.id ? { ...s, status: nextStatus, lastUpdate: 'just now' } : s)));
+    try {
+      const response = await fetch(`${API_BASE}/iot/sensors/${sensor.id}/toggle`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ disable: sensor.status === 'online' }),
+      });
+
+      if (!response.ok) throw new Error('Failed to toggle sensor');
+
+      // Update UI immediately
+      setSensors((prev) =>
+        prev.map((s) =>
+          s.id === sensor.id
+            ? {
+                ...s,
+                status: sensor.status === 'online' ? 'offline' : 'online',
+                battery: sensor.status === 'online' ? 0 : 85,
+                signal: sensor.status === 'online' ? 0 : 85,
+                lastUpdate: 'just now',
+                disabled: sensor.status === 'online',
+              }
+            : s
+        )
+      );
+    } catch (err) {
+      console.error('Error toggling sensor:', err);
+      alert('Failed to toggle sensor status');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span>Loading IoT data...</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardContent className="p-4 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+            <p className="text-sm text-yellow-800">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
@@ -70,7 +163,7 @@ export default function IoTMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900">{sensorStats.total}</div>
-            <Progress value={(sensorStats.online / sensorStats.total) * 100} className="mt-2" />
+            <Progress value={sensorStats.total > 0 ? (sensorStats.online / sensorStats.total) * 100 : 0} className="mt-2" />
           </CardContent>
         </Card>
         <Card>
@@ -80,7 +173,7 @@ export default function IoTMonitoring() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{sensorStats.online}</div>
             <p className="text-xs text-slate-500 mt-1">
-              {((sensorStats.online / sensorStats.total) * 100).toFixed(1)}% operational
+              {sensorStats.total > 0 ? ((sensorStats.online / sensorStats.total) * 100).toFixed(1) : 0}% operational
             </p>
           </CardContent>
         </Card>
@@ -125,65 +218,69 @@ export default function IoTMonitoring() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {gateways.map((gateway) => (
-              <div
-                key={gateway.id}
-                className="p-4 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      gateway.status === 'online' ? 'bg-green-100' :
-                      gateway.status === 'warning' ? 'bg-yellow-100' :
-                      'bg-red-100'
-                    }`}>
-                      {gateway.status === 'online' && <Wifi className="w-5 h-5 text-green-600" />}
-                      {gateway.status === 'warning' && <AlertCircle className="w-5 h-5 text-yellow-600" />}
-                      {gateway.status === 'offline' && <WifiOff className="w-5 h-5 text-red-600" />}
+          {gateways.length === 0 ? (
+            <p className="text-sm text-slate-500 py-4">No gateway data available. Using default configuration.</p>
+          ) : (
+            <div className="space-y-3">
+              {gateways.map((gateway) => (
+                <div
+                  key={gateway.id}
+                  className="p-4 border border-slate-200 rounded-lg hover:border-blue-300 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        gateway.status === 'online' ? 'bg-green-100' :
+                        gateway.status === 'warning' ? 'bg-yellow-100' :
+                        'bg-red-100'
+                      }`}>
+                        {gateway.status === 'online' && <Wifi className="w-5 h-5 text-green-600" />}
+                        {gateway.status === 'warning' && <AlertCircle className="w-5 h-5 text-yellow-600" />}
+                        {gateway.status === 'offline' && <WifiOff className="w-5 h-5 text-red-600" />}
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold text-slate-900">{gateway.name}</div>
+                        <div className="text-xs text-slate-500">{gateway.id} • {gateway.zone}</div>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={gateway.status === 'online' ? 'secondary' : 'outline'}
+                      className={
+                        gateway.status === 'online' ? 'bg-green-100 text-green-700' :
+                        gateway.status === 'warning' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                        'bg-red-100 text-red-700 border-red-300'
+                      }
+                    >
+                      {gateway.status.charAt(0).toUpperCase() + gateway.status.slice(1)}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <div className="text-xs text-slate-500 mb-1">Sensors</div>
+                      <div className="text-sm font-medium text-slate-900">
+                        {gateway.sensorsOnline}/{gateway.sensors}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-slate-900">{gateway.name}</div>
-                      <div className="text-xs text-slate-500">{gateway.id} • {gateway.zone}</div>
+                      <div className="text-xs text-slate-500 mb-1">Uptime</div>
+                      <div className="text-sm font-medium text-slate-900">{gateway.uptime}</div>
                     </div>
-                  </div>
-                  <Badge
-                    variant={gateway.status === 'online' ? 'secondary' : 'outline'}
-                    className={
-                      gateway.status === 'online' ? 'bg-green-100 text-green-700' :
-                      gateway.status === 'warning' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
-                      'bg-red-100 text-red-700 border-red-300'
-                    }
-                  >
-                    {gateway.status.charAt(0).toUpperCase() + gateway.status.slice(1)}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <div className="text-xs text-slate-500 mb-1">Sensors</div>
-                    <div className="text-sm font-medium text-slate-900">
-                      {gateway.sensorsOnline}/{gateway.sensors}
+                    <div>
+                      <div className="text-xs text-slate-500 mb-1">Signal</div>
+                      <div className="flex items-center gap-2">
+                        <Progress value={gateway.signalStrength} className="flex-1" />
+                        <span className="text-xs font-medium text-slate-700">{gateway.signalStrength}%</span>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500 mb-1">Uptime</div>
-                    <div className="text-sm font-medium text-slate-900">{gateway.uptime}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500 mb-1">Signal</div>
-                    <div className="flex items-center gap-2">
-                      <Progress value={gateway.signalStrength} className="flex-1" />
-                      <span className="text-xs font-medium text-slate-700">{gateway.signalStrength}%</span>
+                    <div>
+                      <div className="text-xs text-slate-500 mb-1">Last Update</div>
+                      <div className="text-sm font-medium text-slate-900">{gateway.lastUpdate}</div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500 mb-1">Last Update</div>
-                    <div className="text-sm font-medium text-slate-900">{gateway.lastUpdate}</div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -191,97 +288,101 @@ export default function IoTMonitoring() {
       <Card>
         <CardHeader>
           <CardTitle>Sensor Status</CardTitle>
-          <CardDescription>Individual sensor monitoring</CardDescription>
+          <CardDescription>Individual sensor monitoring - Click "Settings" to toggle sensor status</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Sensor ID
-                  </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Location
-                  </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Status
-                  </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Battery
-                  </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Signal
-                  </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Last Update
-                  </th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sensors.map((sensor) => (
-                  <tr
-                    key={sensor.id}
-                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="py-3 px-4">
-                      <div className="text-sm font-mono text-slate-700">{sensor.id}</div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-1 text-sm text-slate-700">
-                        <MapPin className="w-3 h-3 text-slate-400" />
-                        {sensor.zone} • {sensor.slot}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Badge
-                        variant={sensor.status === 'online' ? 'secondary' : 'outline'}
-                        className={
-                          sensor.status === 'online' ? 'bg-green-100 text-green-700' :
-                          sensor.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
-                          'bg-red-100 text-red-700 border-red-300'
-                        }
-                      >
-                        {sensor.status === 'online' && <CheckCircle className="w-3 h-3 mr-1" />}
-                        {sensor.status === 'maintenance' && <Settings className="w-3 h-3 mr-1" />}
-                        {sensor.status === 'offline' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {sensor.status.charAt(0).toUpperCase() + sensor.status.slice(1)}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <Progress value={sensor.battery} className="w-16" />
-                        <span className={`text-xs font-medium ${
-                          sensor.battery > 50 ? 'text-green-600' :
-                          sensor.battery > 20 ? 'text-yellow-600' :
-                          'text-red-600'
-                        }`}>
-                          {sensor.battery}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <Progress value={sensor.signal} className="w-16" />
-                        <span className="text-xs text-slate-600">{sensor.signal}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm text-slate-600">{sensor.lastUpdate}</div>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <Button variant="ghost" size="sm" onClick={() => toggleSensorStatus(sensor)}>
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                    </td>
+          {sensors.length === 0 ? (
+            <p className="text-sm text-slate-500 py-4">No sensor data available. Please start the backend server.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Sensor ID
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Location
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Status
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Battery
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Signal
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Last Update
+                    </th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {sensors.map((sensor) => (
+                    <tr
+                      key={sensor.id}
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="py-3 px-4">
+                        <div className="text-sm font-mono text-slate-700">{sensor.id}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-1 text-sm text-slate-700">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          {sensor.zone} • {sensor.slot}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge
+                          variant={sensor.status === 'online' ? 'secondary' : 'outline'}
+                          className={
+                            sensor.status === 'online' ? 'bg-green-100 text-green-700' :
+                            sensor.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                            'bg-red-100 text-red-700 border-red-300'
+                          }
+                        >
+                          {sensor.status === 'online' && <CheckCircle className="w-3 h-3 mr-1" />}
+                          {sensor.status === 'maintenance' && <Settings className="w-3 h-3 mr-1" />}
+                          {sensor.status === 'offline' && <AlertCircle className="w-3 h-3 mr-1" />}
+                          {sensor.status.charAt(0).toUpperCase() + sensor.status.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <Progress value={Math.max(0, sensor.battery)} className="w-16" />
+                          <span className={`text-xs font-medium ${
+                            sensor.battery > 50 ? 'text-green-600' :
+                            sensor.battery > 20 ? 'text-yellow-600' :
+                            'text-red-600'
+                          }`}>
+                            {sensor.battery}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <Progress value={Math.max(0, sensor.signal)} className="w-16" />
+                          <span className="text-xs text-slate-600">{sensor.signal}%</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-slate-600">{sensor.lastUpdate}</div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <Button variant="ghost" size="sm" onClick={() => toggleSensorStatus(sensor)}>
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -348,7 +449,7 @@ export default function IoTMonitoring() {
                 <span className="text-sm font-medium text-green-900">Data Throughput</span>
               </div>
               <div className="text-xs text-green-700">
-                Real-time data processing: 487 sensors • Avg latency: 0.8s
+                Real-time data processing: {sensorStats.total} sensors • Avg latency: 0.8s
               </div>
             </div>
             <div className="p-4 bg-blue-50 rounded-lg">
@@ -357,16 +458,16 @@ export default function IoTMonitoring() {
                 <span className="text-sm font-medium text-blue-900">Network Health</span>
               </div>
               <div className="text-xs text-blue-700">
-                All gateways operational • 98.7% average uptime
+                {gateways.length > 0 ? `${gateways.length} gateways operational` : "Gateway status: OK"} • 98.7% average uptime
               </div>
             </div>
             <div className="p-4 bg-yellow-50 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-900">Maintenance Queue</span>
+                <span className="text-sm font-medium text-yellow-900">Alerts</span>
               </div>
               <div className="text-xs text-yellow-700">
-                5 sensors scheduled • 8 offline requiring attention
+                Offline sensors: {sensorStats.offline} • Disabled sensors: {sensors.filter(s => s.disabled).length}
               </div>
             </div>
           </div>
@@ -375,3 +476,4 @@ export default function IoTMonitoring() {
     </div>
   );
 }
+

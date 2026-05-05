@@ -35,7 +35,7 @@ module.exports = {
     ],
     signage: [
       { id: "SIGN-001", location: "Main Entrance", zone: "All", status: "online", message: "Zone A: Full • Zone B: Available", uptime: "99.9%" },
-      { id: "SIGN-005", location: "Visitor Entrance", zone: "E", status: "offline", message: "N/A", uptime: "92.3%" },
+      { id: "SIGN-005", location: "Visitor Entrance", zone: "E", status: "online", message: "Zone E: Available", uptime: "98.5%" },
     ],
   },
   billing: {
@@ -68,6 +68,8 @@ module.exports = {
       { day: "Fri", revenue: 1100000 },
     ],
   },
+  disabledSensors: {},
+  slotAssignments: {},
   metadata: {
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),

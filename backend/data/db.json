@@ -1,0 +1,5470 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "password": "admin123",
+      "name": "System Admin",
+      "role": "Admin",
+      "program": "IT Center",
+      "status": "Active",
+      "parkingPass": "Reserved",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "1952001",
+      "password": "123456",
+      "name": "Nguyen Van A",
+      "role": "Student",
+      "program": "Computer Science",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 50000,
+      "entryCount": 45
+    },
+    {
+      "id": "1952045",
+      "password": "123456",
+      "name": "Tran Thi B",
+      "role": "Student",
+      "program": "Electrical Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 38
+    },
+    {
+      "id": "F2001",
+      "password": "123456",
+      "name": "Le Van C",
+      "role": "Faculty",
+      "program": "Mathematics Department",
+      "status": "Active",
+      "parkingPass": "Reserved",
+      "balance": 0,
+      "entryCount": 89
+    },
+    {
+      "id": "S1023",
+      "password": "123456",
+      "name": "Hoang Van E",
+      "role": "Staff",
+      "program": "Administration",
+      "status": "Active",
+      "parkingPass": "Standard",
+      "balance": 25000,
+      "entryCount": 67
+    },
+    {
+      "id": "2152078",
+      "password": "123456",
+      "name": "Vo Thi F",
+      "role": "Graduate",
+      "program": "Civil Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 15000,
+      "entryCount": 22
+    },
+    {
+      "id": "D3001",
+      "password": "123456",
+      "name": "Bui Thi H",
+      "role": "Doctoral",
+      "program": "Chemical Engineering",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 35000,
+      "entryCount": 56
+    },
+    {
+      "id": "STU-4c215c4a",
+      "password": "123456",
+      "name": "aaa",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    }
+  ],
+  "zones": [
+    {
+      "id": "A",
+      "name": "Zone A - Main Building",
+      "total": 100,
+      "occupied": 0
+    },
+    {
+      "id": "B",
+      "name": "Zone B - Engineering",
+      "total": 100,
+      "occupied": 0
+    },
+    {
+      "id": "C",
+      "name": "Zone C - Library",
+      "total": 100,
+      "occupied": 0
+    },
+    {
+      "id": "D",
+      "name": "Zone D - Sports Center",
+      "total": 100,
+      "occupied": 0
+    },
+    {
+      "id": "E",
+      "name": "Zone E - Visitor",
+      "total": 100,
+      "occupied": 0
+    }
+  ],
+  "sessions": [
+    {
+      "id": "SES-61ea163d",
+      "userId": "STU-4c215c4a",
+      "userName": "aaa",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-4",
+      "gate": "Gate A1",
+      "vehicleId": "aaa",
+      "method": "CARD",
+      "entryAt": "2026-05-05T12:57:17.020Z",
+      "exitAt": "2026-05-05T12:57:35.491Z",
+      "status": "CLOSED",
+      "fee": 5000
+    }
+  ],
+  "tickets": [],
+  "iot": {
+    "gateways": [
+      {
+        "id": "GW-001",
+        "name": "Gateway Zone A",
+        "zone": "A",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 100,
+        "uptime": "99.8%",
+        "signalStrength": 95,
+        "lastUpdate": "2 sec ago"
+      },
+      {
+        "id": "GW-002",
+        "name": "Gateway Zone B",
+        "zone": "B",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 100,
+        "uptime": "99.5%",
+        "signalStrength": 92,
+        "lastUpdate": "3 sec ago"
+      },
+      {
+        "id": "GW-003",
+        "name": "Gateway Zone C",
+        "zone": "C",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 100,
+        "uptime": "99.9%",
+        "signalStrength": 98,
+        "lastUpdate": "1 sec ago"
+      },
+      {
+        "id": "GW-004",
+        "name": "Gateway Zone D",
+        "zone": "D",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 100,
+        "uptime": "98.7%",
+        "signalStrength": 88,
+        "lastUpdate": "4 sec ago"
+      },
+      {
+        "id": "GW-005",
+        "name": "Gateway Zone E",
+        "zone": "E",
+        "status": "online",
+        "sensors": 100,
+        "sensorsOnline": 100,
+        "uptime": "99.2%",
+        "signalStrength": 90,
+        "lastUpdate": "2 sec ago"
+      }
+    ],
+    "sensors": [
+      {
+        "id": "S-A-001",
+        "zone": "A",
+        "slot": "A-1",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-002",
+        "zone": "A",
+        "slot": "A-2",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-003",
+        "zone": "A",
+        "slot": "A-3",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-004",
+        "zone": "A",
+        "slot": "A-4",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-005",
+        "zone": "A",
+        "slot": "A-5",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-006",
+        "zone": "A",
+        "slot": "A-6",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-007",
+        "zone": "A",
+        "slot": "A-7",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-008",
+        "zone": "A",
+        "slot": "A-8",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-009",
+        "zone": "A",
+        "slot": "A-9",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-010",
+        "zone": "A",
+        "slot": "A-10",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-011",
+        "zone": "A",
+        "slot": "A-11",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-012",
+        "zone": "A",
+        "slot": "A-12",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-013",
+        "zone": "A",
+        "slot": "A-13",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-014",
+        "zone": "A",
+        "slot": "A-14",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-015",
+        "zone": "A",
+        "slot": "A-15",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-016",
+        "zone": "A",
+        "slot": "A-16",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-017",
+        "zone": "A",
+        "slot": "A-17",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-018",
+        "zone": "A",
+        "slot": "A-18",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-019",
+        "zone": "A",
+        "slot": "A-19",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-020",
+        "zone": "A",
+        "slot": "A-20",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-021",
+        "zone": "A",
+        "slot": "A-21",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-022",
+        "zone": "A",
+        "slot": "A-22",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-023",
+        "zone": "A",
+        "slot": "A-23",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-024",
+        "zone": "A",
+        "slot": "A-24",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-025",
+        "zone": "A",
+        "slot": "A-25",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-026",
+        "zone": "A",
+        "slot": "A-26",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-027",
+        "zone": "A",
+        "slot": "A-27",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-028",
+        "zone": "A",
+        "slot": "A-28",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-029",
+        "zone": "A",
+        "slot": "A-29",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-030",
+        "zone": "A",
+        "slot": "A-30",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-031",
+        "zone": "A",
+        "slot": "A-31",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-032",
+        "zone": "A",
+        "slot": "A-32",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-033",
+        "zone": "A",
+        "slot": "A-33",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-034",
+        "zone": "A",
+        "slot": "A-34",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-035",
+        "zone": "A",
+        "slot": "A-35",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-036",
+        "zone": "A",
+        "slot": "A-36",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-037",
+        "zone": "A",
+        "slot": "A-37",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-038",
+        "zone": "A",
+        "slot": "A-38",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-039",
+        "zone": "A",
+        "slot": "A-39",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-040",
+        "zone": "A",
+        "slot": "A-40",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-041",
+        "zone": "A",
+        "slot": "A-41",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-042",
+        "zone": "A",
+        "slot": "A-42",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-043",
+        "zone": "A",
+        "slot": "A-43",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-044",
+        "zone": "A",
+        "slot": "A-44",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-045",
+        "zone": "A",
+        "slot": "A-45",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-046",
+        "zone": "A",
+        "slot": "A-46",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-047",
+        "zone": "A",
+        "slot": "A-47",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-048",
+        "zone": "A",
+        "slot": "A-48",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-049",
+        "zone": "A",
+        "slot": "A-49",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-050",
+        "zone": "A",
+        "slot": "A-50",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-051",
+        "zone": "A",
+        "slot": "A-51",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-052",
+        "zone": "A",
+        "slot": "A-52",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-053",
+        "zone": "A",
+        "slot": "A-53",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-054",
+        "zone": "A",
+        "slot": "A-54",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-055",
+        "zone": "A",
+        "slot": "A-55",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-056",
+        "zone": "A",
+        "slot": "A-56",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-057",
+        "zone": "A",
+        "slot": "A-57",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-058",
+        "zone": "A",
+        "slot": "A-58",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-059",
+        "zone": "A",
+        "slot": "A-59",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-060",
+        "zone": "A",
+        "slot": "A-60",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-061",
+        "zone": "A",
+        "slot": "A-61",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-062",
+        "zone": "A",
+        "slot": "A-62",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-063",
+        "zone": "A",
+        "slot": "A-63",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-064",
+        "zone": "A",
+        "slot": "A-64",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-065",
+        "zone": "A",
+        "slot": "A-65",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-066",
+        "zone": "A",
+        "slot": "A-66",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-067",
+        "zone": "A",
+        "slot": "A-67",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-068",
+        "zone": "A",
+        "slot": "A-68",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-069",
+        "zone": "A",
+        "slot": "A-69",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-070",
+        "zone": "A",
+        "slot": "A-70",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-071",
+        "zone": "A",
+        "slot": "A-71",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-072",
+        "zone": "A",
+        "slot": "A-72",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-073",
+        "zone": "A",
+        "slot": "A-73",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-074",
+        "zone": "A",
+        "slot": "A-74",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-075",
+        "zone": "A",
+        "slot": "A-75",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-076",
+        "zone": "A",
+        "slot": "A-76",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-077",
+        "zone": "A",
+        "slot": "A-77",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-078",
+        "zone": "A",
+        "slot": "A-78",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-079",
+        "zone": "A",
+        "slot": "A-79",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-080",
+        "zone": "A",
+        "slot": "A-80",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-081",
+        "zone": "A",
+        "slot": "A-81",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-082",
+        "zone": "A",
+        "slot": "A-82",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-083",
+        "zone": "A",
+        "slot": "A-83",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-084",
+        "zone": "A",
+        "slot": "A-84",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-085",
+        "zone": "A",
+        "slot": "A-85",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-086",
+        "zone": "A",
+        "slot": "A-86",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-087",
+        "zone": "A",
+        "slot": "A-87",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-088",
+        "zone": "A",
+        "slot": "A-88",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-089",
+        "zone": "A",
+        "slot": "A-89",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-090",
+        "zone": "A",
+        "slot": "A-90",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-091",
+        "zone": "A",
+        "slot": "A-91",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-092",
+        "zone": "A",
+        "slot": "A-92",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-093",
+        "zone": "A",
+        "slot": "A-93",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-094",
+        "zone": "A",
+        "slot": "A-94",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-095",
+        "zone": "A",
+        "slot": "A-95",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-096",
+        "zone": "A",
+        "slot": "A-96",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-097",
+        "zone": "A",
+        "slot": "A-97",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-098",
+        "zone": "A",
+        "slot": "A-98",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-099",
+        "zone": "A",
+        "slot": "A-99",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-A-100",
+        "zone": "A",
+        "slot": "A-100",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-001",
+        "zone": "B",
+        "slot": "B-1",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-002",
+        "zone": "B",
+        "slot": "B-2",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-003",
+        "zone": "B",
+        "slot": "B-3",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-004",
+        "zone": "B",
+        "slot": "B-4",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-005",
+        "zone": "B",
+        "slot": "B-5",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-006",
+        "zone": "B",
+        "slot": "B-6",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-007",
+        "zone": "B",
+        "slot": "B-7",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-008",
+        "zone": "B",
+        "slot": "B-8",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-009",
+        "zone": "B",
+        "slot": "B-9",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-010",
+        "zone": "B",
+        "slot": "B-10",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-011",
+        "zone": "B",
+        "slot": "B-11",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-012",
+        "zone": "B",
+        "slot": "B-12",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-013",
+        "zone": "B",
+        "slot": "B-13",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-014",
+        "zone": "B",
+        "slot": "B-14",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-015",
+        "zone": "B",
+        "slot": "B-15",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-016",
+        "zone": "B",
+        "slot": "B-16",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-017",
+        "zone": "B",
+        "slot": "B-17",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-018",
+        "zone": "B",
+        "slot": "B-18",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-019",
+        "zone": "B",
+        "slot": "B-19",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-020",
+        "zone": "B",
+        "slot": "B-20",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-021",
+        "zone": "B",
+        "slot": "B-21",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-022",
+        "zone": "B",
+        "slot": "B-22",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-023",
+        "zone": "B",
+        "slot": "B-23",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-024",
+        "zone": "B",
+        "slot": "B-24",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-025",
+        "zone": "B",
+        "slot": "B-25",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-026",
+        "zone": "B",
+        "slot": "B-26",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-027",
+        "zone": "B",
+        "slot": "B-27",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-028",
+        "zone": "B",
+        "slot": "B-28",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-029",
+        "zone": "B",
+        "slot": "B-29",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-030",
+        "zone": "B",
+        "slot": "B-30",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-031",
+        "zone": "B",
+        "slot": "B-31",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-032",
+        "zone": "B",
+        "slot": "B-32",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-033",
+        "zone": "B",
+        "slot": "B-33",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-034",
+        "zone": "B",
+        "slot": "B-34",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-035",
+        "zone": "B",
+        "slot": "B-35",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-036",
+        "zone": "B",
+        "slot": "B-36",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-037",
+        "zone": "B",
+        "slot": "B-37",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-038",
+        "zone": "B",
+        "slot": "B-38",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-039",
+        "zone": "B",
+        "slot": "B-39",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-040",
+        "zone": "B",
+        "slot": "B-40",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-041",
+        "zone": "B",
+        "slot": "B-41",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-042",
+        "zone": "B",
+        "slot": "B-42",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-043",
+        "zone": "B",
+        "slot": "B-43",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-044",
+        "zone": "B",
+        "slot": "B-44",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-045",
+        "zone": "B",
+        "slot": "B-45",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-046",
+        "zone": "B",
+        "slot": "B-46",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-047",
+        "zone": "B",
+        "slot": "B-47",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-048",
+        "zone": "B",
+        "slot": "B-48",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-049",
+        "zone": "B",
+        "slot": "B-49",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-050",
+        "zone": "B",
+        "slot": "B-50",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-051",
+        "zone": "B",
+        "slot": "B-51",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-052",
+        "zone": "B",
+        "slot": "B-52",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-053",
+        "zone": "B",
+        "slot": "B-53",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-054",
+        "zone": "B",
+        "slot": "B-54",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-055",
+        "zone": "B",
+        "slot": "B-55",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-056",
+        "zone": "B",
+        "slot": "B-56",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-057",
+        "zone": "B",
+        "slot": "B-57",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-058",
+        "zone": "B",
+        "slot": "B-58",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-059",
+        "zone": "B",
+        "slot": "B-59",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-060",
+        "zone": "B",
+        "slot": "B-60",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-061",
+        "zone": "B",
+        "slot": "B-61",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-062",
+        "zone": "B",
+        "slot": "B-62",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-063",
+        "zone": "B",
+        "slot": "B-63",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-064",
+        "zone": "B",
+        "slot": "B-64",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-065",
+        "zone": "B",
+        "slot": "B-65",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-066",
+        "zone": "B",
+        "slot": "B-66",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-067",
+        "zone": "B",
+        "slot": "B-67",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-068",
+        "zone": "B",
+        "slot": "B-68",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-069",
+        "zone": "B",
+        "slot": "B-69",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-070",
+        "zone": "B",
+        "slot": "B-70",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-071",
+        "zone": "B",
+        "slot": "B-71",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-072",
+        "zone": "B",
+        "slot": "B-72",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-073",
+        "zone": "B",
+        "slot": "B-73",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-074",
+        "zone": "B",
+        "slot": "B-74",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-075",
+        "zone": "B",
+        "slot": "B-75",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-076",
+        "zone": "B",
+        "slot": "B-76",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-077",
+        "zone": "B",
+        "slot": "B-77",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-078",
+        "zone": "B",
+        "slot": "B-78",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-079",
+        "zone": "B",
+        "slot": "B-79",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-080",
+        "zone": "B",
+        "slot": "B-80",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-081",
+        "zone": "B",
+        "slot": "B-81",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-082",
+        "zone": "B",
+        "slot": "B-82",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-083",
+        "zone": "B",
+        "slot": "B-83",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-084",
+        "zone": "B",
+        "slot": "B-84",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-085",
+        "zone": "B",
+        "slot": "B-85",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-086",
+        "zone": "B",
+        "slot": "B-86",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-087",
+        "zone": "B",
+        "slot": "B-87",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-088",
+        "zone": "B",
+        "slot": "B-88",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-089",
+        "zone": "B",
+        "slot": "B-89",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-090",
+        "zone": "B",
+        "slot": "B-90",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-091",
+        "zone": "B",
+        "slot": "B-91",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-092",
+        "zone": "B",
+        "slot": "B-92",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-093",
+        "zone": "B",
+        "slot": "B-93",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-094",
+        "zone": "B",
+        "slot": "B-94",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-095",
+        "zone": "B",
+        "slot": "B-95",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-096",
+        "zone": "B",
+        "slot": "B-96",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-097",
+        "zone": "B",
+        "slot": "B-97",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-098",
+        "zone": "B",
+        "slot": "B-98",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-099",
+        "zone": "B",
+        "slot": "B-99",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-B-100",
+        "zone": "B",
+        "slot": "B-100",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-001",
+        "zone": "C",
+        "slot": "C-1",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-002",
+        "zone": "C",
+        "slot": "C-2",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-003",
+        "zone": "C",
+        "slot": "C-3",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-004",
+        "zone": "C",
+        "slot": "C-4",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-005",
+        "zone": "C",
+        "slot": "C-5",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-006",
+        "zone": "C",
+        "slot": "C-6",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-007",
+        "zone": "C",
+        "slot": "C-7",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-008",
+        "zone": "C",
+        "slot": "C-8",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-009",
+        "zone": "C",
+        "slot": "C-9",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-010",
+        "zone": "C",
+        "slot": "C-10",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-011",
+        "zone": "C",
+        "slot": "C-11",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-012",
+        "zone": "C",
+        "slot": "C-12",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-013",
+        "zone": "C",
+        "slot": "C-13",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-014",
+        "zone": "C",
+        "slot": "C-14",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-015",
+        "zone": "C",
+        "slot": "C-15",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-016",
+        "zone": "C",
+        "slot": "C-16",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-017",
+        "zone": "C",
+        "slot": "C-17",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-018",
+        "zone": "C",
+        "slot": "C-18",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-019",
+        "zone": "C",
+        "slot": "C-19",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-020",
+        "zone": "C",
+        "slot": "C-20",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-021",
+        "zone": "C",
+        "slot": "C-21",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-022",
+        "zone": "C",
+        "slot": "C-22",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-023",
+        "zone": "C",
+        "slot": "C-23",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-024",
+        "zone": "C",
+        "slot": "C-24",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-025",
+        "zone": "C",
+        "slot": "C-25",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-026",
+        "zone": "C",
+        "slot": "C-26",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-027",
+        "zone": "C",
+        "slot": "C-27",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-028",
+        "zone": "C",
+        "slot": "C-28",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-029",
+        "zone": "C",
+        "slot": "C-29",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-030",
+        "zone": "C",
+        "slot": "C-30",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-031",
+        "zone": "C",
+        "slot": "C-31",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-032",
+        "zone": "C",
+        "slot": "C-32",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-033",
+        "zone": "C",
+        "slot": "C-33",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-034",
+        "zone": "C",
+        "slot": "C-34",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-035",
+        "zone": "C",
+        "slot": "C-35",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-036",
+        "zone": "C",
+        "slot": "C-36",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-037",
+        "zone": "C",
+        "slot": "C-37",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-038",
+        "zone": "C",
+        "slot": "C-38",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-039",
+        "zone": "C",
+        "slot": "C-39",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-040",
+        "zone": "C",
+        "slot": "C-40",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-041",
+        "zone": "C",
+        "slot": "C-41",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-042",
+        "zone": "C",
+        "slot": "C-42",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-043",
+        "zone": "C",
+        "slot": "C-43",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-044",
+        "zone": "C",
+        "slot": "C-44",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-045",
+        "zone": "C",
+        "slot": "C-45",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-046",
+        "zone": "C",
+        "slot": "C-46",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-047",
+        "zone": "C",
+        "slot": "C-47",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-048",
+        "zone": "C",
+        "slot": "C-48",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-049",
+        "zone": "C",
+        "slot": "C-49",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-050",
+        "zone": "C",
+        "slot": "C-50",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-051",
+        "zone": "C",
+        "slot": "C-51",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-052",
+        "zone": "C",
+        "slot": "C-52",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-053",
+        "zone": "C",
+        "slot": "C-53",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-054",
+        "zone": "C",
+        "slot": "C-54",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-055",
+        "zone": "C",
+        "slot": "C-55",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-056",
+        "zone": "C",
+        "slot": "C-56",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-057",
+        "zone": "C",
+        "slot": "C-57",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-058",
+        "zone": "C",
+        "slot": "C-58",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-059",
+        "zone": "C",
+        "slot": "C-59",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-060",
+        "zone": "C",
+        "slot": "C-60",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-061",
+        "zone": "C",
+        "slot": "C-61",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-062",
+        "zone": "C",
+        "slot": "C-62",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-063",
+        "zone": "C",
+        "slot": "C-63",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-064",
+        "zone": "C",
+        "slot": "C-64",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-065",
+        "zone": "C",
+        "slot": "C-65",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-066",
+        "zone": "C",
+        "slot": "C-66",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-067",
+        "zone": "C",
+        "slot": "C-67",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-068",
+        "zone": "C",
+        "slot": "C-68",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-069",
+        "zone": "C",
+        "slot": "C-69",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-070",
+        "zone": "C",
+        "slot": "C-70",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-071",
+        "zone": "C",
+        "slot": "C-71",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-072",
+        "zone": "C",
+        "slot": "C-72",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-073",
+        "zone": "C",
+        "slot": "C-73",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-074",
+        "zone": "C",
+        "slot": "C-74",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-075",
+        "zone": "C",
+        "slot": "C-75",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-076",
+        "zone": "C",
+        "slot": "C-76",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-077",
+        "zone": "C",
+        "slot": "C-77",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-078",
+        "zone": "C",
+        "slot": "C-78",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-079",
+        "zone": "C",
+        "slot": "C-79",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-080",
+        "zone": "C",
+        "slot": "C-80",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-081",
+        "zone": "C",
+        "slot": "C-81",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-082",
+        "zone": "C",
+        "slot": "C-82",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-083",
+        "zone": "C",
+        "slot": "C-83",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-084",
+        "zone": "C",
+        "slot": "C-84",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-085",
+        "zone": "C",
+        "slot": "C-85",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-086",
+        "zone": "C",
+        "slot": "C-86",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-087",
+        "zone": "C",
+        "slot": "C-87",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-088",
+        "zone": "C",
+        "slot": "C-88",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-089",
+        "zone": "C",
+        "slot": "C-89",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-090",
+        "zone": "C",
+        "slot": "C-90",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-091",
+        "zone": "C",
+        "slot": "C-91",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-092",
+        "zone": "C",
+        "slot": "C-92",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-093",
+        "zone": "C",
+        "slot": "C-93",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-094",
+        "zone": "C",
+        "slot": "C-94",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-095",
+        "zone": "C",
+        "slot": "C-95",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-096",
+        "zone": "C",
+        "slot": "C-96",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-097",
+        "zone": "C",
+        "slot": "C-97",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-098",
+        "zone": "C",
+        "slot": "C-98",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-099",
+        "zone": "C",
+        "slot": "C-99",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-C-100",
+        "zone": "C",
+        "slot": "C-100",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-001",
+        "zone": "D",
+        "slot": "D-1",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-002",
+        "zone": "D",
+        "slot": "D-2",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-003",
+        "zone": "D",
+        "slot": "D-3",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-004",
+        "zone": "D",
+        "slot": "D-4",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-005",
+        "zone": "D",
+        "slot": "D-5",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-006",
+        "zone": "D",
+        "slot": "D-6",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-007",
+        "zone": "D",
+        "slot": "D-7",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-008",
+        "zone": "D",
+        "slot": "D-8",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-009",
+        "zone": "D",
+        "slot": "D-9",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-010",
+        "zone": "D",
+        "slot": "D-10",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-011",
+        "zone": "D",
+        "slot": "D-11",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-012",
+        "zone": "D",
+        "slot": "D-12",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-013",
+        "zone": "D",
+        "slot": "D-13",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-014",
+        "zone": "D",
+        "slot": "D-14",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-015",
+        "zone": "D",
+        "slot": "D-15",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-016",
+        "zone": "D",
+        "slot": "D-16",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-017",
+        "zone": "D",
+        "slot": "D-17",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-018",
+        "zone": "D",
+        "slot": "D-18",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-019",
+        "zone": "D",
+        "slot": "D-19",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-020",
+        "zone": "D",
+        "slot": "D-20",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-021",
+        "zone": "D",
+        "slot": "D-21",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-022",
+        "zone": "D",
+        "slot": "D-22",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-023",
+        "zone": "D",
+        "slot": "D-23",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-024",
+        "zone": "D",
+        "slot": "D-24",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-025",
+        "zone": "D",
+        "slot": "D-25",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-026",
+        "zone": "D",
+        "slot": "D-26",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-027",
+        "zone": "D",
+        "slot": "D-27",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-028",
+        "zone": "D",
+        "slot": "D-28",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-029",
+        "zone": "D",
+        "slot": "D-29",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-030",
+        "zone": "D",
+        "slot": "D-30",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-031",
+        "zone": "D",
+        "slot": "D-31",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-032",
+        "zone": "D",
+        "slot": "D-32",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-033",
+        "zone": "D",
+        "slot": "D-33",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-034",
+        "zone": "D",
+        "slot": "D-34",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-035",
+        "zone": "D",
+        "slot": "D-35",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-036",
+        "zone": "D",
+        "slot": "D-36",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-037",
+        "zone": "D",
+        "slot": "D-37",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-038",
+        "zone": "D",
+        "slot": "D-38",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-039",
+        "zone": "D",
+        "slot": "D-39",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-040",
+        "zone": "D",
+        "slot": "D-40",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-041",
+        "zone": "D",
+        "slot": "D-41",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-042",
+        "zone": "D",
+        "slot": "D-42",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-043",
+        "zone": "D",
+        "slot": "D-43",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-044",
+        "zone": "D",
+        "slot": "D-44",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-045",
+        "zone": "D",
+        "slot": "D-45",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-046",
+        "zone": "D",
+        "slot": "D-46",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-047",
+        "zone": "D",
+        "slot": "D-47",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-048",
+        "zone": "D",
+        "slot": "D-48",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-049",
+        "zone": "D",
+        "slot": "D-49",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-050",
+        "zone": "D",
+        "slot": "D-50",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-051",
+        "zone": "D",
+        "slot": "D-51",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-052",
+        "zone": "D",
+        "slot": "D-52",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-053",
+        "zone": "D",
+        "slot": "D-53",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-054",
+        "zone": "D",
+        "slot": "D-54",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-055",
+        "zone": "D",
+        "slot": "D-55",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-056",
+        "zone": "D",
+        "slot": "D-56",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-057",
+        "zone": "D",
+        "slot": "D-57",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-058",
+        "zone": "D",
+        "slot": "D-58",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-059",
+        "zone": "D",
+        "slot": "D-59",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-060",
+        "zone": "D",
+        "slot": "D-60",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-061",
+        "zone": "D",
+        "slot": "D-61",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-062",
+        "zone": "D",
+        "slot": "D-62",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-063",
+        "zone": "D",
+        "slot": "D-63",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-064",
+        "zone": "D",
+        "slot": "D-64",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-065",
+        "zone": "D",
+        "slot": "D-65",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-066",
+        "zone": "D",
+        "slot": "D-66",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-067",
+        "zone": "D",
+        "slot": "D-67",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-068",
+        "zone": "D",
+        "slot": "D-68",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-069",
+        "zone": "D",
+        "slot": "D-69",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-070",
+        "zone": "D",
+        "slot": "D-70",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-071",
+        "zone": "D",
+        "slot": "D-71",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-072",
+        "zone": "D",
+        "slot": "D-72",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-073",
+        "zone": "D",
+        "slot": "D-73",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-074",
+        "zone": "D",
+        "slot": "D-74",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-075",
+        "zone": "D",
+        "slot": "D-75",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-076",
+        "zone": "D",
+        "slot": "D-76",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 96,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-077",
+        "zone": "D",
+        "slot": "D-77",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-078",
+        "zone": "D",
+        "slot": "D-78",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-079",
+        "zone": "D",
+        "slot": "D-79",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-080",
+        "zone": "D",
+        "slot": "D-80",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-081",
+        "zone": "D",
+        "slot": "D-81",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-082",
+        "zone": "D",
+        "slot": "D-82",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-083",
+        "zone": "D",
+        "slot": "D-83",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-084",
+        "zone": "D",
+        "slot": "D-84",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-085",
+        "zone": "D",
+        "slot": "D-85",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-086",
+        "zone": "D",
+        "slot": "D-86",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-087",
+        "zone": "D",
+        "slot": "D-87",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-088",
+        "zone": "D",
+        "slot": "D-88",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-089",
+        "zone": "D",
+        "slot": "D-89",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-090",
+        "zone": "D",
+        "slot": "D-90",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-091",
+        "zone": "D",
+        "slot": "D-91",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-092",
+        "zone": "D",
+        "slot": "D-92",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-093",
+        "zone": "D",
+        "slot": "D-93",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-094",
+        "zone": "D",
+        "slot": "D-94",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-095",
+        "zone": "D",
+        "slot": "D-95",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-096",
+        "zone": "D",
+        "slot": "D-96",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-097",
+        "zone": "D",
+        "slot": "D-97",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-098",
+        "zone": "D",
+        "slot": "D-98",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-099",
+        "zone": "D",
+        "slot": "D-99",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-D-100",
+        "zone": "D",
+        "slot": "D-100",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-001",
+        "zone": "E",
+        "slot": "E-1",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-002",
+        "zone": "E",
+        "slot": "E-2",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-003",
+        "zone": "E",
+        "slot": "E-3",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-004",
+        "zone": "E",
+        "slot": "E-4",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-005",
+        "zone": "E",
+        "slot": "E-5",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-006",
+        "zone": "E",
+        "slot": "E-6",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-007",
+        "zone": "E",
+        "slot": "E-7",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-008",
+        "zone": "E",
+        "slot": "E-8",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-009",
+        "zone": "E",
+        "slot": "E-9",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-010",
+        "zone": "E",
+        "slot": "E-10",
+        "status": "online",
+        "enabled": true,
+        "battery": 88,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-011",
+        "zone": "E",
+        "slot": "E-11",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-012",
+        "zone": "E",
+        "slot": "E-12",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-013",
+        "zone": "E",
+        "slot": "E-13",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-014",
+        "zone": "E",
+        "slot": "E-14",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-015",
+        "zone": "E",
+        "slot": "E-15",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-016",
+        "zone": "E",
+        "slot": "E-16",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-017",
+        "zone": "E",
+        "slot": "E-17",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-018",
+        "zone": "E",
+        "slot": "E-18",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-019",
+        "zone": "E",
+        "slot": "E-19",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-020",
+        "zone": "E",
+        "slot": "E-20",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-021",
+        "zone": "E",
+        "slot": "E-21",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-022",
+        "zone": "E",
+        "slot": "E-22",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-023",
+        "zone": "E",
+        "slot": "E-23",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-024",
+        "zone": "E",
+        "slot": "E-24",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-025",
+        "zone": "E",
+        "slot": "E-25",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-026",
+        "zone": "E",
+        "slot": "E-26",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-027",
+        "zone": "E",
+        "slot": "E-27",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-028",
+        "zone": "E",
+        "slot": "E-28",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-029",
+        "zone": "E",
+        "slot": "E-29",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-030",
+        "zone": "E",
+        "slot": "E-30",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-031",
+        "zone": "E",
+        "slot": "E-31",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-032",
+        "zone": "E",
+        "slot": "E-32",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-033",
+        "zone": "E",
+        "slot": "E-33",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-034",
+        "zone": "E",
+        "slot": "E-34",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-035",
+        "zone": "E",
+        "slot": "E-35",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-036",
+        "zone": "E",
+        "slot": "E-36",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-037",
+        "zone": "E",
+        "slot": "E-37",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-038",
+        "zone": "E",
+        "slot": "E-38",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-039",
+        "zone": "E",
+        "slot": "E-39",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-040",
+        "zone": "E",
+        "slot": "E-40",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-041",
+        "zone": "E",
+        "slot": "E-41",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-042",
+        "zone": "E",
+        "slot": "E-42",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-043",
+        "zone": "E",
+        "slot": "E-43",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-044",
+        "zone": "E",
+        "slot": "E-44",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-045",
+        "zone": "E",
+        "slot": "E-45",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-046",
+        "zone": "E",
+        "slot": "E-46",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 80,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-047",
+        "zone": "E",
+        "slot": "E-47",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-048",
+        "zone": "E",
+        "slot": "E-48",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-049",
+        "zone": "E",
+        "slot": "E-49",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-050",
+        "zone": "E",
+        "slot": "E-50",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-051",
+        "zone": "E",
+        "slot": "E-51",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-052",
+        "zone": "E",
+        "slot": "E-52",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-053",
+        "zone": "E",
+        "slot": "E-53",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-054",
+        "zone": "E",
+        "slot": "E-54",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-055",
+        "zone": "E",
+        "slot": "E-55",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-056",
+        "zone": "E",
+        "slot": "E-56",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-057",
+        "zone": "E",
+        "slot": "E-57",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-058",
+        "zone": "E",
+        "slot": "E-58",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-059",
+        "zone": "E",
+        "slot": "E-59",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-060",
+        "zone": "E",
+        "slot": "E-60",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-061",
+        "zone": "E",
+        "slot": "E-61",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-062",
+        "zone": "E",
+        "slot": "E-62",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-063",
+        "zone": "E",
+        "slot": "E-63",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 91,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-064",
+        "zone": "E",
+        "slot": "E-64",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-065",
+        "zone": "E",
+        "slot": "E-65",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-066",
+        "zone": "E",
+        "slot": "E-66",
+        "status": "online",
+        "enabled": true,
+        "battery": 98,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-067",
+        "zone": "E",
+        "slot": "E-67",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-068",
+        "zone": "E",
+        "slot": "E-68",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-069",
+        "zone": "E",
+        "slot": "E-69",
+        "status": "online",
+        "enabled": true,
+        "battery": 96,
+        "signal": 99,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-070",
+        "zone": "E",
+        "slot": "E-70",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 86,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-071",
+        "zone": "E",
+        "slot": "E-71",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-072",
+        "zone": "E",
+        "slot": "E-72",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-073",
+        "zone": "E",
+        "slot": "E-73",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-074",
+        "zone": "E",
+        "slot": "E-74",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-075",
+        "zone": "E",
+        "slot": "E-75",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-076",
+        "zone": "E",
+        "slot": "E-76",
+        "status": "online",
+        "enabled": true,
+        "battery": 86,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-077",
+        "zone": "E",
+        "slot": "E-77",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-078",
+        "zone": "E",
+        "slot": "E-78",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-079",
+        "zone": "E",
+        "slot": "E-79",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 85,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-080",
+        "zone": "E",
+        "slot": "E-80",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 94,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-081",
+        "zone": "E",
+        "slot": "E-81",
+        "status": "online",
+        "enabled": true,
+        "battery": 99,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-082",
+        "zone": "E",
+        "slot": "E-82",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 89,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-083",
+        "zone": "E",
+        "slot": "E-83",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 88,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-084",
+        "zone": "E",
+        "slot": "E-84",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-085",
+        "zone": "E",
+        "slot": "E-85",
+        "status": "online",
+        "enabled": true,
+        "battery": 92,
+        "signal": 82,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-086",
+        "zone": "E",
+        "slot": "E-86",
+        "status": "online",
+        "enabled": true,
+        "battery": 89,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-087",
+        "zone": "E",
+        "slot": "E-87",
+        "status": "online",
+        "enabled": true,
+        "battery": 90,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-088",
+        "zone": "E",
+        "slot": "E-88",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-089",
+        "zone": "E",
+        "slot": "E-89",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 95,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-090",
+        "zone": "E",
+        "slot": "E-90",
+        "status": "online",
+        "enabled": true,
+        "battery": 94,
+        "signal": 90,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-091",
+        "zone": "E",
+        "slot": "E-91",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 93,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-092",
+        "zone": "E",
+        "slot": "E-92",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 83,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-093",
+        "zone": "E",
+        "slot": "E-93",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 98,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-094",
+        "zone": "E",
+        "slot": "E-94",
+        "status": "online",
+        "enabled": true,
+        "battery": 87,
+        "signal": 81,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-095",
+        "zone": "E",
+        "slot": "E-95",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 92,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-096",
+        "zone": "E",
+        "slot": "E-96",
+        "status": "online",
+        "enabled": true,
+        "battery": 95,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-097",
+        "zone": "E",
+        "slot": "E-97",
+        "status": "online",
+        "enabled": true,
+        "battery": 91,
+        "signal": 84,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-098",
+        "zone": "E",
+        "slot": "E-98",
+        "status": "online",
+        "enabled": true,
+        "battery": 93,
+        "signal": 87,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-099",
+        "zone": "E",
+        "slot": "E-99",
+        "status": "online",
+        "enabled": true,
+        "battery": 85,
+        "signal": 97,
+        "lastUpdate": "just now"
+      },
+      {
+        "id": "S-E-100",
+        "zone": "E",
+        "slot": "E-100",
+        "status": "online",
+        "enabled": true,
+        "battery": 97,
+        "signal": 95,
+        "lastUpdate": "just now"
+      }
+    ],
+    "signage": [
+      {
+        "id": "SIGN-001",
+        "location": "Main Entrance",
+        "zone": "All",
+        "status": "online",
+        "message": "Zone A: Available • Zone B: Available",
+        "uptime": "99.9%"
+      },
+      {
+        "id": "SIGN-002",
+        "location": "Zone A Entrance",
+        "zone": "A",
+        "status": "online",
+        "message": "Zone A: Available",
+        "uptime": "99.9%"
+      },
+      {
+        "id": "SIGN-003",
+        "location": "Zone E Entrance",
+        "zone": "E",
+        "status": "online",
+        "message": "Zone E: Available",
+        "uptime": "99.9%"
+      }
+    ]
+  },
+  "billing": {
+    "pricingPlans": [
+      {
+        "category": "Students",
+        "monthly": 150000,
+        "daily": 10000,
+        "hourly": 5000,
+        "description": "Undergraduate, Graduate, Doctoral candidates"
+      },
+      {
+        "category": "Faculty",
+        "monthly": 0,
+        "daily": 0,
+        "hourly": 0,
+        "description": "Reserved parking included"
+      },
+      {
+        "category": "Staff",
+        "monthly": 100000,
+        "daily": 8000,
+        "hourly": 4000,
+        "description": "Administration and support staff"
+      },
+      {
+        "category": "Visitors",
+        "monthly": null,
+        "daily": 50000,
+        "hourly": 10000,
+        "description": "Temporary access only"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "TXN-bd33b434",
+        "userId": "STU-4c215c4a",
+        "userName": "aaa",
+        "type": "Parking Fee",
+        "amount": 5000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-05 12:57",
+        "method": "Cash"
+      },
+      {
+        "id": "TXN-2026-001238",
+        "userId": "1951234",
+        "userName": "Dang Van G",
+        "type": "Monthly Parking",
+        "amount": 150000,
+        "period": "March 2026",
+        "status": "Overdue",
+        "date": "2026-03-01 00:00",
+        "method": "BKPay"
+      }
+    ],
+    "dailyRevenue": 0,
+    "dailyRevenueDate": "2026-05-05"
+  },
+  "activityLogs": [
+    {
+      "id": 1777986972324,
+      "timestamp": "2026-05-05 13:16:12",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986971510,
+      "timestamp": "2026-05-05 13:16:11",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986970820,
+      "timestamp": "2026-05-05 13:16:10",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Daily revenue reset by Admin"
+    },
+    {
+      "id": 1777986956282,
+      "timestamp": "2026-05-05 13:15:56",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Billing cycle executed for 5 learners"
+    },
+    {
+      "id": 1777986944113,
+      "timestamp": "2026-05-05 13:15:44",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986943110,
+      "timestamp": "2026-05-05 13:15:43",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Billing cycle executed for 5 learners"
+    },
+    {
+      "id": 1777986938942,
+      "timestamp": "2026-05-05 13:15:38",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986938362,
+      "timestamp": "2026-05-05 13:15:38",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Billing cycle executed for 5 learners"
+    },
+    {
+      "id": 1777986936421,
+      "timestamp": "2026-05-05 13:15:36",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986935047,
+      "timestamp": "2026-05-05 13:15:35",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Billing cycle executed for 5 learners"
+    },
+    {
+      "id": 1777986933736,
+      "timestamp": "2026-05-05 13:15:33",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    },
+    {
+      "id": 1777986929996,
+      "timestamp": "2026-05-05 13:15:29",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Monthly revenue reset by Admin"
+    }
+  ],
+  "analytics": {
+    "dailyOccupancy": [
+      {
+        "time": "08:00",
+        "rate": 78
+      },
+      {
+        "time": "12:00",
+        "rate": 72
+      },
+      {
+        "time": "16:00",
+        "rate": 92
+      }
+    ],
+    "weeklyRevenue": [
+      {
+        "day": "Mon",
+        "revenue": 850000
+      },
+      {
+        "day": "Tue",
+        "revenue": 920000
+      },
+      {
+        "day": "Fri",
+        "revenue": 1100000
+      }
+    ]
+  },
+  "metadata": {
+    "createdAt": "2026-04-21T09:00:00.000Z",
+    "updatedAt": "2026-05-05T13:16:12.324Z"
+  },
+  "slotAssignments": {
+    "A": []
+  }
+}

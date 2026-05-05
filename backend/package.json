@@ -6,11 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio",
-    "reset:data": "prisma migrate reset && node scripts/seedData.js",
-    "sync:hcmut": "node jobs/dataSyncJob.js",
+    "reset:data": "node data/resetData.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,20 +14,15 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^5.0.0",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
-    "passport": "^0.6.0",
-    "passport-jwt": "^4.0.1",
-    "passport-oauth2": "^1.7.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "prisma": "^5.0.0"
+    "nodemon": "^3.0.1"
   }
 }
 

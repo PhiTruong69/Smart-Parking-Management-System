@@ -521,22 +521,27 @@ app.get("/api/iot/status", (req, res) => {
 
 app.get("/api/iot/sensors", (req, res) => {
   const db = readStore();
+  if (!db.disabledSensors) db.disabledSensors = {};
   
   // Generate real sensors based on zones and slots
   const sensors = [];
   db.zones.forEach((zone) => {
     for (let i = 1; i <= zone.total; i++) {
       const slotId = `${zone.id}-${i}`;
-      const slotAssignment = db.slotAssignments[slotId];
+      const sensorId = `S-${slotId}`;
+      const isDisabled = db.disabledSensors[sensorId];
+      const slotAssignment = (db.slotAssignments || {})[slotId];
+      
       sensors.push({
-        id: `S-${slotId}`,
+        id: sensorId,
         zone: zone.id,
         slot: slotId,
-        status: "online",
-        battery: 85 + Math.floor(Math.random() * 15),
-        signal: 80 + Math.floor(Math.random() * 20),
-        lastUpdate: slotAssignment ? "occupied" : "available",
+        status: isDisabled ? "offline" : "online",
+        battery: isDisabled ? 0 : 85 + Math.floor(Math.random() * 15),
+        signal: isDisabled ? 0 : 80 + Math.floor(Math.random() * 20),
+        lastUpdate: isDisabled ? "disabled" : slotAssignment ? "occupied" : "2 sec ago",
         occupied: !!slotAssignment,
+        disabled: !!isDisabled,
       });
     }
   });
@@ -544,9 +549,52 @@ app.get("/api/iot/sensors", (req, res) => {
   res.json(sensors);
 });
 
+app.post("/api/iot/sensors/:id/toggle", (req, res) => {
+  const db = readStore();
+  const sensorId = req.params.id;
+  const { disable } = req.body;
+  
+  if (!db.disabledSensors) db.disabledSensors = {};
+  
+  if (disable === true) {
+    db.disabledSensors[sensorId] = true;
+  } else {
+    delete db.disabledSensors[sensorId];
+  }
+  
+  // Log the event
+  const sensorInfo = sensorId.split('-').slice(1).join('-');
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+    type: "sensor",
+    user: "System",
+    userId: "SYSTEM",
+    role: "System",
+    zone: `Zone ${sensorInfo.charAt(0)}`,
+    gate: "N/A",
+    vehicleId: "N/A",
+    action: `Sensor ${sensorId} at slot ${sensorInfo} ${disable ? "disabled" : "enabled"}`,
+  });
+  
+  writeStore(db);
+  
+  res.json({
+    id: sensorId,
+    status: disable ? "offline" : "online",
+    disabled: !!disable,
+    message: `Sensor ${disable ? "disabled" : "enabled"} successfully`,
+  });
+});
+
 app.get("/api/iot/signage", (req, res) => {
   const db = readStore();
-  res.json(db.iot.signage);
+  // Return signage data with status
+  const signage = db.iot.signage || [
+    { id: "SIGN-001", location: "Main Entrance", zone: "All", status: "online", message: "Zone A: Full • Zone B: Available", uptime: "99.9%" },
+    { id: "SIGN-005", location: "Visitor Entrance", zone: "E", status: "online", message: "Zone E: Available", uptime: "98.5%" },
+  ];
+  res.json(signage);
 });
 
 app.post("/api/iot/events/heartbeat", (req, res) => {
