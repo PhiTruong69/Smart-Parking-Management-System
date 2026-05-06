@@ -106,6 +106,10 @@ function ensureBaselineData(db) {
   if (typeof db.billing.dailyRevenue !== "number") db.billing.dailyRevenue = 0;
   if (!db.billing.dailyRevenueDate) db.billing.dailyRevenueDate = getCurrentDateString();
   if (!Array.isArray(db.activityLogs)) db.activityLogs = [];
+  
+  // Only keep admin user, remove all mock/simulation users
+  db.users = db.users.filter((u) => u.id === "admin");
+  
   if (!db.users.some((u) => u.id === "admin")) {
     db.users.unshift({
       id: "admin",
@@ -491,29 +495,37 @@ app.get("/api/parking/guidance", (req, res) => {
 
 app.get("/api/iot/status", (req, res) => {
   const db = readStore();
+  if (!db.disabledSensors) db.disabledSensors = {};
   const sensors = db.iot.sensors;
   
   // Calculate real gateway status based on zones
   const gateways = db.zones.map((zone) => {
-    const zoneSensors = sensors.filter((s) => s.zone === zone.id);
-    const online = zoneSensors.filter((s) => s.status === "online").length || zone.total;
+    const totalSensorsInZone = zone.total;
+    const disabledSensorsInZone = Object.keys(db.disabledSensors).filter((sensorId) => {
+      return sensorId.includes(`-${zone.id}-`);
+    }).length;
+    const workingSensors = totalSensorsInZone - disabledSensorsInZone;
+    
     return {
       id: `GW-${zone.id}`,
       name: `Gateway Zone ${zone.id}`,
       zone: zone.id,
-      status: online > 0 ? "online" : "offline",
-      sensors: zone.total,
-      sensorsOnline: Math.max(0, zone.total - zone.occupied),
+      status: workingSensors > 0 ? "online" : "offline",
+      sensors: totalSensorsInZone,
+      sensorsOnline: workingSensors,
       uptime: "99.9%",
       signalStrength: 90 + Math.floor(Math.random() * 10),
       lastUpdate: "just now",
     };
   });
   
+  const totalSensors = db.zones.reduce((sum, z) => sum + z.total, 0);
+  const totalDisabled = Object.keys(db.disabledSensors).length;
+  
   res.json({
-    totalSensors: db.zones.reduce((sum, z) => sum + z.total, 0),
-    online: gateways.filter((g) => g.status === "online").length,
-    offline: gateways.filter((g) => g.status === "offline").length,
+    totalSensors: totalSensors,
+    online: totalSensors - totalDisabled,
+    offline: totalDisabled,
     maintenance: 0,
     gateways,
   });

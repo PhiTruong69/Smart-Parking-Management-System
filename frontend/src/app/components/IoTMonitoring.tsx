@@ -86,16 +86,16 @@ export default function IoTMonitoring() {
   useEffect(() => {
     fetchData();
     if (!autoRefresh) return;
-    const timer = setInterval(fetchData, 10000);
+    const timer = setInterval(fetchData, 3000); // Refresh every 3 seconds for real-time updates
     return () => clearInterval(timer);
   }, [autoRefresh]);
 
   const sensorStats = useMemo(() => {
     const total = sensors.length;
-    const online = sensors.filter((s) => s.status === 'online').length;
-    const offline = sensors.filter((s) => s.status === 'offline').length;
-    const maintenance = sensors.filter((s) => s.status === 'maintenance').length;
-    return { total, online, offline, maintenance };
+    const online = sensors.filter((s) => s.status === 'online' && !s.disabled).length;
+    const occupied = sensors.filter((s) => s.occupied && !s.disabled).length;
+    const maintenance = sensors.filter((s) => s.disabled).length;
+    return { total, online, occupied, maintenance };
   }, [sensors]);
 
   const toggleSensorStatus = async (sensor: any) => {
@@ -122,6 +122,22 @@ export default function IoTMonitoring() {
               }
             : s
         )
+      );
+
+      // Update gateway info immediately
+      setGateways((prev) =>
+        prev.map((gateway) => {
+          const sensorZone = sensor.zone;
+          if (gateway.zone === sensorZone) {
+            const newSensorsOnline = gateway.sensorsOnline + (sensor.status === 'online' ? -1 : 1);
+            return {
+              ...gateway,
+              sensorsOnline: newSensorsOnline,
+              status: newSensorsOnline > 0 ? 'online' : 'offline',
+            };
+          }
+          return gateway;
+        })
       );
     } catch (err) {
       console.error('Error toggling sensor:', err);
@@ -166,7 +182,7 @@ export default function IoTMonitoring() {
             <Progress value={sensorStats.total > 0 ? (sensorStats.online / sensorStats.total) * 100 : 0} className="mt-2" />
           </CardContent>
         </Card>
-        <Card>
+       <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-slate-600">Online</CardTitle>
           </CardHeader>
@@ -179,11 +195,11 @@ export default function IoTMonitoring() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-slate-600">Offline</CardTitle>
+            <CardTitle className="text-sm text-slate-600">Occupied / In Use</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{sensorStats.offline}</div>
-            <p className="text-xs text-slate-500 mt-1">Requires attention</p>
+            <div className="text-2xl font-bold text-blue-600">{sensorStats.occupied}</div>
+            <p className="text-xs text-slate-500 mt-1">Spaces in use</p>
           </CardContent>
         </Card>
         <Card>
@@ -192,7 +208,7 @@ export default function IoTMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{sensorStats.maintenance}</div>
-            <p className="text-xs text-slate-500 mt-1">Scheduled</p>
+            <p className="text-xs text-slate-500 mt-1">Broken / Disabled</p>
           </CardContent>
         </Card>
       </div>
@@ -467,7 +483,7 @@ export default function IoTMonitoring() {
                 <span className="text-sm font-medium text-yellow-900">Alerts</span>
               </div>
               <div className="text-xs text-yellow-700">
-                Offline sensors: {sensorStats.offline} • Disabled sensors: {sensors.filter(s => s.disabled).length}
+                Maintenance/Broken sensors: {sensorStats.maintenance}
               </div>
             </div>
           </div>

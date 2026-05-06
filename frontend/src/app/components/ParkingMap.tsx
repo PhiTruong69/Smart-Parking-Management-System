@@ -21,7 +21,14 @@ export default function SmartParkingMap() {
   });
 
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  const [disabledSensors, setDisabledSensors] = useState<Set<string>>(new Set());
+  const [disabledSensors, setDisabledSensors] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('disabledSensors');
+      return new Set(saved ? JSON.parse(saved) : []);
+    } catch {
+      return new Set();
+    }
+  });
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   // Show notification
@@ -29,6 +36,11 @@ export default function SmartParkingMap() {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
+
+  // Lưu disabled sensors vào localStorage
+  useEffect(() => {
+    localStorage.setItem('disabledSensors', JSON.stringify(Array.from(disabledSensors)));
+  }, [disabledSensors]);
 
   // 2. Logic đồng bộ dữ liệu từ API
   useEffect(() => {
@@ -64,12 +76,36 @@ export default function SmartParkingMap() {
     return () => clearInterval(interval);
   }, [disabledSensors]);
 
+  // Load disabled sensors từ backend khi khởi động
+  useEffect(() => {
+    const loadDisabledSensors = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/iot/sensors');
+        if (!res.ok) return;
+        const sensors = await res.json();
+        if (Array.isArray(sensors)) {
+          const disabled = new Set(sensors.filter((s: any) => s.disabled).map((s: any) => s.id));
+          if (disabled.size > 0) {
+            setDisabledSensors(disabled);
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi tải disabled sensors:", err);
+      }
+    };
+    loadDisabledSensors();
+  }, []);
+
   // 3. Hàm tính toán trạng thái cho bảng điện tử
   const getZoneStatus = (zoneId: string) => {
     const slots = zonesData[zoneId] || []; // Tránh lỗi undefined
     const occupiedCount = slots.filter(s => s.status === 'occupied').length;
+    const disabledCount = slots.filter(s => s.sensorDisabled).length;
+    const availableCount = slots.filter(s => s.status === 'available' && !s.sensorDisabled).length;
     const capacity = slots.length || 100;
-    const ratio = occupiedCount / capacity;
+    
+    // Tính tỉ lệ dựa trên số slot còn trống thực tế (trừ đi sensor disabled)
+    const ratio = (occupiedCount + disabledCount) / capacity;
 
     if (ratio >= 1) return { label: 'FULL', color: 'bg-red-600', text: 'text-red-600' };
     if (ratio >= 0.8) return { label: 'NEARLY FULL', color: 'bg-yellow-500', text: 'text-yellow-600' };
@@ -222,15 +258,15 @@ export default function SmartParkingMap() {
                     onClick={() => toggleSlotSensor(slot.id)}
                     className={`relative h-16 border-2 rounded-md flex flex-col items-center justify-center transition-all cursor-pointer hover:shadow-lg
                       ${isSensorDisabled 
-                        ? 'bg-gray-100 border-gray-400 text-gray-600 opacity-60' 
+                        ? 'bg-gray-300 border-gray-500 text-gray-700 opacity-70' 
                         : slot.status === 'occupied' 
                           ? 'bg-red-50 border-red-500 text-red-700 hover:bg-red-100' 
                           : 'bg-green-50 border-green-500 text-green-700 hover:bg-green-100'}`}
-                    title={`${slot.id} - ${isSensorDisabled ? 'Sensor Disabled' : slot.status}`}
+                    title={`${slot.id} - ${isSensorDisabled ? 'Sensor Disabled (Broken)' : slot.status}`}
                   >
                     <span className="text-[10px] font-bold">{slot.id}</span>
                     {isSensorDisabled ? (
-                      <AlertCircle className="w-5 h-5 text-yellow-600" />
+                      <AlertCircle className="w-5 h-5 text-red-600" />
                     ) : slot.status === 'occupied' ? (
                       <Car className="w-6 h-6" />
                     ) : (
@@ -252,10 +288,10 @@ export default function SmartParkingMap() {
                 <span>Đã đỗ (Sensor OK)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-100 border-2 border-gray-400 rounded flex items-center justify-center">
-                  <AlertCircle className="w-2 h-2 text-yellow-600" />
+                <div className="w-4 h-4 bg-gray-300 border-2 border-gray-500 rounded flex items-center justify-center">
+                  <AlertCircle className="w-2 h-2 text-red-600" />
                 </div>
-                <span>Sensor Disabled</span>
+                <span>Sensor Hỏng (Không thể đỗ)</span>
               </div>
             </div>
           </CardContent>

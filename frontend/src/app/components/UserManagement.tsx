@@ -18,6 +18,7 @@ import {
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterRole, setFilterRole] = useState<string>('all');
   const [users, setUsers] = useState<any[]>([]);
   const API_BASE = 'http://localhost:5000/api';
 
@@ -40,6 +41,11 @@ export default function UserManagement() {
     const visitors = users.filter((u) => u.role === 'Visitor').length;
     return { totalUsers, activeUsers, students, faculty, staff, visitors };
   }, [users]);
+
+  const filteredUsers = useMemo(() => {
+    if (filterRole === 'all') return users;
+    return users.filter((u) => u.role === filterRole);
+  }, [users, filterRole]);
 
   const updateRole = async (user: any) => {
     const nextRole = window.prompt(`Update role for ${user.name}`, user.role);
@@ -141,12 +147,6 @@ export default function UserManagement() {
               <CardTitle>User Directory</CardTitle>
               <CardDescription>Manage parking system users and permissions</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Filler
-              </Button>
-            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -161,10 +161,17 @@ export default function UserManagement() {
                 className="pl-9"
               />
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="border rounded px-3 py-2 text-sm"
+            >
+              <option value="all">All Roles</option>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Staff">Staff</option>
+              <option value="Visitor">Visitor</option>
+            </select>
           </div>
 
           {/* Table */}
@@ -199,7 +206,7 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr
                     key={user.id}
                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
@@ -261,7 +268,7 @@ export default function UserManagement() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
             <div className="text-sm text-slate-600">
-              Showing 1-8 of {stats.totalUsers} users
+              Showing {filteredUsers.length > 0 ? '1' : '0'}-{filteredUsers.length} of {stats.totalUsers} users
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>
