@@ -1,17 +1,40 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": "admin",
+      "password": "admin123",
+      "name": "System Admin",
+      "role": "Admin",
+      "program": "IT Center",
+      "status": "Active",
+      "parkingPass": "Reserved",
+      "balance": 0,
+      "entryCount": 0
+    },
+    {
+      "id": "STU-e547ad22",
+      "password": "123456",
+      "name": "pt",
+      "role": "Student",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
+    }
+  ],
   "zones": [
     {
       "id": "A",
       "name": "Zone A - Main Building",
       "total": 100,
-      "occupied": 1
+      "occupied": 0
     },
     {
       "id": "B",
       "name": "Zone B - Engineering",
       "total": 100,
-      "occupied": 0
+      "occupied": 1
     },
     {
       "id": "C",
@@ -134,6 +157,51 @@
       "vehicleId": "đá",
       "method": "CARD",
       "entryAt": "2026-05-06T05:13:26.440Z",
+      "exitAt": "2026-05-07T05:00:19.719Z",
+      "status": "CLOSED",
+      "fee": 120000
+    },
+    {
+      "id": "SES-32c9fd6c",
+      "userId": "STU-29196844",
+      "userName": "pt",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-1",
+      "gate": "Gate A1",
+      "vehicleId": "a",
+      "method": "CARD",
+      "entryAt": "2026-05-07T05:00:30.449Z",
+      "exitAt": "2026-05-07T05:00:46.775Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-b45dfdf2",
+      "userId": "STU-04c7a51a",
+      "userName": "â",
+      "userType": "Student",
+      "zoneId": "A",
+      "slotId": "A-1",
+      "gate": "Gate A1",
+      "vehicleId": "aa",
+      "method": "CARD",
+      "entryAt": "2026-05-07T05:03:00.290Z",
+      "exitAt": "2026-05-07T05:08:41.780Z",
+      "status": "CLOSED",
+      "fee": 5000
+    },
+    {
+      "id": "SES-6997cb52",
+      "userId": "STU-e547ad22",
+      "userName": "pt",
+      "userType": "Student",
+      "zoneId": "B",
+      "slotId": "B-2",
+      "gate": "Gate A1",
+      "vehicleId": "123456",
+      "method": "CARD",
+      "entryAt": "2026-05-07T05:09:12.187Z",
       "exitAt": null,
       "status": "ACTIVE",
       "fee": null
@@ -5260,6 +5328,39 @@
     ],
     "transactions": [
       {
+        "id": "TXN-0bd58ca7",
+        "userId": "STU-04c7a51a",
+        "userName": "â",
+        "type": "Parking Fee",
+        "amount": 5000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-07 05:08",
+        "method": "Cash"
+      },
+      {
+        "id": "TXN-3eaf942d",
+        "userId": "STU-29196844",
+        "userName": "pt",
+        "type": "Parking Fee",
+        "amount": 5000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-07 05:00",
+        "method": "Cash"
+      },
+      {
+        "id": "TXN-a09728ad",
+        "userId": "STU-eca977f4",
+        "userName": "sâds",
+        "type": "Parking Fee",
+        "amount": 120000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-07 05:00",
+        "method": "Cash"
+      },
+      {
         "id": "TXN-e6ccfee7",
         "userId": "STU-1eb4752b",
         "userName": "qưefgf",
@@ -5337,10 +5438,343 @@
         "method": "BKPay"
       }
     ],
-    "dailyRevenue": 0,
-    "dailyRevenueDate": "2026-05-06"
+    "dailyRevenue": 10000,
+    "dailyRevenueDate": "2026-05-07"
   },
   "activityLogs": [
+    {
+      "id": 1778130807861,
+      "timestamp": "2026-05-07 05:13:27",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone C",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-C-5 at slot C-5 disabled"
+    },
+    {
+      "id": 1778130807353,
+      "timestamp": "2026-05-07 05:13:27",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone C",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-C-3 at slot C-3 disabled"
+    },
+    {
+      "id": 1778130806903,
+      "timestamp": "2026-05-07 05:13:26",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone C",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-C-4 at slot C-4 disabled"
+    },
+    {
+      "id": 1778130806322,
+      "timestamp": "2026-05-07 05:13:26",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone C",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-C-1 at slot C-1 disabled"
+    },
+    {
+      "id": 1778130782523,
+      "timestamp": "2026-05-07 05:13:02",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-1 at slot A-1 disabled"
+    },
+    {
+      "id": 1778130781813,
+      "timestamp": "2026-05-07 05:13:01",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-1 at slot A-1 enabled"
+    },
+    {
+      "id": 1778130563738,
+      "timestamp": "2026-05-07 05:09:23",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-2 at slot B-2 enabled"
+    },
+    {
+      "id": 1778130562289,
+      "timestamp": "2026-05-07 05:09:22",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-2 at slot B-2 disabled"
+    },
+    {
+      "id": 1778130560666,
+      "timestamp": "2026-05-07 05:09:20",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-2 at slot B-2 enabled"
+    },
+    {
+      "id": 1778130559757,
+      "timestamp": "2026-05-07 05:09:19",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-2 at slot B-2 disabled"
+    },
+    {
+      "id": 1778130552187,
+      "timestamp": "2026-05-07 05:09:12",
+      "type": "entry",
+      "user": "pt",
+      "userId": "STU-e547ad22",
+      "role": "Student",
+      "zone": "Zone B",
+      "gate": "Gate A1",
+      "vehicleId": "123456",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1778130526708,
+      "timestamp": "2026-05-07 05:08:46",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-3 at slot B-3 disabled"
+    },
+    {
+      "id": 1778130526082,
+      "timestamp": "2026-05-07 05:08:46",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone B",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-B-1 at slot B-1 disabled"
+    },
+    {
+      "id": 1778130521780,
+      "timestamp": "2026-05-07 05:08:41",
+      "type": "exit",
+      "user": "â",
+      "userId": "STU-04c7a51a",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "aa",
+      "action": "Vehicle exited parking zone",
+      "duration": "1h",
+      "amount": 5000,
+      "transactionId": "TXN-0bd58ca7"
+    },
+    {
+      "id": 1778130507377,
+      "timestamp": "2026-05-07 05:08:27",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-2 at slot A-2 disabled"
+    },
+    {
+      "id": 1778130506994,
+      "timestamp": "2026-05-07 05:08:26",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-2 at slot A-2 enabled"
+    },
+    {
+      "id": 1778130506581,
+      "timestamp": "2026-05-07 05:08:26",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-3 at slot A-3 disabled"
+    },
+    {
+      "id": 1778130180290,
+      "timestamp": "2026-05-07 05:03:00",
+      "type": "entry",
+      "user": "â",
+      "userId": "STU-04c7a51a",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "aa",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1778130172188,
+      "timestamp": "2026-05-07 05:02:52",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-2 at slot A-2 disabled"
+    },
+    {
+      "id": 1778130171538,
+      "timestamp": "2026-05-07 05:02:51",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-1 at slot A-1 disabled"
+    },
+    {
+      "id": 1778130046776,
+      "timestamp": "2026-05-07 05:00:46",
+      "type": "exit",
+      "user": "pt",
+      "userId": "STU-29196844",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "a",
+      "action": "Vehicle exited parking zone",
+      "duration": "1h",
+      "amount": 5000,
+      "transactionId": "TXN-3eaf942d"
+    },
+    {
+      "id": 1778130030449,
+      "timestamp": "2026-05-07 05:00:30",
+      "type": "entry",
+      "user": "pt",
+      "userId": "STU-29196844",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "a",
+      "action": "Vehicle entered parking zone"
+    },
+    {
+      "id": 1778130024296,
+      "timestamp": "2026-05-07 05:00:24",
+      "type": "system",
+      "user": "Admin",
+      "userId": "ADMIN",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Daily revenue reset by Admin"
+    },
+    {
+      "id": 1778130019813,
+      "timestamp": "2026-05-07 05:00:19",
+      "type": "exit",
+      "user": "sâds",
+      "userId": "STU-eca977f4",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "đá",
+      "action": "Vehicle exited parking zone",
+      "duration": "24h",
+      "amount": 120000,
+      "transactionId": "TXN-a09728ad"
+    },
+    {
+      "id": 1778130009167,
+      "timestamp": "2026-05-07 05:00:09",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-5 at slot A-5 enabled"
+    },
+    {
+      "id": 1778130008280,
+      "timestamp": "2026-05-07 05:00:08",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-3 at slot A-3 enabled"
+    },
+    {
+      "id": 1778130007473,
+      "timestamp": "2026-05-07 05:00:07",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "Zone A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-A-11 at slot A-11 enabled"
+    },
     {
       "id": 1778044898798,
       "timestamp": "2026-05-06 05:21:38",
@@ -5388,63 +5822,6 @@
       "gate": "N/A",
       "vehicleId": "N/A",
       "action": "Daily revenue reset by Admin"
-    },
-    {
-      "id": 1778044406440,
-      "timestamp": "2026-05-06 05:13:26",
-      "type": "entry",
-      "user": "sâds",
-      "userId": "STU-eca977f4",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "đá",
-      "action": "Vehicle entered parking zone"
-    },
-    {
-      "id": 1778044392284,
-      "timestamp": "2026-05-06 05:13:12",
-      "type": "exit",
-      "user": "qưefgf",
-      "userId": "STU-1eb4752b",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "ffwfwe",
-      "action": "Vehicle exited parking zone",
-      "duration": "1h",
-      "amount": 5000,
-      "transactionId": "TXN-e6ccfee7"
-    },
-    {
-      "id": 1778044391461,
-      "timestamp": "2026-05-06 05:13:11",
-      "type": "exit",
-      "user": "Phi Trường ",
-      "userId": "STU-87b5625f",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "12345",
-      "action": "Vehicle exited parking zone",
-      "duration": "1h",
-      "amount": 5000,
-      "transactionId": "TXN-b0447a47"
-    },
-    {
-      "id": 1778044390717,
-      "timestamp": "2026-05-06 05:13:10",
-      "type": "exit",
-      "user": "Phi Trường ",
-      "userId": "STU-6778a838",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "A1",
-      "action": "Vehicle exited parking zone",
-      "duration": "1h",
-      "amount": 5000,
-      "transactionId": "TXN-0caec4e4"
     },
     {
       "id": 1778044381862,
@@ -5555,30 +5932,6 @@
       "action": "Sensor S-A-11 at slot A-11 enabled"
     },
     {
-      "id": 1778043909084,
-      "timestamp": "2026-05-06 05:05:09",
-      "type": "entry",
-      "user": "qưefgf",
-      "userId": "STU-1eb4752b",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "ffwfwe",
-      "action": "Vehicle entered parking zone"
-    },
-    {
-      "id": 1778043870860,
-      "timestamp": "2026-05-06 05:04:30",
-      "type": "entry",
-      "user": "Phi Trường ",
-      "userId": "STU-87b5625f",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "12345",
-      "action": "Vehicle entered parking zone"
-    },
-    {
       "id": 1778043842085,
       "timestamp": "2026-05-06 05:04:02",
       "type": "sensor",
@@ -5589,18 +5942,6 @@
       "gate": "N/A",
       "vehicleId": "N/A",
       "action": "Sensor S-A-2 at slot A-2 disabled"
-    },
-    {
-      "id": 1778043835223,
-      "timestamp": "2026-05-06 05:03:55",
-      "type": "entry",
-      "user": "Phi Trường ",
-      "userId": "STU-6778a838",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "A1",
-      "action": "Vehicle entered parking zone"
     },
     {
       "id": 1778043824751,
@@ -5721,21 +6062,6 @@
       "gate": "N/A",
       "vehicleId": "N/A",
       "action": "Sensor S-A-1 at slot A-1 disabled"
-    },
-    {
-      "id": 1778043077383,
-      "timestamp": "2026-05-06 04:51:17",
-      "type": "exit",
-      "user": "Phi Trường ",
-      "userId": "STU-88cb5007",
-      "role": "Student",
-      "zone": "Zone A",
-      "gate": "Gate A1",
-      "vehicleId": "A1",
-      "action": "Vehicle exited parking zone",
-      "duration": "1h",
-      "amount": 5000,
-      "transactionId": "TXN-0a1e18d7"
     },
     {
       "id": 1778043064340,
@@ -6034,17 +6360,24 @@
   },
   "metadata": {
     "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-05-06T05:21:38.799Z"
+    "updatedAt": "2026-05-07T05:13:27.861Z"
   },
   "slotAssignments": {
-    "A": [
-      "A-1"
-    ],
-    "E": []
+    "A": [],
+    "E": [],
+    "B": [
+      "B-2"
+    ]
   },
   "disabledSensors": {
     "S-A-3": true,
-    "S-A-5": true,
-    "S-A-11": true
+    "S-A-2": true,
+    "S-B-1": true,
+    "S-B-3": true,
+    "S-A-1": true,
+    "S-C-1": true,
+    "S-C-4": true,
+    "S-C-3": true,
+    "S-C-5": true
   }
 }

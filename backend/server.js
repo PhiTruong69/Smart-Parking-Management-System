@@ -47,7 +47,7 @@ function getCurrentDateString() {
 }
 
 function calculateFee(entryTime, exitTime, role, db) {
-  const durationHours = Math.max(1, Math.ceil((new Date(exitTime) - new Date(entryTime)) / 36e5));
+  const durationDays = Math.max(1, Math.ceil((new Date(exitTime) - new Date(entryTime)) / (24 * 36e5)));
   const normalizedRole = String(role || "Visitor").toLowerCase();
   
   // Tìm chính sách giá từ Database do Admin cấu hình
@@ -55,16 +55,16 @@ function calculateFee(entryTime, exitTime, role, db) {
   let rate = 10000; // Mặc định cho Visitor
 
   if (normalizedRole.includes("student") || normalizedRole.includes("graduate") || normalizedRole.includes("doctoral")) {
-    rate = plans.find(p => p.category === "Students")?.hourly || 5000;
+    rate = plans.find(p => p.category === "Students")?.daily || 10000;
   } else if (normalizedRole.includes("staff")) {
-    rate = plans.find(p => p.category === "Staff")?.hourly || 4000;
+    rate = plans.find(p => p.category === "Staff")?.daily || 8000;
   } else if (normalizedRole.includes("faculty")) {
-    rate = plans.find(p => p.category === "Faculty")?.hourly || 0;
+    rate = plans.find(p => p.category === "Faculty")?.daily || 0;
   } else {
-    rate = plans.find(p => p.category === "Visitors")?.hourly || 10000;
+    rate = plans.find(p => p.category === "Visitors")?.daily || 10000;
   }
 
-  return durationHours * rate;
+  return durationDays * rate;
 }
 
 function getDashboardSummary(db) {
@@ -269,6 +269,8 @@ app.patch("/api/admin/pricing-policies/:category", requireRole(["ADMIN"]), (req,
 app.get("/api/parking/slots/all", (req, res) => {
   const db = readStore();
   ensureBaselineData(db);
+  if (!db.disabledSensors) db.disabledSensors = {};
+  
   const allZonesData = {};
   const zones = ['A', 'B', 'C', 'D', 'E'];
 
@@ -277,9 +279,12 @@ app.get("/api/parking/slots/all", (req, res) => {
     const occupiedSlots = db.slotAssignments[zoneId] || [];
     allZonesData[zoneId] = Array.from({ length: totalSlots }, (_, i) => {
       const slotId = `${zoneId}-${i + 1}`;
+      const sensorId = `S-${slotId}`;
+      const isDisabled = db.disabledSensors[sensorId];
       return {
         id: slotId,
-        status: occupiedSlots.includes(slotId) ? 'occupied' : 'available',
+        status: isDisabled ? 'disabled' : occupiedSlots.includes(slotId) ? 'occupied' : 'available',
+        disabled: !!isDisabled,
       };
     });
   });
@@ -397,8 +402,8 @@ app.post("/api/parking/sessions/:id/exit", (req, res) => {
   session.fee = calculateFee(session.entryAt, session.exitAt, session.userType, db);
 
   const durationMs = new Date(session.exitAt) - new Date(session.entryAt);
-  const durationHours = Math.max(1, Math.ceil(durationMs / 36e5));
-  const duration = `${durationHours}h`;
+  const durationDays = Math.max(1, Math.ceil(durationMs / (24 * 36e5)));
+  const duration = `${durationDays}d`;
 
   const zone = db.zones.find((z) => z.id === session.zoneId);
   if (zone) zone.occupied = Math.max(0, zone.occupied - 1);
@@ -542,7 +547,7 @@ app.get("/api/iot/sensors", (req, res) => {
       const slotId = `${zone.id}-${i}`;
       const sensorId = `S-${slotId}`;
       const isDisabled = db.disabledSensors[sensorId];
-      const slotAssignment = (db.slotAssignments || {})[slotId];
+      const isOccupied = (db.slotAssignments[zone.id] || []).includes(slotId);
       
       sensors.push({
         id: sensorId,
@@ -551,8 +556,8 @@ app.get("/api/iot/sensors", (req, res) => {
         status: isDisabled ? "offline" : "online",
         battery: isDisabled ? 0 : 85 + Math.floor(Math.random() * 15),
         signal: isDisabled ? 0 : 80 + Math.floor(Math.random() * 20),
-        lastUpdate: isDisabled ? "disabled" : slotAssignment ? "occupied" : "2 sec ago",
-        occupied: !!slotAssignment,
+        lastUpdate: isDisabled ? "disabled" : isOccupied ? "occupied" : "2 sec ago",
+        occupied: !!isOccupied,
         disabled: !!isDisabled,
       });
     }
@@ -651,9 +656,13 @@ app.get("/api/billing/overview", (req, res) => {
   const totalRevenue = all.filter((t) => t.status === "Paid").reduce((sum, t) => sum + t.amount, 0);
   const pending = all.filter((t) => t.status === "Pending").reduce((sum, t) => sum + t.amount, 0);
   const overdue = all.filter((t) => t.status === "Overdue").reduce((sum, t) => sum + t.amount, 0);
+  
+  // Get current month in "Month Year" format
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
   const thisMonth = all
-    .filter((t) => String(t.period).toLowerCase().includes("april"))
+    .filter((t) => String(t.period).toLowerCase() === currentMonth.toLowerCase())
     .reduce((sum, t) => sum + t.amount, 0);
+  
   const dailyRevenue = db.billing.dailyRevenueDate === getCurrentDateString() ? db.billing.dailyRevenue : 0;
   res.json({ totalRevenue, dailyRevenue, thisMonth, pending, overdue, pricingPlans: db.billing.pricingPlans });
 });

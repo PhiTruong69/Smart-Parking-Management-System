@@ -87,7 +87,19 @@ export default function IoTMonitoring() {
     fetchData();
     if (!autoRefresh) return;
     const timer = setInterval(fetchData, 3000); // Refresh every 3 seconds for real-time updates
-    return () => clearInterval(timer);
+    
+    // Listen for external refresh trigger (from TrafficSimulation)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'iotRefreshTrigger') {
+        fetchData();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [autoRefresh]);
 
   const sensorStats = useMemo(() => {

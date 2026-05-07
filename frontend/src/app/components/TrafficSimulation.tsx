@@ -24,13 +24,15 @@ export default function TrafficSimulation({ actorRole }: Props) {
   });
   
   const [message, setMessage] = useState('');
+  const [sensorsData, setSensorsData] = useState<any[]>([]);
 
   // 1. Hàm tải dữ liệu tổng thể (Đồng bộ với cấu trúc của ParkingMap)
   const refreshGlobalData = async () => {
   try {
-    const [slotsRes, sessionsRes] = await Promise.all([
+    const [slotsRes, sessionsRes, sensorsRes] = await Promise.all([
       fetch(`${API_BASE}/parking/slots/all`),
       fetch(`${API_BASE}/parking/sessions/active`),
+      fetch(`${API_BASE}/iot/sensors`),
     ]);
     
     if (slotsRes.ok) {
@@ -41,6 +43,10 @@ export default function TrafficSimulation({ actorRole }: Props) {
     
     if (sessionsRes.ok) {
       setActiveSessions(await sessionsRes.json());
+    }
+
+    if (sensorsRes.ok) {
+      setSensorsData(await sensorsRes.json());
     }
   } catch (err) {
     console.error("Lỗi đồng bộ dữ liệu:", err);
@@ -56,8 +62,14 @@ export default function TrafficSimulation({ actorRole }: Props) {
 // TrafficSimulation.tsx - Thay thế đoạn lọc cũ
 const availableSlotsInZone = React.useMemo(() => {
   const slots = zonesData[form.zoneId] || [];
-  return slots.filter(slot => slot.status === 'available');
-}, [zonesData, form.zoneId]);
+  return slots.filter(slot => {
+    if (slot.status !== 'available' || slot.disabled) return false;
+    // Kiểm tra xem sensor có bị disabled không
+    const sensorId = `S-${slot.id}`;
+    const sensor = sensorsData.find(s => s.id === sensorId);
+    return !sensor?.disabled;
+  });
+}, [zonesData, form.zoneId, sensorsData]);
 useEffect(() => {
   if (availableSlotsInZone.length > 0 && !form.slotId) {
     setForm(p => ({ ...p, slotId: availableSlotsInZone[0].id }));
@@ -91,7 +103,9 @@ useEffect(() => {
       setMessage(`Thành công: Vị trí ${form.slotId} đã được chiếm dụng.`);
       // Xóa form để nhập xe tiếp theo
       setForm(p => ({ ...p, vehicleId: '', userName: '' }));
-      await refreshGlobalData(); 
+      await refreshGlobalData();
+      // Trigger IoTMonitoring refresh
+      localStorage.setItem('iotRefreshTrigger', Date.now().toString());
     } else {
       const error = await res.json();
       setMessage(`Lỗi: ${error.message}`);
@@ -112,6 +126,8 @@ useEffect(() => {
         const data = await res.json();
         setMessage(`Xe đã ra khỏi bãi. Phí: ₫${data.fee?.toLocaleString() || '0'}. Vị trí đã được giải phóng.`);
         await refreshGlobalData(); // Làm mới bản đồ và doanh thu ngay lập tức
+        // Trigger IoTMonitoring refresh
+        localStorage.setItem('iotRefreshTrigger', Date.now().toString());
       } else {
         const error = await res.json();
         setMessage(`Lỗi: ${error.message}`);
