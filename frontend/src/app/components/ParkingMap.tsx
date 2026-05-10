@@ -7,8 +7,12 @@ import { Car, ArrowLeft } from 'lucide-react';
 
 interface ParkingSlot { id: string; status: 'available' | 'occupied'; }
 type ApiFetch = (url: string, options?: RequestInit) => Promise<Response>;
+type Props = {
+  apiFetch: ApiFetch;
+  zoneUpdateTick?: number; // tăng mỗi khi WS nhận zone update
+};
 
-export default function SmartParkingMap({ apiFetch }: { apiFetch: ApiFetch }) {
+export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props) {
   const [zonesData, setZonesData] = useState<Record<string, ParkingSlot[]>>({
     A: Array.from({ length: 100 }, (_, i) => ({ id: `A-${i + 1}`, status: 'available' })),
     B: Array.from({ length: 100 }, (_, i) => ({ id: `B-${i + 1}`, status: 'available' })),
@@ -16,20 +20,46 @@ export default function SmartParkingMap({ apiFetch }: { apiFetch: ApiFetch }) {
     D: Array.from({ length: 100 }, (_, i) => ({ id: `D-${i + 1}`, status: 'available' })),
     E: Array.from({ length: 100 }, (_, i) => ({ id: `E-${i + 1}`, status: 'available' })),
   });
+
+  const syncSlots = async () => {
+    try {
+      const res = await apiFetch('http://localhost:5000/api/parking/slots/all');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        setZonesData(data);
+      }
+    } catch (err) {
+      console.error('ParkingMap sync error:', err);
+    }
+  };
+
+
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
 
+
+  // useEffect(() => {
+  //   const sync = async () => {
+  //     try {
+  //       const res = await apiFetch('http://localhost:5000/api/parking/slots/all');
+  //       if (!res.ok) return;
+  //       const data = await res.json();
+  //       if (data && typeof data === 'object' && Object.keys(data).length > 0) setZonesData(data);
+  //     } catch (err) { console.error('ParkingMap sync error:', err); }
+  //   };
+  //   const interval = setInterval(sync, 3000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   useEffect(() => {
-    const sync = async () => {
-      try {
-        const res = await apiFetch('http://localhost:5000/api/parking/slots/all');
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && typeof data === 'object' && Object.keys(data).length > 0) setZonesData(data);
-      } catch (err) { console.error('ParkingMap sync error:', err); }
-    };
-    const interval = setInterval(sync, 3000);
-    return () => clearInterval(interval);
+    syncSlots();
+    const fallback = setInterval(syncSlots, 30000);
+    return () => clearInterval(fallback);
   }, []);
+
+  useEffect(() => {
+    if (zoneUpdateTick > 0) syncSlots();
+  }, [zoneUpdateTick]);
 
   const getZoneStatus = (zoneId: string) => {
     const slots = zonesData[zoneId] || [];
