@@ -2,11 +2,16 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const helmet = require("helmet");
 require("dotenv").config();
 
 const { initStore, readStore, writeStore } = require("./data/store");
 const authRoutes = require("./routes/auth");
 const { initializeSchedules } = require("./jobs/dataSyncJob");
+const { requireSSOForMember, getSSOStatus } = require("./middlewares/sso");
+const { computeAnalytics } = require("./helpers/analytics");
+const { initWebSocket, pushZoneUpdate, pushGuidance } = require("./helpers/websocket");
+
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -16,6 +21,15 @@ const JWT_EXPIRY = process.env.JWT_EXPIRY || "8h";
 initStore();
 app.use(cors());
 app.use(express.json());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'none'"],
+      connectSrc: ["'self'", "http://localhost:5000"],
+    },
+  })
+);
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -149,6 +163,10 @@ initializeSchedules();
 
 // ─── Public Routes ───────────────────────────────────────────────────────────
 
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", service: "spms-backend", timestamp: new Date().toISOString() });
 });
@@ -231,7 +249,15 @@ app.get("/api/auth/me", authenticateToken, (req, res) => {
 });
 
 app.get("/api/integrations/sso/status", authenticateToken, (req, res) => {
-  res.json({ service: "HCMUT_SSO", status: "connected", checkedAt: new Date().toISOString() });
+  const { userId } = req.query; // optional: ?userId=2414026
+  const db = readStore();
+  const status = getSSOStatus(userId, db);
+  res.json({
+    service: "HCMUT_SSO",
+    status: "connected",
+    checkedAt: new Date().toISOString(),
+    ...(userId ? { verification: status } : {}),
+  });
 });
 
 app.get("/api/integrations/datacore/status", authenticateToken, (req, res) => {
@@ -270,7 +296,7 @@ app.get("/api/dashboard/summary", authenticateToken, (req, res) => {
 
 app.get("/api/analytics", authenticateToken, (req, res) => {
   const db = readStore();
-  res.json(db.analytics);
+  res.json(computeAnalytics(db));
 });
 
 app.get("/api/users", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
@@ -373,73 +399,108 @@ app.get("/api/parking/sessions", authenticateToken, (req, res) => {
   res.json(db.sessions);
 });
 
-app.post("/api/parking/sessions/entry", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
-  const { userId, userName, userType, zoneId = "E", slotId, gate = "Unknown", vehicleId = "N/A", method = "CARD" } = req.body;
-  const db = readStore();
-  ensureBaselineData(db);
+app.post(
+  "/api/parking/sessions/entry",
+  authenticateToken,
+  requireRole(["ADMIN", "OPERATOR"]),
+  requireSSOForMember,   // <-- thêm dòng này
+  (req, res) => {
+    const {
+      userId,
+      userName,
+      userType,
+      zoneId = "E",
+      slotId,
+      gate = "Unknown",
+      vehicleId = "N/A",
+      method = "CARD",
+    } = req.body;
 
-  const zone = db.zones.find((z) => z.id === zoneId);
-  if (!zone) return res.status(400).json({ message: "Invalid zoneId" });
-  if (zone.occupied >= zone.total) return res.status(409).json({ message: "Zone is full" });
-  if (!db.slotAssignments) db.slotAssignments = {};
-  if (!db.slotAssignments[zoneId]) db.slotAssignments[zoneId] = [];
-  if (slotId && db.slotAssignments[zoneId].includes(slotId)) {
-    return res.status(409).json({ message: `Slot ${slotId} is already occupied` });
-  }
+    const db = readStore();
+    ensureBaselineData(db);
 
-  let resolvedUserId = userId;
-  let resolvedUser = resolvedUserId ? db.users.find((u) => u.id === resolvedUserId) : null;
-  if (!resolvedUserId && userName) {
-    const role = userType || "Visitor";
-    resolvedUserId = makeId(role === "Faculty" ? "F" : role === "Student" ? "STU" : "V");
-    resolvedUser = {
-      id: resolvedUserId,
-      password: "123456",
-      name: userName,
-      role,
-      program: "Simulation",
-      status: "Active",
-      parkingPass: role === "Faculty" ? "Reserved" : "Monthly",
-      balance: 0,
-      entryCount: 0,
+    const zone = db.zones.find((z) => z.id === zoneId);
+    if (!zone) return res.status(400).json({ message: "Invalid zoneId" });
+    if (zone.occupied >= zone.total)
+      return res.status(409).json({ message: "Zone is full" });
+
+    if (!db.slotAssignments) db.slotAssignments = {};
+    if (!db.slotAssignments[zoneId]) db.slotAssignments[zoneId] = [];
+    if (slotId && db.slotAssignments[zoneId].includes(slotId)) {
+      return res.status(409).json({ message: `Slot ${slotId} is already occupied` });
+    }
+
+    // Nếu SSO đã verify user → dùng thẳng, không cần tạo mới
+    let resolvedUser = req.ssoUser || null;
+    let resolvedUserId = resolvedUser ? resolvedUser.id : userId;
+
+    // Fallback: lookup bằng userId nếu SSO không chạy (Visitor path)
+    if (!resolvedUser && resolvedUserId) {
+      resolvedUser = db.users.find((u) => u.id === resolvedUserId);
+    }
+
+    // Visitor không có userId → tạo ephemeral user
+    if (!resolvedUserId && userName) {
+      const role = userType || "Visitor";
+      resolvedUserId = makeId(role === "Faculty" ? "F" : role === "Student" ? "STU" : "V");
+      resolvedUser = {
+        id: resolvedUserId,
+        password: "123456",
+        name: userName,
+        role,
+        program: "Simulation",
+        status: "Active",
+        parkingPass: role === "Faculty" ? "Reserved" : "Monthly",
+        balance: 0,
+        entryCount: 0,
+      };
+      db.users.push(resolvedUser);
+    }
+
+    const session = {
+      id: makeId("SES"),
+      userId: resolvedUserId || null,
+      userName: resolvedUser?.name || userName || "Visitor",
+      userType: resolvedUser?.role || userType || "Visitor",
+      // Đánh dấu rõ luồng xác thực
+      authMethod: req.isVisitor ? "TICKET" : "SSO",
+      zoneId,
+      slotId: slotId || null,
+      gate,
+      vehicleId,
+      method,
+      entryAt: new Date().toISOString(),
+      exitAt: null,
+      status: "ACTIVE",
+      fee: null,
     };
-    db.users.push(resolvedUser);
+
+    db.sessions.push(session);
+    if (slotId) db.slotAssignments[zoneId].push(slotId);
+    zone.occupied += 1;
+
+    db.activityLogs.unshift({
+      id: Date.now(),
+      timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+      type: "entry",
+      user: session.userName,
+      userId: session.userId || "V-UNKNOWN",
+      role: session.userType,
+      zone: `Zone ${zoneId}`,
+      gate,
+      vehicleId,
+      // Ghi rõ xác thực SSO hay Ticket để logs đúng đề
+      action: req.isVisitor
+        ? "Visitor vehicle entered (Temporary Ticket)"
+        : `Vehicle entered parking zone (SSO verified: ${resolvedUserId})`,
+    });
+
+    writeStore(db);
+    pushZoneUpdate(db.zones);   // <-- thêm dòng này
+    pushGuidance(db.zones);     // <-- thêm dòng này  
+    res.status(201).json(session);
   }
-
-  const session = {
-    id: makeId("SES"),
-    userId: resolvedUserId || null,
-    userName: resolvedUser?.name || userName || "Visitor",
-    userType: resolvedUser?.role || userType || "Visitor",
-    zoneId,
-    slotId: slotId || null,
-    gate,
-    vehicleId,
-    method,
-    entryAt: new Date().toISOString(),
-    exitAt: null,
-    status: "ACTIVE",
-    fee: null,
-  };
-  db.sessions.push(session);
-  if (slotId) db.slotAssignments[zoneId].push(slotId);
-  zone.occupied += 1;
-
-  db.activityLogs.unshift({
-    id: Date.now(),
-    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
-    type: "entry",
-    user: session.userName,
-    userId: session.userId || "V-UNKNOWN",
-    role: session.userType,
-    zone: `Zone ${zoneId}`,
-    gate,
-    vehicleId,
-    action: "Vehicle entered parking zone",
-  });
-  writeStore(db);
-  res.status(201).json(session);
-});
+);
 
 app.post("/api/parking/sessions/:id/exit", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
@@ -497,6 +558,8 @@ app.post("/api/parking/sessions/:id/exit", authenticateToken, requireRole(["ADMI
   });
 
   writeStore(db);
+  pushZoneUpdate(db.zones);   // <-- thêm dòng này
+  pushGuidance(db.zones);     // <-- thêm dòng này
   res.json({ ...session, payment });
 });
 
@@ -540,6 +603,131 @@ app.post("/api/parking/tickets/:ticketNo/close", authenticateToken, requireRole(
   ticket.status = "CLOSED";
   writeStore(db);
   res.json(ticket);
+});
+
+// ─── Thêm endpoint này vào sau route POST /api/parking/tickets/:ticketNo/close ───
+
+/**
+ * Visitor exit bằng ticketNo
+ * Flow: quét vé tạm → tìm session → tính phí → close session + ticket → trả fee
+ *
+ * POST /api/parking/tickets/:ticketNo/exit
+ * Body: {} (không cần gì thêm, hệ thống tự lookup)
+ */
+app.post("/api/parking/tickets/:ticketNo/exit", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
+  const db = readStore();
+  ensureBaselineData(db);
+
+  // 1. Tìm ticket
+  const ticket = db.tickets.find((t) => t.ticketNo === req.params.ticketNo);
+  if (!ticket) {
+    return res.status(404).json({ message: "Ticket not found" });
+  }
+  if (ticket.status === "CLOSED") {
+    return res.status(409).json({ message: "Ticket already closed" });
+  }
+
+  // 2. Tìm session linked với ticket (tìm theo userId = ticketNo vì entry tạo ephemeral user)
+  //    Hoặc tìm ACTIVE session gần nhất ở cùng zone với ticket
+  let session = db.sessions.find(
+    (s) => s.status === "ACTIVE" && (s.userId === ticket.ticketNo || s.vehicleId === ticket.ticketNo)
+  );
+
+  // Fallback: tìm session ACTIVE ở zone của ticket, userType Visitor, gần nhất
+  if (!session) {
+    const candidates = db.sessions.filter(
+      (s) => s.status === "ACTIVE" && s.zoneId === ticket.zoneId && s.userType === "Visitor"
+    );
+    // Lấy session entry sớm nhất chưa exit (FIFO)
+    candidates.sort((a, b) => new Date(a.entryAt) - new Date(b.entryAt));
+    session = candidates[0] || null;
+  }
+
+  if (!session) {
+    return res.status(404).json({
+      message: "No active session found for this ticket",
+      ticketNo: ticket.ticketNo,
+      hint: "Session may have been closed manually or ticket zone mismatch",
+    });
+  }
+
+  // 3. Tính phí và close session
+  session.exitAt = new Date().toISOString();
+  session.status = "CLOSED";
+  session.fee = calculateFee(session.entryAt, session.exitAt, "Visitor", db);
+
+  const durationMs = new Date(session.exitAt) - new Date(session.entryAt);
+  const durationHours = Math.max(1, Math.ceil(durationMs / 36e5));
+
+  // 4. Cập nhật zone occupied
+  const zone = db.zones.find((z) => z.id === session.zoneId);
+  if (zone) zone.occupied = Math.max(0, zone.occupied - 1);
+  if (session.slotId) {
+    db.slotAssignments[session.zoneId] = (db.slotAssignments[session.zoneId] || []).filter(
+      (id) => id !== session.slotId
+    );
+  }
+
+  // 5. Tạo transaction — status Pending vì visitor chưa thanh toán ngay
+  const today = getCurrentDateString();
+  if (db.billing.dailyRevenueDate !== today) {
+    db.billing.dailyRevenueDate = today;
+    db.billing.dailyRevenue = 0;
+  }
+
+  const payment = {
+    id: makeId("TXN"),
+    userId: ticket.ticketNo,
+    userName: session.userName || "Visitor",
+    type: "Parking Fee (Visitor)",
+    amount: session.fee,
+    period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
+    status: "Pending",           // Visitor chưa trả → Pending, sau khi quét QR → Paid
+    date: session.exitAt.replace("T", " ").slice(0, 16),
+    method: "Cash",
+  };
+  db.billing.transactions.unshift(payment);
+
+  // 6. Close ticket
+  ticket.status = "CLOSED";
+  ticket.closedAt = session.exitAt;
+  ticket.sessionId = session.id;
+  ticket.fee = session.fee;
+
+  // 7. Activity log
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: session.exitAt.replace("T", " ").slice(0, 19),
+    type: "exit",
+    user: session.userName || "Visitor",
+    userId: ticket.ticketNo,
+    role: "Visitor",
+    zone: `Zone ${session.zoneId}`,
+    gate: ticket.gate,
+    vehicleId: session.vehicleId || "N/A",
+    action: "Visitor vehicle exited (Temporary Ticket)",
+    duration: `${durationHours}h`,
+    amount: session.fee,
+    transactionId: payment.id,
+  });
+
+  writeStore(db);
+
+  // 8. Response gồm đủ thông tin để frontend hiển thị QR thanh toán
+  res.json({
+    ticket,
+    session,
+    payment,
+    summary: {
+      entryAt: session.entryAt,
+      exitAt: session.exitAt,
+      duration: `${durationHours}h`,
+      fee: session.fee,
+      transactionId: payment.id,
+      // Frontend dùng transactionId này để generate QR BKPay
+      bkpayUrl: `bkpay://pay?txn=${payment.id}&amount=${session.fee}`,
+    },
+  });
 });
 
 app.get("/api/parking/guidance", authenticateToken, (req, res) => {
@@ -793,6 +981,18 @@ app.delete("/api/activity-logs/:id", authenticateToken, requireRole(["ADMIN"]), 
   res.json({ deleted: removed.id });
 });
 
+
+// ─── 5. Thêm endpoint xem số client đang kết nối (optional, tiện debug) ──────
+const { getConnectedClients } = require("./helpers/websocket");
+
+app.get("/api/iot/ws/status", authenticateToken, (req, res) => {
+  res.json({
+    websocket: "active",
+    connectedClients: getConnectedClients(),
+    endpoint: `ws://localhost:${PORT}/ws`,
+  });
+});
+
 // ─── Error Handler ────────────────────────────────────────────────────────────
 
 app.use((err, req, res, next) => {
@@ -800,6 +1000,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error", detail: err.message });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`SPMS backend running at http://localhost:${PORT}`);
 });
+initWebSocket(server);

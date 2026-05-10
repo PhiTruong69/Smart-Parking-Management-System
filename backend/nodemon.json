@@ -1,0 +1,5 @@
+{
+  "watch": ["*.js", "routes", "middleware", "helpers", "jobs"],
+  "ignore": ["data/db.json"],
+  "ext": "js"
+}

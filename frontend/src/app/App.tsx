@@ -8,6 +8,7 @@ import { Label } from './components/ui/label';
 import { Switch } from './components/ui/switch';
 import { Separator } from './components/ui/separator';
 import { Progress } from './components/ui/progress';
+import { useWebSocket } from './hooks/useWebsocket';
 import {
   Car,
   Users,
@@ -62,6 +63,20 @@ export default function App() {
   });
   const [zones, setZones] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
+
+  const [zoneUpdateTick, setZoneUpdateTick] = useState(0);
+  const { connected: wsConnected } = useWebSocket({
+    enabled: !!auth,
+    onZoneUpdate: (updatedZones) => {
+      setZones(updatedZones);
+      setZoneUpdateTick((t) => t + 1); // báo cho ParkingMap sync
+      setStats((prev) => {
+        const occupied = updatedZones.reduce((s, z) => s + z.occupied, 0);
+        const totalSlots = updatedZones.reduce((s, z) => s + z.total, 0);
+        return { ...prev, occupied, available: totalSlots - occupied, totalSpaces: totalSlots };
+      });
+    },
+  });
 
   const isAdmin = auth?.user?.role === 'Admin';
   const actorRole = auth?.actorRole || 'END_USER';
@@ -229,8 +244,8 @@ export default function App() {
             </div>
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                System Online
+                <div className={`w-2 h-2 rounded-full animate-pulse ${wsConnected ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                {wsConnected ? 'System Online' : 'Reconnecting...'}
               </Badge>
               <Badge variant="secondary">{auth.user.role}</Badge>
               <Button variant="outline" onClick={logout}>
@@ -452,14 +467,14 @@ export default function App() {
                       <div className="flex-shrink-0">
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.type === 'entry'
-                              ? 'bg-green-100'
-                              : activity.type === 'exit'
-                                ? 'bg-blue-100'
-                                : activity.type === 'ticket'
-                                  ? 'bg-purple-100'
-                                  : activity.type === 'payment'
-                                    ? 'bg-yellow-100'
-                                    : 'bg-slate-100'
+                            ? 'bg-green-100'
+                            : activity.type === 'exit'
+                              ? 'bg-blue-100'
+                              : activity.type === 'ticket'
+                                ? 'bg-purple-100'
+                                : activity.type === 'payment'
+                                  ? 'bg-yellow-100'
+                                  : 'bg-slate-100'
                             }`}
                         >
                           {activity.type === 'entry' && (
@@ -497,7 +512,7 @@ export default function App() {
 
           {/* Other Tabs — truyền apiFetch xuống */}
           <TabsContent value="parking">
-            <ParkingMap apiFetch={apiFetch} />
+            <ParkingMap apiFetch={apiFetch} zoneUpdateTick={zoneUpdateTick} />
           </TabsContent>
 
           <TabsContent value="simulation">
