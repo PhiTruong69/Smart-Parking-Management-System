@@ -3,24 +3,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Users, UserCheck, UserPlus, Search, Filter, Download, MoreVertical, Shield, GraduationCap, Briefcase } from 'lucide-react';
+import { Users, UserCheck, UserPlus, Search, Download, MoreVertical, Shield, GraduationCap, Briefcase } from 'lucide-react';
 
 type ApiFetch = (url: string, options?: RequestInit) => Promise<Response>;
 
 export default function UserManagement({ apiFetch }: { apiFetch: ApiFetch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const q = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
-      const res = await apiFetch(`${API_BASE}/users${q}`);
-      const data = await res.json();
-      setUsers(data.items || []);
+      setLoading(true);
+      try {
+        const q = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : '';
+        const res = await apiFetch(`${API_BASE}/users${q}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data.items || []);
+        } else {
+          setUsers([]);
+        }
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchUsers();
-  }, [searchQuery]);
+  }, [searchQuery, apiFetch]);
 
   const stats = useMemo(() => {
     const totalUsers = users.length;
@@ -86,62 +99,71 @@ export default function UserManagement({ apiFetch }: { apiFetch: ApiFetch }) {
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input placeholder="Search by name, ID, or program..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
+              <Input 
+                placeholder="Search by name, ID, program, or role..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+                className="pl-9" 
+              />
             </div>
-            <Button variant="outline" size="sm"><Filter className="w-4 h-4 mr-2" />Filter</Button>
+            {loading && <span className="text-xs text-slate-500">Loading...</span>}
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  {['User', 'Role', 'Program/Department', 'Parking Pass', 'Status', 'Balance', 'Actions'].map((h) => (
-                    <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                          {user.name.split(' ').map((n: string) => n[0]).join('')}
-                        </div>
-                        <div><div className="text-sm font-medium text-slate-900">{user.name}</div><div className="text-xs text-slate-500">ID: {user.id}</div></div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Badge variant="secondary" className={getRoleBadge(user.role)}>
-                        <span className="mr-1">{getRoleIcon(user.role)}</span>{user.role}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4"><div className="text-sm text-slate-700">{user.program}</div></td>
-                    <td className="py-3 px-4"><Badge variant="outline">{user.parkingPass}</Badge></td>
-                    <td className="py-3 px-4">
-                      <Badge variant={user.status === 'Active' ? 'secondary' : 'destructive'} className={user.status === 'Active' ? 'bg-green-100 text-green-700' : ''}>
-                        {user.status}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className={`text-sm font-medium ${user.balance < 0 ? 'text-red-600' : user.balance === 0 ? 'text-slate-500' : 'text-green-600'}`}>
-                        ₫{user.balance.toLocaleString()}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <Button variant="ghost" size="sm" onClick={() => updateRole(user)}><MoreVertical className="w-4 h-4" /></Button>
-                    </td>
+            {users.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                {loading ? 'Loading users...' : 'No users found'}
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    {['User', 'Role', 'Program/Department', 'Parking Pass', 'Status', 'Balance', 'Actions'].map((h) => (
+                      <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider py-3 px-4">{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                            {user.name.split(' ').map((n: string) => n[0]).join('')}
+                          </div>
+                          <div><div className="text-sm font-medium text-slate-900">{user.name}</div><div className="text-xs text-slate-500">ID: {user.id}</div></div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge variant="secondary" className={getRoleBadge(user.role)}>
+                          <span className="mr-1">{getRoleIcon(user.role)}</span>{user.role}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4"><div className="text-sm text-slate-700">{user.program}</div></td>
+                      <td className="py-3 px-4"><Badge variant="outline">{user.parkingPass}</Badge></td>
+                      <td className="py-3 px-4">
+                        <Badge variant={user.status === 'Active' ? 'secondary' : 'destructive'} className={user.status === 'Active' ? 'bg-green-100 text-green-700' : ''}>
+                          {user.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className={`text-sm font-medium ${user.balance < 0 ? 'text-red-600' : user.balance === 0 ? 'text-slate-500' : 'text-green-600'}`}>
+                          ₫{user.balance.toLocaleString()}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <Button variant="ghost" size="sm" onClick={() => updateRole(user)}><MoreVertical className="w-4 h-4" /></Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
-            <div className="text-sm text-slate-600">Showing {stats.totalUsers} users</div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled>Previous</Button>
-              <Button variant="outline" size="sm">Next</Button>
+          {users.length > 0 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
+              <div className="text-sm text-slate-600">Showing {stats.totalUsers} users</div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 

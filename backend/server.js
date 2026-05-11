@@ -739,29 +739,66 @@ app.get("/api/parking/guidance", authenticateToken, (req, res) => {
 
 app.get("/api/iot/status", authenticateToken, (req, res) => {
   const db = readStore();
-  const sensors = db.iot.sensors;
+  
+  // Initialize sensorMaintenance if not exists
+  if (!db.iot.sensorMaintenance) db.iot.sensorMaintenance = {};
+  
+  // Create a map of active slots for quick lookup
+  const activeSessions = db.sessions
+    .filter((s) => s.status === "ACTIVE")
+    .reduce((map, s) => {
+      if (s.slotId) {
+        const slotKey = `${s.zoneId}-${s.slotId.split('-').pop()}`;
+        map[slotKey] = true;
+      }
+      return map;
+    }, {});
 
   const gateways = db.zones.map((zone) => {
-    const zoneSensors = sensors.filter((s) => s.zone === zone.id);
-    const online = zoneSensors.filter((s) => s.status === "online").length || zone.total;
+    let onlineCount = 0;
+    let inUseCount = 0;
+    let maintenanceCount = 0;
+    
+    for (let i = 1; i <= zone.total; i++) {
+      const slotId = `${zone.id}-${i}`;
+      const sensorId = `S-${slotId}`;
+      const isInMaintenance = db.iot.sensorMaintenance[sensorId] || false;
+      const hasActiveSession = activeSessions[slotId] || false;
+      
+      if (isInMaintenance) {
+        maintenanceCount++;
+      } else if (hasActiveSession) {
+        inUseCount++;
+      } else {
+        onlineCount++;
+      }
+    }
+    
     return {
       id: `GW-${zone.id}`,
       name: `Gateway Zone ${zone.id}`,
       zone: zone.id,
-      status: online > 0 ? "online" : "offline",
+      status: onlineCount > 0 || inUseCount > 0 ? "online" : "offline",
       sensors: zone.total,
-      sensorsOnline: Math.max(0, zone.total - zone.occupied),
+      sensorsOnline: onlineCount,
+      sensorsInUse: inUseCount,
+      maintenanceSensors: maintenanceCount,
       uptime: "99.9%",
       signalStrength: 90 + Math.floor(Math.random() * 10),
       lastUpdate: "just now",
     };
   });
+  
+  const totalSensors = db.zones.reduce((sum, z) => sum + z.total, 0);
+  const totalOnline = gateways.reduce((sum, g) => sum + g.sensorsOnline, 0);
+  const totalInUse = gateways.reduce((sum, g) => sum + g.sensorsInUse, 0);
+  const totalMaintenance = gateways.reduce((sum, g) => sum + g.maintenanceSensors, 0);
 
   res.json({
-    totalSensors: db.zones.reduce((sum, z) => sum + z.total, 0),
-    online: gateways.filter((g) => g.status === "online").length,
-    offline: gateways.filter((g) => g.status === "offline").length,
-    maintenance: 0,
+    totalSensors,
+    online: totalOnline,
+    inUse: totalInUse,
+    maintenance: totalMaintenance,
     gateways,
   });
 });
@@ -769,19 +806,45 @@ app.get("/api/iot/status", authenticateToken, (req, res) => {
 app.get("/api/iot/sensors", authenticateToken, (req, res) => {
   const db = readStore();
   const sensors = [];
+  
+  // Ensure sensorMaintenance object exists
+  if (!db.iot.sensorMaintenance) db.iot.sensorMaintenance = {};
+  
+  // Create a map of active slots for quick lookup
+  const activeSessions = db.sessions
+    .filter((s) => s.status === "ACTIVE")
+    .reduce((map, s) => {
+      if (s.slotId) {
+        const slotKey = `${s.zoneId}-${s.slotId.split('-').pop()}`;
+        map[slotKey] = true;
+      }
+      return map;
+    }, {});
+  
   db.zones.forEach((zone) => {
     for (let i = 1; i <= zone.total; i++) {
       const slotId = `${zone.id}-${i}`;
-      const slotAssignment = db.slotAssignments[slotId];
+      const sensorId = `S-${slotId}`;
+      const isInMaintenance = db.iot.sensorMaintenance[sensorId] || false;
+      const hasActiveSession = activeSessions[slotId] || false;
+      
+      let sensorStatus = "online";
+      if (isInMaintenance) {
+        sensorStatus = "maintenance";
+      } else if (hasActiveSession) {
+        sensorStatus = "in_use";
+      }
+      
       sensors.push({
-        id: `S-${slotId}`,
+        id: sensorId,
         zone: zone.id,
         slot: slotId,
-        status: "online",
+        status: sensorStatus,
         battery: 85 + Math.floor(Math.random() * 15),
         signal: 80 + Math.floor(Math.random() * 20),
-        lastUpdate: slotAssignment ? "occupied" : "available",
-        occupied: !!slotAssignment,
+        lastUpdate: "just now",
+        occupied: hasActiveSession,
+        maintenanceMode: isInMaintenance,
       });
     }
   });
@@ -827,6 +890,35 @@ app.post("/api/iot/events/slot-occupancy", authenticateToken, (req, res) => {
   });
   writeStore(db);
   res.json(sensor);
+});
+
+app.post("/api/iot/sensors/:id/maintenance", authenticateToken, (req, res) => {
+  const db = readStore();
+  const sensorId = req.params.id;
+  
+  // Initialize sensorMaintenance object if not exists
+  if (!db.iot.sensorMaintenance) db.iot.sensorMaintenance = {};
+  
+  const isCurrentlyInMaintenance = db.iot.sensorMaintenance[sensorId] || false;
+  const newMaintenanceState = !isCurrentlyInMaintenance;
+  
+  db.iot.sensorMaintenance[sensorId] = newMaintenanceState;
+  
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+    type: "sensor",
+    user: "System",
+    userId: "SYSTEM",
+    role: "System",
+    zone: "N/A",
+    gate: "N/A",
+    vehicleId: "N/A",
+    action: `Sensor ${sensorId} maintenance mode ${newMaintenanceState ? "activated" : "deactivated"}`,
+  });
+  
+  writeStore(db);
+  res.json({ sensorId, maintenanceMode: newMaintenanceState });
 });
 
 // ─── Billing Routes ───────────────────────────────────────────────────────────

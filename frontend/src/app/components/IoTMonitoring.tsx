@@ -13,6 +13,7 @@ export default function IoTMonitoring({ apiFetch }: { apiFetch: ApiFetch }) {
   const [gateways, setGateways] = useState<any[]>([]);
   const [sensors, setSensors] = useState<any[]>([]);
   const [signage, setSignage] = useState<any[]>([]);
+  const [statusData, setStatusData] = useState<any>({});
   const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function IoTMonitoring({ apiFetch }: { apiFetch: ApiFetch }) {
       const status = await statusRes.json();
       const sensorsData = await sensorsRes.json();
       const signageData = await signageRes.json();
+      setStatusData(status);
       setGateways(status.gateways || []);
       setSensors(sensorsData || []);
       setSignage(signageData || []);
@@ -33,15 +35,15 @@ export default function IoTMonitoring({ apiFetch }: { apiFetch: ApiFetch }) {
     if (!autoRefresh) return;
     const timer = setInterval(fetchData, 10000);
     return () => clearInterval(timer);
-  }, [autoRefresh]);
+  }, [autoRefresh, apiFetch]);
 
   const sensorStats = useMemo(() => {
-    const total = sensors.length;
-    const online = sensors.filter((s) => s.status === 'online').length;
-    const offline = sensors.filter((s) => s.status === 'offline').length;
-    const maintenance = sensors.filter((s) => s.status === 'maintenance').length;
-    return { total, online, offline, maintenance };
-  }, [sensors]);
+    const total = statusData.totalSensors || 0;
+    const online = statusData.online || 0;
+    const inUse = statusData.inUse || 0;
+    const maintenance = statusData.maintenance || 0;
+    return { total, online, inUse, maintenance };
+  }, [statusData]);
 
   const toggleSensorStatus = async (sensor: any) => {
     const nextStatus = sensor.status === 'online' ? 'offline' : 'online';
@@ -58,7 +60,7 @@ export default function IoTMonitoring({ apiFetch }: { apiFetch: ApiFetch }) {
         {[
           { label: 'Total Sensors', value: sensorStats.total, color: 'text-slate-900', sub: <Progress value={(sensorStats.online / (sensorStats.total || 1)) * 100} className="mt-2" /> },
           { label: 'Online', value: sensorStats.online, color: 'text-green-600', sub: <p className="text-xs text-slate-500 mt-1">{((sensorStats.online / (sensorStats.total || 1)) * 100).toFixed(1)}% operational</p> },
-          { label: 'Offline', value: sensorStats.offline, color: 'text-red-600', sub: <p className="text-xs text-slate-500 mt-1">Requires attention</p> },
+          { label: 'In Use', value: sensorStats.inUse, color: 'text-blue-600', sub: <p className="text-xs text-slate-500 mt-1">Currently occupied</p> },
           { label: 'Maintenance', value: sensorStats.maintenance, color: 'text-yellow-600', sub: <p className="text-xs text-slate-500 mt-1">Scheduled</p> },
         ].map(({ label, value, color, sub }) => (
           <Card key={label}>
@@ -128,11 +130,12 @@ export default function IoTMonitoring({ apiFetch }: { apiFetch: ApiFetch }) {
                     <td className="py-3 px-4"><div className="text-sm font-mono text-slate-700">{sensor.id}</div></td>
                     <td className="py-3 px-4"><div className="flex items-center gap-1 text-sm text-slate-700"><MapPin className="w-3 h-3 text-slate-400" />{sensor.zone} • {sensor.slot}</div></td>
                     <td className="py-3 px-4">
-                      <Badge variant={sensor.status === 'online' ? 'secondary' : 'outline'} className={sensor.status === 'online' ? 'bg-green-100 text-green-700' : sensor.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-red-100 text-red-700 border-red-300'}>
+                      <Badge variant={sensor.status === 'online' ? 'secondary' : 'outline'} className={sensor.status === 'online' ? 'bg-green-100 text-green-700' : sensor.status === 'in_use' ? 'bg-blue-100 text-blue-700 border-blue-300' : sensor.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-red-100 text-red-700 border-red-300'}>
                         {sensor.status === 'online' && <CheckCircle className="w-3 h-3 mr-1" />}
+                        {sensor.status === 'in_use' && <Activity className="w-3 h-3 mr-1" />}
                         {sensor.status === 'maintenance' && <Settings className="w-3 h-3 mr-1" />}
                         {sensor.status === 'offline' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {sensor.status.charAt(0).toUpperCase() + sensor.status.slice(1)}
+                        {sensor.status.charAt(0).toUpperCase() + sensor.status.slice(1).replace('_', ' ')}
                       </Badge>
                     </td>
                     <td className="py-3 px-4"><div className="flex items-center gap-2"><Progress value={sensor.battery} className="w-16" /><span className={`text-xs font-medium ${sensor.battery > 50 ? 'text-green-600' : sensor.battery > 20 ? 'text-yellow-600' : 'text-red-600'}`}>{sensor.battery}%</span></div></td>

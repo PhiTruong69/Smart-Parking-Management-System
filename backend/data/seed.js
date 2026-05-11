@@ -3,12 +3,6 @@ const now = new Date("2026-04-21T09:00:00.000Z");
 module.exports = {
   users: [
     { id: "admin", password: "admin123", name: "System Admin", role: "Admin", program: "IT Center", status: "Active", parkingPass: "Reserved", balance: 0, entryCount: 0 },
-    { id: "1952001", password: "123456", name: "Nguyen Van A", role: "Student", program: "Computer Science", status: "Active", parkingPass: "Monthly", balance: 50000, entryCount: 45 },
-    { id: "1952045", password: "123456", name: "Tran Thi B", role: "Student", program: "Electrical Engineering", status: "Active", parkingPass: "Monthly", balance: 0, entryCount: 38 },
-    { id: "F2001", password: "123456", name: "Le Van C", role: "Faculty", program: "Mathematics Department", status: "Active", parkingPass: "Reserved", balance: 0, entryCount: 89 },
-    { id: "S1023", password: "123456", name: "Hoang Van E", role: "Staff", program: "Administration", status: "Active", parkingPass: "Standard", balance: 25000, entryCount: 67 },
-    { id: "2152078", password: "123456", name: "Vo Thi F", role: "Graduate", program: "Civil Engineering", status: "Active", parkingPass: "Monthly", balance: 15000, entryCount: 22 },
-    { id: "D3001", password: "123456", name: "Bui Thi H", role: "Doctoral", program: "Chemical Engineering", status: "Active", parkingPass: "Monthly", balance: 35000, entryCount: 56 },
   ],
   zones: [
     { id: "A", name: "Zone A - Main Building", total: 30, occupied: 28 },

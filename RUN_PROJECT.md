@@ -23,7 +23,7 @@ Before you begin, ensure you have the following installed:
 - **Node.js** 18.x or higher ([Download](https://nodejs.org/))
 - **npm** 9.x or higher (comes with Node.js)
 - **Git** ([Download](https://git-scm.com/))
-- **PostgreSQL** 12+ ([Download](https://www.postgresql.org/)) OR **Docker** ([Download](https://www.docker.com/))
+
 
 ### Verify Installation
 ```bash
@@ -38,42 +38,28 @@ git --version         # Should be 2.x+
 
 ```
 Smart_Parking_Management_System/
-├── backend/                          # Node.js/Express server
-│   ├── routes/
-│   │   └── auth.js                  # HCMUT SSO authentication
-│   ├── jobs/
-│   │   └── dataSyncJob.js           # HCMUT_DATACORE sync
-│   ├── scripts/
-│   │   └── seedData.js              # Database seeding
-│   ├── prisma/
-│   │   ├── schema.prisma            # Database schema
-│   │   └── migrations/              # Database migrations
+├── backend/
 │   ├── data/
-│   │   ├── store.js                 # JSON storage (legacy)
-│   │   └── db.json                  # JSON database (legacy)
-│   ├── .env                         # Environment variables
-│   ├── .env.example                 # Template
-│   ├── package.json
-│   ├── server.js                    # Main server entry
-│   ├── SETUP.md                     # Backend setup guide
-│   └── README.md
-│
-├── frontend/                         # React + Vite + Tailwind CSS
+│   │   ├── db.json              # JSON data storage
+│   │   ├── store.js             # JSON storage interface
+│   │   └── seed.js              # Initial data
+│   ├── routes/
+│   │   └── auth.js              # Authentication routes
+│   ├── jobs/
+│   │   └── dataSyncJob.js       # Data synchronization
+│   ├── server.js                # Express server
+│   └── package.json
+├── frontend/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── App.tsx              # Main app component
-│   │   │   └── components/          # React components
-│   │   ├── styles/                  # CSS files
-│   │   ├── main.tsx                 # Entry point
-│   │   └── vite-env.d.ts
-│   ├── vite.config.ts               # Vite configuration
-│   ├── package.json
-│   ├── tailwind.config.js
-│   ├── postcss.config.mjs
-│   ├── index.html
-│   └── README.md
-│
-└── README.md                         # This file
+│   │   ├── components/
+│   │   └── styles/
+│   ├── vite.config.ts
+│   └── package.json
+├── setup.bat                    # Windows setup script
+├── setup.sh                     # macOS/Linux setup script
+├── docker-compose.yml           # Docker setup (optional)
+└── README.md
 ```
 
 ---
@@ -91,95 +77,7 @@ cd backend
 ```bash
 npm install
 ```
-
-This installs all required packages including:
-- **Express** - Web framework
-- **Prisma** - ORM for database management
-- **JWT** - Token authentication
-- **Axios** - HTTP client for HCMUT integration
-- **Dotenv** - Environment variable management
-
-### Step 3: Configure Environment Variables
-
-The `.env` file has been created with default values. For development:
-
-```bash
-# .env (Already created)
-PORT=5000
-NODE_ENV=development
-DATABASE_URL="postgresql://parking_user:parking_password@localhost:5432/smart_parking"
-JWT_SECRET=your_super_secret_jwt_key_change_in_production_12345678
-```
-
-**Important for Production:**
-- Change `JWT_SECRET` to a strong random string
-- Update HCMUT_SSO credentials from IT Center
-- Set `NODE_ENV=production`
-- Update database credentials
-
-### Step 4: Setup PostgreSQL Database
-
-#### Option A: Using Docker (Recommended)
-
-```bash
-# Create and run PostgreSQL container
-docker run --name smart_parking_db \
-  -e POSTGRES_USER=parking_user \
-  -e POSTGRES_PASSWORD=parking_password \
-  -e POSTGRES_DB=smart_parking \
-  -p 5432:5432 \
-  -d postgres:15
-
-# Verify container is running
-docker ps | grep smart_parking_db
-```
-
-#### Option B: Using Local PostgreSQL
-
-```bash
-# Connect to PostgreSQL
-psql -U postgres
-
-# In psql prompt:
-CREATE USER parking_user WITH PASSWORD 'parking_password';
-CREATE DATABASE smart_parking OWNER parking_user;
-GRANT ALL PRIVILEGES ON DATABASE smart_parking TO parking_user;
-\q
-```
-
-#### Option C: Verify Database Connection
-
-```bash
-# Test connection
-psql -U parking_user -d smart_parking -h localhost -c "SELECT version();"
-```
-
-### Step 5: Initialize Database with Prisma
-
-```bash
-# Generate Prisma Client
-npm run prisma:generate
-
-# Run migrations
-npm run prisma:migrate
-
-# Seed test data (optional)
-npm run reset:data
-```
-
-**What this does:**
-- Creates all tables from schema
-- Sets up relationships
-- Populates test data (5 zones, 6 users, sample transactions)
-
-### Step 6: Verify Backend Setup
-
-```bash
-# Check if all dependencies are installed correctly
-npm list
-
-# Look for any missing packages (red warnings)
-```
+npm run dev
 
 ---
 
@@ -204,29 +102,16 @@ This installs:
 - **Radix UI** - Component library
 - **Lucide React** - Icons
 
-### Step 3: Configure API Endpoint
 
-Edit or create `.env.local`:
 
-```bash
-# frontend/.env.local
-VITE_API_BASE_URL=http://localhost:5000/api
-```
-
-Or update it in the React code at `src/app/App.tsx`:
-
-```typescript
-const API_BASE = 'http://localhost:5000/api';
-```
-
-### Step 4: Verify Frontend Setup
+### Step 3: Verify Frontend Setup
 
 ```bash
 # Check Node version
 node --version
 
 # Check if build works
-npm run build
+npm run dev
 
 # Check for any warnings
 ```
@@ -237,16 +122,9 @@ npm run build
 
 ### Quick Start (All in One)
 
-Open **3 terminal windows**:
+Open **2 terminal windows**:
 
-**Terminal 1 - PostgreSQL (if using Docker):**
-```bash
-docker ps  # Verify container is running
-# Or start it:
-docker start smart_parking_db
-```
-
-**Terminal 2 - Backend Server:**
+**Terminal 1- Backend Server:**
 ```bash
 cd backend
 npm run dev
@@ -261,12 +139,12 @@ Expected output:
 ╔═══════════════════════════════════════════╗
 ║   SPMS Backend Running at http://localhost:5000  ║
 ║   🔐 HCMUT SSO Integration: ENABLED      ║
-║   📊 Database: Prisma + PostgreSQL        ║
+║                                          ║
 ║   📅 Sync Jobs: INITIALIZED              ║
 ╚═══════════════════════════════════════════╝
 ```
 
-**Terminal 3 - Frontend Dev Server:**
+**Terminal 2- Frontend Dev Server:**
 ```bash
 cd frontend
 npm run dev
@@ -422,12 +300,6 @@ curl -X POST http://localhost:5000/api/auth/guest-access \
   }'
 ```
 
-### Using Postman
-
-1. Import the API collection from backend/SETUP.md
-2. Set environment variable: `{{BASE_URL}}=http://localhost:5000`
-3. Run requests in order
-
 ### Manual Testing
 
 1. Open http://localhost:5173 in browser
@@ -437,182 +309,6 @@ curl -X POST http://localhost:5000/api/auth/guest-access \
 
 ---
 
-## 📊 Database Management
-
-### Prisma Studio (GUI)
-```bash
-cd backend
-npm run prisma:studio
-```
-
-Opens GUI at http://localhost:5555
-
-### View Database Directly
-```bash
-# Connect to database
-psql -U parking_user -d smart_parking
-
-# List tables
-\dt
-
-# View users
-SELECT * FROM "User";
-
-# Exit
-\q
-```
-
-### Reset Database (⚠️ Deletes all data)
-```bash
-cd backend
-npm run reset:data
-```
-
-### Run Custom Sync
-```bash
-cd backend
-npm run sync:hcmut
-```
-
----
-
-## 🔄 Data Synchronization
-
-The system automatically syncs from HCMUT_DATACORE every 6 hours.
-
-**Manual trigger:**
-```bash
-cd backend
-npm run sync:hcmut
-```
-
-**View sync logs:**
-1. Open Prisma Studio: `npm run prisma:studio`
-2. Go to "SSOSyncLog" table
-3. Check sync history and errors
-
----
-
-## 🛑 Stopping the Services
-
-### Stop Backend
-```bash
-# In backend terminal
-Press Ctrl+C
-```
-
-### Stop Frontend
-```bash
-# In frontend terminal
-Press Ctrl+C
-```
-
-### Stop PostgreSQL Container
-```bash
-docker stop smart_parking_db
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-#### ❌ "Cannot find module 'jsonwebtoken'"
-```bash
-# Solution: Reinstall dependencies
-cd backend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### ❌ "Can't reach database server at localhost:5432"
-```bash
-# Solution 1: Start PostgreSQL container
-docker start smart_parking_db
-
-# Solution 2: Verify connection
-psql -U parking_user -d smart_parking -h localhost
-```
-
-#### ❌ "Prisma migration error"
-```bash
-# Solution: Reset and re-run migrations
-cd backend
-npm run prisma:generate
-npm run prisma:migrate
-```
-
-#### ❌ "Port 5000 already in use"
-```bash
-# Find process using port 5000
-lsof -i :5000  # macOS/Linux
-netstat -ano | findstr :5000  # Windows
-
-# Kill process
-kill -9 <PID>  # macOS/Linux
-taskkill /PID <PID> /F  # Windows
-```
-
-### Frontend Issues
-
-#### ❌ "API calls failing (CORS error)"
-**Solution:** Backend CORS is enabled. Check:
-1. Backend is running on http://localhost:5000
-2. API_BASE in App.tsx is correct
-3. Browser console for exact error
-
-#### ❌ "Port 5173 already in use"
-```bash
-# Use different port
-npm run dev -- --port 5174
-```
-
-#### ❌ "Blank page or 404"
-1. Check browser console for errors
-2. Verify Vite dev server is running
-3. Hard refresh (Ctrl+Shift+R)
-
-### Database Issues
-
-#### ❌ "PostgreSQL connection refused"
-```bash
-# Check if PostgreSQL is running
-docker ps | grep postgres
-
-# Or if local installation:
-pg_isready -h localhost -p 5432
-```
-
-#### ❌ "Password authentication failed"
-```bash
-# Verify credentials in .env
-DATABASE_URL="postgresql://parking_user:parking_password@localhost:5432/smart_parking"
-
-# Reset PostgreSQL password (Docker)
-docker exec smart_parking_db psql -U postgres \
-  -c "ALTER USER parking_user PASSWORD 'parking_password';"
-```
-
----
-
-## 📚 Additional Resources
-
-### Backend Documentation
-- See `backend/SETUP.md` for detailed backend setup
-- See `backend/package.json` for all scripts
-- See `backend/prisma/schema.prisma` for database schema
-
-### Frontend Documentation
-- See `frontend/README.md` for frontend-specific info
-- See `frontend/vite.config.ts` for Vite configuration
-
-### HCMUT Integration
-- Contact HCMUT IT Center for SSO credentials
-- Documentation: https://datacore.hcmut.edu.vn/docs
-- Support: it@hcmut.edu.vn
-
----
 
 ## 🔐 Security Notes
 
@@ -638,12 +334,7 @@ docker exec smart_parking_db psql -U postgres \
 cd backend
 npm install              # Install dependencies
 npm run dev              # Start dev server
-npm run start            # Start production server
-npm run prisma:migrate   # Run database migrations
-npm run prisma:generate  # Generate Prisma client
-npm run prisma:studio    # Open database GUI
-npm run reset:data       # Reset database with seed data
-npm run sync:hcmut       # Manual data sync from HCMUT
+
 
 # Frontend
 cd frontend
@@ -661,7 +352,6 @@ npm run preview          # Preview production build
 - [ ] PostgreSQL running (docker or local)
 - [ ] Backend dependencies installed (`npm install`)
 - [ ] Frontend dependencies installed (`npm install`)
-- [ ] Database migrations run (`npm run prisma:migrate`)
 - [ ] Backend server started (`npm run dev`)
 - [ ] Frontend server started (`npm run dev`)
 - [ ] Can access http://localhost:5173/
@@ -669,26 +359,3 @@ npm run preview          # Preview production build
 
 ---
 
-## 🆘 Getting Help
-
-If you encounter issues:
-
-1. **Check logs** - Look at terminal output for error messages
-2. **Read error messages carefully** - They often suggest solutions
-3. **Check prerequisites** - Ensure Node.js, PostgreSQL are installed
-4. **Review .env file** - Verify all variables are set
-5. **Check ports** - Ensure 5000 and 5173 are available
-6. **Consult troubleshooting** - See above section
-
----
-
-## 📞 Support Contacts
-
-- **HCMUT IT Center**: it@hcmut.edu.vn
-- **Project Issues**: [GitHub Issues](link-to-repo)
-- **Database**: https://datacore.hcmut.edu.vn/docs
-
----
-
-**Last Updated**: April 26, 2026
-**Version**: 1.0.0

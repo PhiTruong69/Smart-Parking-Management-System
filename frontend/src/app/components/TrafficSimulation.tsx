@@ -19,6 +19,7 @@ export default function TrafficSimulation({ actorRole, apiFetch }: Props) {
   const API_BASE = 'http://localhost:5000/api';
   const [zonesData, setZonesData] = useState<Record<string, any[]>>({});
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [maintenanceSensors, setMaintenanceSensors] = useState<Set<string>>(new Set());
 
   // Entry form
   const [form, setForm] = useState({
@@ -45,22 +46,38 @@ export default function TrafficSimulation({ actorRole, apiFetch }: Props) {
 
   const refreshGlobalData = async () => {
     try {
-      const [slotsRes, sessionsRes] = await Promise.all([
+      const [slotsRes, sessionsRes, sensorsRes] = await Promise.all([
         apiFetch(`${API_BASE}/parking/slots/all`),
         apiFetch(`${API_BASE}/parking/sessions/active`),
+        apiFetch(`${API_BASE}/iot/sensors`),
       ]);
       if (slotsRes.ok) setZonesData(await slotsRes.json());
       if (sessionsRes.ok) setActiveSessions(await sessionsRes.json());
+      if (sensorsRes.ok) {
+        const sensors = await sensorsRes.json();
+        const maintenance = new Set<string>(
+          sensors
+            .filter((s: any) => s.maintenanceMode)
+            .map((s: any) => s.slot)
+        );
+        setMaintenanceSensors(maintenance);
+      }
     } catch (err) {
       console.error('TrafficSimulation sync error:', err);
     }
   };
 
-  useEffect(() => { refreshGlobalData(); }, []);
+  useEffect(() => { 
+    refreshGlobalData();
+    const interval = setInterval(refreshGlobalData, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const availableSlotsInZone = React.useMemo(() => {
-    return (zonesData[form.zoneId] || []).filter((s) => s.status === 'available');
-  }, [zonesData, form.zoneId]);
+    return (zonesData[form.zoneId] || []).filter(
+      (s) => s.status === 'available' && !maintenanceSensors.has(s.id)
+    );
+  }, [zonesData, form.zoneId, maintenanceSensors]);
 
   useEffect(() => {
     if (availableSlotsInZone.length > 0 && !form.slotId) {

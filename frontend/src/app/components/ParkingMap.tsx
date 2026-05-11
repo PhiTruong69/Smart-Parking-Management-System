@@ -2,10 +2,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Car, ArrowLeft } from 'lucide-react';
 
-interface ParkingSlot { id: string; status: 'available' | 'occupied'; }
+interface ParkingSlot { id: string; status: 'available' | 'occupied'; maintenanceMode?: boolean; }
 type ApiFetch = (url: string, options?: RequestInit) => Promise<Response>;
 type Props = {
   apiFetch: ApiFetch;
@@ -21,21 +21,57 @@ export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props)
     E: Array.from({ length: 100 }, (_, i) => ({ id: `E-${i + 1}`, status: 'available' })),
   });
 
-  const syncSlots = async () => {
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [maintenanceSensors, setMaintenanceSensors] = useState<Set<string>>(new Set());
+
+  const syncSlots = useCallback(async () => {
     try {
-      const res = await apiFetch('http://localhost:5000/api/parking/slots/all');
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        setZonesData(data);
+      const [slotsRes, sensorsRes] = await Promise.all([
+        apiFetch('http://localhost:5000/api/parking/slots/all'),
+        apiFetch('http://localhost:5000/api/iot/sensors'),
+      ]);
+      if (slotsRes.ok) {
+        const data = await slotsRes.json();
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          setZonesData(data);
+        }
+      }
+      if (sensorsRes.ok) {
+        const sensors = await sensorsRes.json();
+        const maintenance = new Set<string>(
+          sensors
+            .filter((s: any) => s.maintenanceMode)
+            .map((s: any) => s.slot)
+        );
+        setMaintenanceSensors(maintenance);
       }
     } catch (err) {
       console.error('ParkingMap sync error:', err);
     }
+  }, [apiFetch]);
+
+  const toggleSensorMaintenance = async (slotId: string) => {
+    try {
+      const sensorId = `S-${slotId}`;
+      const res = await apiFetch(`http://localhost:5000/api/iot/sensors/${sensorId}/maintenance`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMaintenanceSensors((prev) => {
+          const updated = new Set(prev);
+          if (data.maintenanceMode) {
+            updated.add(slotId);
+          } else {
+            updated.delete(slotId);
+          }
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error('Error toggling sensor maintenance:', err);
+    }
   };
-
-
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
 
 
   // useEffect(() => {
@@ -55,11 +91,11 @@ export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props)
     syncSlots();
     const fallback = setInterval(syncSlots, 30000);
     return () => clearInterval(fallback);
-  }, []);
+  }, [syncSlots]);
 
   useEffect(() => {
     if (zoneUpdateTick > 0) syncSlots();
-  }, [zoneUpdateTick]);
+  }, [zoneUpdateTick, syncSlots]);
 
   const getZoneStatus = (zoneId: string) => {
     const slots = zonesData[zoneId] || [];
@@ -106,12 +142,35 @@ export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props)
           </CardHeader>
           <CardContent className="p-8">
             <div className="grid grid-cols-5 md:grid-cols-10 gap-3 max-w-5xl mx-auto">
-              {(zonesData[selectedZone] || []).map((slot) => (
-                <div key={slot.id} className={`relative h-16 border-2 rounded-md flex flex-col items-center justify-center transition-all ${slot.status === 'occupied' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-green-50 border-green-500 text-green-700'}`}>
-                  <span className="text-[10px] font-bold">{slot.id}</span>
-                  {slot.status === 'occupied' ? <Car className="w-6 h-6" /> : <div className="w-6 h-6 border-2 border-dashed border-green-300 rounded-full" />}
-                </div>
-              ))}
+              {(zonesData[selectedZone] || []).map((slot) => {
+                const isInMaintenance = maintenanceSensors.has(slot.id);
+                const canClick = isInMaintenance || slot.status !== 'occupied';
+                const bgClass = isInMaintenance 
+                  ? 'bg-yellow-100 border-yellow-500 text-yellow-700 cursor-pointer hover:bg-yellow-200' 
+                  : slot.status === 'occupied' 
+                  ? 'bg-red-50 border-red-500 text-red-700 cursor-not-allowed' 
+                  : 'bg-green-50 border-green-500 text-green-700 cursor-pointer hover:bg-green-100';
+                
+                return (
+                  <div 
+                    key={slot.id} 
+                    className={`relative h-16 border-2 rounded-md flex flex-col items-center justify-center transition-all ${bgClass}`}
+                    onClick={() => canClick && toggleSensorMaintenance(slot.id)}
+                    title={isInMaintenance ? 'Bảo trì - nhấn để hủy' : slot.status === 'occupied' ? 'Đã đỗ' : 'Nhấn để bảo trì'}
+                  >
+                    <span className="text-[10px] font-bold">{slot.id}</span>
+                    {isInMaintenance ? (
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <span className="text-sm">⚙️</span>
+                      </div>
+                    ) : slot.status === 'occupied' ? (
+                      <Car className="w-6 h-6" />
+                    ) : (
+                      <div className="w-6 h-6 border-2 border-dashed border-green-300 rounded-full" />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
