@@ -8,7 +8,7 @@ import { TrendingUp, DollarSign, Users, Car, Clock } from 'lucide-react';
 
 type ApiFetch = (url: string, options?: RequestInit) => Promise<Response>;
 
-export default function Analytics({ apiFetch }: { apiFetch: ApiFetch }) {
+export default function Analytics({ isAdmin, apiFetch }: { isAdmin?: boolean; apiFetch: ApiFetch }) {
   const API_BASE = 'http://localhost:5000/api';
 
   const [analytics, setAnalytics] = useState<any>(null);
@@ -84,13 +84,13 @@ export default function Analytics({ apiFetch }: { apiFetch: ApiFetch }) {
             icon: <Clock className="w-3 h-3" />,
             color: 'text-slate-500',
           },
-          {
+          ...(isAdmin ? [{
             label: 'Total Revenue',
             value: `₫${(summary.totalRevenue ?? 0).toLocaleString()}`,
             sub: `Avg ₫${(summary.avgRevenuePerSession ?? 0).toLocaleString()}/session`,
             icon: <DollarSign className="w-3 h-3" />,
             color: 'text-green-600',
-          },
+          }] : []),
           {
             label: 'Active Sessions',
             value: summary.activeSessions ?? 0,
@@ -137,23 +137,25 @@ export default function Analytics({ apiFetch }: { apiFetch: ApiFetch }) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Revenue</CardTitle>
-            <CardDescription>Doanh thu 7 ngày gần nhất</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weeklyRevenue}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip {...tooltipStyle} formatter={(v) => `₫${Number(v).toLocaleString()}`} />
-                <Bar dataKey="revenue" fill="#10b981" radius={[8, 8, 0, 0]} name="Doanh thu (₫)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Revenue</CardTitle>
+              <CardDescription>Doanh thu 7 ngày gần nhất</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={weeklyRevenue}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} />
+                  <Tooltip {...tooltipStyle} formatter={(v) => `₫${Number(v).toLocaleString()}`} />
+                  <Bar dataKey="revenue" fill="#10b981" radius={[8, 8, 0, 0]} name="Doanh thu (₫)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Zone Distribution + User Type */}

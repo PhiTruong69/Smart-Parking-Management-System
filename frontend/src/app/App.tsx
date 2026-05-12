@@ -311,20 +311,22 @@ export default function App() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">
-                    Today's Revenue
-                  </CardTitle>
-                  <DollarSign className="w-4 h-4 text-slate-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">
-                    ₫{stats.revenue?.toLocaleString() ?? '-'}
-                  </div>
-                  <p className="text-xs text-slate-500 mt-2">Parking fees collected</p>
-                </CardContent>
-              </Card>
+              {isAdmin && (
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-600">
+                      Today's Revenue
+                    </CardTitle>
+                    <DollarSign className="w-4 h-4 text-slate-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-slate-900">
+                      ₫{stats.revenue?.toLocaleString() ?? '-'}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">Parking fees collected</p>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -536,7 +538,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Analytics apiFetch={apiFetch} />
+            <Analytics isAdmin={isAdmin} apiFetch={apiFetch} />
           </TabsContent>
         </Tabs>
       </main>

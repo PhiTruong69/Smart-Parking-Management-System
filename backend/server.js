@@ -479,6 +479,23 @@ app.post(
     if (slotId) db.slotAssignments[zoneId].push(slotId);
     zone.occupied += 1;
 
+    // Create pending transaction for the estimated fee
+    const estimatedFee = calculateFee(session.entryAt, new Date().toISOString(), session.userType, db);
+    const pendingTransaction = {
+      id: makeId("TXN-PENDING"),
+      userId: resolvedUserId || null,
+      userName: resolvedUser?.name || userName || "Visitor",
+      type: "Parking Fee (Pending)",
+      amount: estimatedFee,
+      period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
+      status: "Pending",
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      method: "Card",
+      sessionId: session.id,
+    };
+    db.billing.transactions.unshift(pendingTransaction);
+    session.pendingTransactionId = pendingTransaction.id;
+
     db.activityLogs.unshift({
       id: Date.now(),
       timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -528,18 +545,34 @@ app.post("/api/parking/sessions/:id/exit", authenticateToken, requireRole(["ADMI
   }
   db.billing.dailyRevenue += session.fee;
 
-  const payment = {
-    id: makeId("TXN"),
-    userId: session.userId || "UNKNOWN",
-    userName: session.userName,
-    type: "Parking Fee",
-    amount: session.fee,
-    period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
-    status: "Paid",
-    date: session.exitAt.replace("T", " ").slice(0, 16),
-    method: "Cash",
-  };
-  db.billing.transactions.unshift(payment);
+  // Update pending transaction to paid with actual fee
+  let payment = null;
+  if (session.pendingTransactionId) {
+    const pendingTxn = db.billing.transactions.find((t) => t.id === session.pendingTransactionId);
+    if (pendingTxn) {
+      pendingTxn.status = "Paid";
+      pendingTxn.amount = session.fee;
+      pendingTxn.type = "Parking Fee";
+      pendingTxn.date = session.exitAt.replace("T", " ").slice(0, 16);
+      payment = pendingTxn;
+    }
+  }
+  
+  // Fallback: if no pending transaction found, create new paid transaction
+  if (!payment) {
+    payment = {
+      id: makeId("TXN"),
+      userId: session.userId || "UNKNOWN",
+      userName: session.userName,
+      type: "Parking Fee",
+      amount: session.fee,
+      period: new Date().toLocaleString("en-US", { month: "long", year: "numeric" }),
+      status: "Paid",
+      date: session.exitAt.replace("T", " ").slice(0, 16),
+      method: "Cash",
+    };
+    db.billing.transactions.unshift(payment);
+  }
 
   db.activityLogs.unshift({
     id: Date.now(),
@@ -929,38 +962,24 @@ app.get("/api/billing/overview", authenticateToken, requireRole(["ADMIN", "OPERA
   const totalRevenue = all.filter((t) => t.status === "Paid").reduce((sum, t) => sum + t.amount, 0);
   const pending = all.filter((t) => t.status === "Pending").reduce((sum, t) => sum + t.amount, 0);
   const overdue = all.filter((t) => t.status === "Overdue").reduce((sum, t) => sum + t.amount, 0);
+  
+  // Get current month in "Month Year" format (e.g., "May 2026")
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
   const thisMonth = all
-    .filter((t) => String(t.period).toLowerCase().includes("april"))
+    .filter((t) => String(t.period).toLowerCase() === currentMonth.toLowerCase())
     .reduce((sum, t) => sum + t.amount, 0);
+  
   const dailyRevenue = db.billing.dailyRevenueDate === getCurrentDateString() ? db.billing.dailyRevenue : 0;
   res.json({ totalRevenue, dailyRevenue, thisMonth, pending, overdue, pricingPlans: db.billing.pricingPlans });
 });
 
-app.post("/api/billing/reset-daily", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
-  const db = readStore();
-  const today = getCurrentDateString();
-  db.billing.dailyRevenueDate = today;
-  db.billing.dailyRevenue = 0;
-  db.activityLogs.unshift({
-    id: Date.now(),
-    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
-    type: "system",
-    user: req.user.name || "Admin",
-    userId: req.user.userId,
-    role: "Admin",
-    zone: "N/A",
-    gate: "N/A",
-    vehicleId: "N/A",
-    action: "Daily revenue reset by Admin",
-  });
-  writeStore(db);
-  res.json({ dailyRevenue: 0, date: today });
-});
+
 
 app.post("/api/billing/reset-monthly", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
   const db = readStore();
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
   db.billing.transactions = db.billing.transactions.filter(
-    (t) => !String(t.period || "").toLowerCase().includes("april")
+    (t) => !String(t.period || "").toLowerCase().includes(currentMonth.toLowerCase())
   );
   db.activityLogs.unshift({
     id: Date.now(),
@@ -978,6 +997,27 @@ app.post("/api/billing/reset-monthly", authenticateToken, requireRole(["ADMIN"])
   res.json({ message: "Monthly revenue has been reset" });
 });
 
+app.post("/api/billing/reset-total", authenticateToken, requireRole(["ADMIN"]), (req, res) => {
+  const db = readStore();
+  db.billing.transactions = [];
+  db.billing.dailyRevenue = 0;
+  db.billing.dailyRevenueDate = getCurrentDateString();
+  db.activityLogs.unshift({
+    id: Date.now(),
+    timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
+    type: "system",
+    user: req.user.name || "Admin",
+    userId: req.user.userId,
+    role: "Admin",
+    zone: "N/A",
+    gate: "N/A",
+    vehicleId: "N/A",
+    action: "Total revenue reset by Admin",
+  });
+  writeStore(db);
+  res.json({ message: "Total revenue has been reset", totalRevenue: 0 });
+});
+
 app.get("/api/billing/transactions", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
   const db = readStore();
   const q = String(req.query.q || "").toLowerCase();
@@ -987,21 +1027,56 @@ app.get("/api/billing/transactions", authenticateToken, requireRole(["ADMIN", "O
   res.json({ items, total: items.length });
 });
 
-app.post("/api/billing/run-cycle", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
+
+
+app.post("/api/billing/calculate", authenticateToken, (req, res) => {
+  const { entryTime, exitTime, userType } = req.body;
+  if (!entryTime || !exitTime) return res.status(400).json({ message: "entryTime and exitTime are required" });
   const db = readStore();
-  const learners = db.users.filter((u) => ["Student", "Graduate", "Doctoral"].includes(u.role));
-  const monthlyFee = db.billing.pricingPlans.find((p) => p.category === "Students")?.monthly || 150000;
-  const created = learners.map((u) => ({
-    id: makeId("TXN-CYCLE"),
-    userId: u.id,
-    userName: u.name,
-    type: "Monthly Parking",
-    amount: monthlyFee,
-    period: req.body.period || "Current Month",
-    status: "Pending",
-    date: new Date().toISOString().replace("T", " ").slice(0, 16),
-    method: "BKPay",
-  }));
+  const totalFee = calculateFee(entryTime, exitTime, userType || "Visitor", db);
+  res.json({ amount: totalFee, status: "Pending", method: "BKPay" });
+});
+
+// ─── BKPay Invoice Generation for Students ──────────────────────────────────
+
+app.post("/api/billing/generate-student-invoices", authenticateToken, requireRole(["ADMIN", "OPERATOR"]), (req, res) => {
+  const db = readStore();
+  const { period = new Date().toLocaleString("en-US", { month: "long", year: "numeric" }) } = req.body;
+  
+  // Get all students
+  const students = db.users.filter((u) => ["Student", "Graduate", "Doctoral"].includes(u.role));
+  
+  // Generate invoices for each student
+  const created = students.map((student) => {
+    // Calculate total fees for this student in this period
+    const studentSessions = db.sessions.filter(
+      (s) => s.userId === student.id && s.status === "CLOSED" && String(s.period || "").includes(period.split(" ")[1])
+    );
+    
+    const totalAmount = studentSessions.reduce((sum, session) => sum + (session.fee || 0), 0) || 
+                       db.billing.pricingPlans.find((p) => p.category === "Students")?.hourly || 50000;
+    
+    // Check if invoice already exists for this student and period
+    const existingInvoice = db.billing.transactions.find(
+      (t) => t.userId === student.id && t.period === period && t.type === "Monthly Parking Invoice"
+    );
+    
+    if (existingInvoice) return null;
+    
+    return {
+      id: makeId("INV-BKPAY"),
+      userId: student.id,
+      userName: student.name,
+      type: "Monthly Parking Invoice",
+      amount: totalAmount,
+      period: period,
+      status: "Pending",
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      method: "BKPay",
+      sessionsCount: studentSessions.length,
+    };
+  }).filter((inv) => inv !== null);
+  
   db.billing.transactions.unshift(...created);
   db.activityLogs.unshift({
     id: Date.now(),
@@ -1013,18 +1088,23 @@ app.post("/api/billing/run-cycle", authenticateToken, requireRole(["ADMIN", "OPE
     zone: "N/A",
     gate: "N/A",
     vehicleId: "N/A",
-    action: `Billing cycle executed for ${learners.length} learners`,
+    action: `BKPay invoices generated for ${created.length} students for ${period}`,
   });
+  
   writeStore(db);
-  res.json({ createdInvoices: created.length, sample: created.slice(0, 3) });
+  res.json({ createdInvoices: created.length, period, invoices: created });
 });
 
-app.post("/api/billing/calculate", authenticateToken, (req, res) => {
-  const { entryTime, exitTime, userType } = req.body;
-  if (!entryTime || !exitTime) return res.status(400).json({ message: "entryTime and exitTime are required" });
+app.get("/api/billing/student-invoices", authenticateToken, (req, res) => {
   const db = readStore();
-  const totalFee = calculateFee(entryTime, exitTime, userType || "Visitor", db);
-  res.json({ amount: totalFee, status: "Pending", method: "BKPay" });
+  const studentId = req.user.userId || req.user.id;
+  
+  // Get only this student's invoices
+  const invoices = db.billing.transactions.filter(
+    (t) => t.userId === studentId && (t.type === "Monthly Parking Invoice" || t.type === "Parking Fee")
+  );
+  
+  res.json({ items: invoices, total: invoices.length, studentId });
 });
 
 // ─── Payment Routes ───────────────────────────────────────────────────────────
