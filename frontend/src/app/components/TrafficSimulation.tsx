@@ -159,23 +159,23 @@ export default function TrafficSimulation({ actorRole, apiFetch }: Props) {
   };
 
   // Visitor exit bằng ticketNo
-  const handleTicketExit = async () => {
-    if (!ticketNo.trim()) { showMsg('Vui lòng nhập mã vé.', 'error'); return; }
-    try {
-      const res = await apiFetch(`${API_BASE}/parking/tickets/${ticketNo.trim()}/exit`, { method: 'POST' });
-      const data = await res.json();
-      if (res.ok) {
-        setTicketExitResult(data.summary);
-        showMsg(`Visitor exit thành công! Phí: ₫${data.summary.fee?.toLocaleString()}`, 'success');
-        setTicketNo('');
-        await refreshGlobalData();
-      } else {
-        showMsg(`Lỗi: ${data.message}`, 'error');
-      }
-    } catch {
-      showMsg('Không thể kết nối đến server.', 'error');
-    }
-  };
+  // const handleTicketExit = async () => {
+  //   if (!ticketNo.trim()) { showMsg('Vui lòng nhập mã vé.', 'error'); return; }
+  //   try {
+  //     const res = await apiFetch(`${API_BASE}/parking/tickets/${ticketNo.trim()}/exit`, { method: 'POST' });
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       setTicketExitResult(data.summary);
+  //       showMsg(`Visitor exit thành công! Phí: ₫${data.summary.fee?.toLocaleString()}`, 'success');
+  //       setTicketNo('');
+  //       await refreshGlobalData();
+  //     } else {
+  //       showMsg(`Lỗi: ${data.message}`, 'error');
+  //     }
+  //   } catch {
+  //     showMsg('Không thể kết nối đến server.', 'error');
+  //   }
+  // };
 
   const msgColors = {
     success: 'text-green-700 bg-green-50 border-green-200',
@@ -306,7 +306,7 @@ export default function TrafficSimulation({ actorRole, apiFetch }: Props) {
       </Card>
 
       {/* ── Visitor Ticket Exit ── */}
-      <Card className="border-purple-300">
+      {/* <Card className="border-purple-300">
         <CardHeader>
           <CardTitle className="text-purple-700">Visitor Exit (Vé tạm)</CardTitle>
           <CardDescription>Nhập mã vé tạm để tính phí và cho xe ra.</CardDescription>
@@ -333,7 +333,7 @@ export default function TrafficSimulation({ actorRole, apiFetch }: Props) {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* ── Active Sessions ── */}
       <Card>

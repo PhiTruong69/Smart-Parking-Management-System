@@ -899,35 +899,47 @@
         "description": "Temporary access only"
       }
     ],
-    "transactions": [
-      {
-        "id": "TXN-PENDING-a1dd91f5",
-        "userId": "1952001",
-        "userName": "Nguyen Van A",
-        "type": "Parking Fee",
-        "amount": 5000,
-        "period": "May 2026",
-        "status": "Paid",
-        "date": "2026-05-12 05:25",
-        "method": "Card",
-        "sessionId": "SES-449ab45a"
-      },
-      {
-        "id": "TXN-4078936d",
-        "userId": "1952001",
-        "userName": "Nguyen Van A",
-        "type": "Parking Fee",
-        "amount": 5000,
-        "period": "May 2026",
-        "status": "Paid",
-        "date": "2026-05-12 05:22",
-        "method": "Cash"
-      }
-    ],
-    "dailyRevenue": 10000,
+    "transactions": [],
+    "dailyRevenue": 0,
     "dailyRevenueDate": "2026-05-12"
   },
   "activityLogs": [
+    {
+      "id": 1778569542989,
+      "timestamp": "2026-05-12 07:05:42",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
+    {
+      "id": 1778567202421,
+      "timestamp": "2026-05-12 06:26:42",
+      "type": "system",
+      "user": "System Admin",
+      "userId": "admin",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Total revenue reset by Admin"
+    },
+    {
+      "id": 1778567109567,
+      "timestamp": "2026-05-12 06:25:09",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
     {
       "id": 1778563536321,
       "timestamp": "2026-05-12 05:25:36",
@@ -5938,8 +5950,8 @@
   },
   "metadata": {
     "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-05-12T05:25:36.321Z",
-    "lastDataCoreSync": "2026-05-12T05:25:08.769Z",
+    "updatedAt": "2026-05-12T07:05:42.989Z",
+    "lastDataCoreSync": "2026-05-12T07:05:42.989Z",
     "lastSyncStats": {
       "added": 0,
       "updated": 0,
