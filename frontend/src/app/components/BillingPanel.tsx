@@ -117,16 +117,16 @@ export default function BillingPanel({ isAdmin, actorRole, apiFetch }: BillingPa
       <div className="space-y-4">
         <Card>
           <CardHeader><CardTitle>Your Parking Account</CardTitle><CardDescription>View your usage and payment information.</CardDescription></CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
-            <div className="p-4 border rounded">
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
               <div className="text-sm text-slate-600">Pending Payment</div>
               <div className="text-2xl font-bold text-orange-600">₫{studentPending?.toLocaleString() ?? '0'}</div>
             </div>
-            <div className="p-4 border rounded">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
               <div className="text-sm text-slate-600">Total Paid</div>
               <div className="text-2xl font-bold text-green-600">₫{studentPaid?.toLocaleString() ?? '0'}</div>
             </div>
-            <div className="p-4 border rounded">
+            <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
               <div className="text-sm text-slate-600">Current Rates</div>
               <div className="text-sm text-blue-600">{pricingPlans.find(p => p.category === 'Students')?.hourly ? `₫${pricingPlans.find(p => p.category === 'Students')?.hourly}/hour` : '-'}</div>
             </div>
@@ -184,7 +184,7 @@ export default function BillingPanel({ isAdmin, actorRole, apiFetch }: BillingPa
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: 'Total Revenue', value: stats.totalRevenue },
           { label: 'This Month', value: stats.thisMonth },
@@ -202,9 +202,9 @@ export default function BillingPanel({ isAdmin, actorRole, apiFetch }: BillingPa
 
       <Card>
         <CardHeader><CardTitle>Pricing Management</CardTitle><CardDescription>Configure hourly parking rates</CardDescription></CardHeader>
-        <CardContent className="grid grid-cols-4 gap-4">
+        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {pricingPlans.map((plan) => (
-            <div key={plan.category} className="p-4 border rounded relative">
+            <div key={plan.category} className="relative rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="font-bold">{plan.category}</div>
               <div className="text-lg">₫{plan.hourly}/h</div>
               {isAdmin && (

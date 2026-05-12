@@ -297,6 +297,17 @@
       "parkingPass": "Daily",
       "balance": 0,
       "entryCount": 2
+    },
+    {
+      "id": "V-c93964b9",
+      "password": "123456",
+      "name": "TKT - 123456",
+      "role": "Visitor",
+      "program": "Simulation",
+      "status": "Active",
+      "parkingPass": "Monthly",
+      "balance": 0,
+      "entryCount": 0
     }
   ],
   "zones": [
@@ -700,6 +711,57 @@
       "status": "CLOSED",
       "fee": 5000,
       "pendingTransactionId": "TXN-PENDING-a1dd91f5"
+    },
+    {
+      "id": "SES-55229ecb",
+      "userId": "1952001",
+      "userName": "Nguyen Van A",
+      "userType": "Student",
+      "authMethod": "SSO",
+      "zoneId": "A",
+      "slotId": "A-1",
+      "gate": "Gate A1",
+      "vehicleId": "60A-12345",
+      "method": "CARD",
+      "entryAt": "2026-05-12T06:53:45.745Z",
+      "exitAt": "2026-05-12T06:54:09.307Z",
+      "status": "CLOSED",
+      "fee": 5000,
+      "pendingTransactionId": "TXN-PENDING-66c18fda"
+    },
+    {
+      "id": "SES-b5773c0b",
+      "userId": "1952001",
+      "userName": "Nguyen Van A",
+      "userType": "Student",
+      "authMethod": "SSO",
+      "zoneId": "D",
+      "slotId": "D-13",
+      "gate": "Gate D1",
+      "vehicleId": "60A-12345",
+      "method": "CARD",
+      "entryAt": "2026-05-12T06:54:25.418Z",
+      "exitAt": "2026-05-12T08:03:22.564Z",
+      "status": "CLOSED",
+      "fee": 10000,
+      "pendingTransactionId": "TXN-PENDING-98ab738f"
+    },
+    {
+      "id": "SES-09495e05",
+      "userId": "V-c93964b9",
+      "userName": "TKT - 123456",
+      "userType": "Visitor",
+      "authMethod": "TICKET",
+      "zoneId": "B",
+      "slotId": "B-94",
+      "gate": "Gate B2",
+      "vehicleId": "36B-12345",
+      "method": "CARD",
+      "entryAt": "2026-05-12T06:55:38.907Z",
+      "exitAt": "2026-05-12T08:03:23.355Z",
+      "status": "CLOSED",
+      "fee": 10000,
+      "pendingTransactionId": "TXN-PENDING-6f0f2fce"
     }
   ],
   "tickets": [
@@ -865,7 +927,8 @@
       "S-B-13": false,
       "S-A-3": false,
       "S-A-1": false,
-      "S-A-2": false
+      "S-A-2": false,
+      "S-E-95": false
     }
   },
   "billing": {
@@ -901,6 +964,42 @@
     ],
     "transactions": [
       {
+        "id": "TXN-PENDING-6f0f2fce",
+        "userId": "V-c93964b9",
+        "userName": "TKT - 123456",
+        "type": "Parking Fee",
+        "amount": 10000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-12 08:03",
+        "method": "BKPay",
+        "sessionId": "SES-09495e05"
+      },
+      {
+        "id": "TXN-PENDING-98ab738f",
+        "userId": "1952001",
+        "userName": "Nguyen Van A",
+        "type": "Parking Fee",
+        "amount": 10000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-12 08:03",
+        "method": "BKPay",
+        "sessionId": "SES-b5773c0b"
+      },
+      {
+        "id": "TXN-PENDING-66c18fda",
+        "userId": "1952001",
+        "userName": "Nguyen Van A",
+        "type": "Parking Fee",
+        "amount": 5000,
+        "period": "May 2026",
+        "status": "Paid",
+        "date": "2026-05-12 06:54",
+        "method": "Card",
+        "sessionId": "SES-55229ecb"
+      },
+      {
         "id": "TXN-PENDING-a1dd91f5",
         "userId": "1952001",
         "userName": "Nguyen Van A",
@@ -924,10 +1023,322 @@
         "method": "Cash"
       }
     ],
-    "dailyRevenue": 10000,
+    "dailyRevenue": 45000,
     "dailyRevenueDate": "2026-05-12"
   },
   "activityLogs": [
+    {
+      "id": 1778573164187,
+      "timestamp": "2026-05-12 08:06:04",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
+    {
+      "id": 1778573003355,
+      "timestamp": "2026-05-12 08:03:23",
+      "type": "exit",
+      "user": "TKT - 123456",
+      "userId": "V-c93964b9",
+      "role": "Visitor",
+      "zone": "Zone B",
+      "gate": "Gate B2",
+      "vehicleId": "36B-12345",
+      "action": "Vehicle exited parking zone",
+      "duration": "2h",
+      "amount": 10000,
+      "transactionId": "TXN-PENDING-6f0f2fce"
+    },
+    {
+      "id": 1778573002564,
+      "timestamp": "2026-05-12 08:03:22",
+      "type": "exit",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone D",
+      "gate": "Gate D1",
+      "vehicleId": "60A-12345",
+      "action": "Vehicle exited parking zone",
+      "duration": "2h",
+      "amount": 10000,
+      "transactionId": "TXN-PENDING-98ab738f"
+    },
+    {
+      "id": 1778573002540,
+      "timestamp": "2026-05-12 08:03:22",
+      "type": "exit",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone D",
+      "gate": "Gate D1",
+      "vehicleId": "60A-12345",
+      "action": "Vehicle exited parking zone",
+      "duration": "2h",
+      "amount": 10000,
+      "transactionId": "TXN-PENDING-98ab738f"
+    },
+    {
+      "id": 1778572935824,
+      "timestamp": "2026-05-12 08:02:15",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
+    {
+      "id": 1778571212568,
+      "timestamp": "2026-05-12 07:33:32",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
+    {
+      "id": 1778570223967,
+      "timestamp": "2026-05-12 07:17:03",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
+    {
+      "id": 1778568938908,
+      "timestamp": "2026-05-12 06:55:38",
+      "type": "entry",
+      "user": "TKT - 123456",
+      "userId": "V-c93964b9",
+      "role": "Visitor",
+      "zone": "Zone B",
+      "gate": "Gate B2",
+      "vehicleId": "36B-12345",
+      "action": "Visitor vehicle entered (Temporary Ticket)"
+    },
+    {
+      "id": 1778568865419,
+      "timestamp": "2026-05-12 06:54:25",
+      "type": "entry",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone D",
+      "gate": "Gate D1",
+      "vehicleId": "60A-12345",
+      "action": "Vehicle entered parking zone (SSO verified: 1952001)"
+    },
+    {
+      "id": 1778568849307,
+      "timestamp": "2026-05-12 06:54:09",
+      "type": "exit",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "60A-12345",
+      "action": "Vehicle exited parking zone",
+      "duration": "1h",
+      "amount": 5000,
+      "transactionId": "TXN-PENDING-66c18fda"
+    },
+    {
+      "id": 1778568825745,
+      "timestamp": "2026-05-12 06:53:45",
+      "type": "entry",
+      "user": "Nguyen Van A",
+      "userId": "1952001",
+      "role": "Student",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "60A-12345",
+      "action": "Vehicle entered parking zone (SSO verified: 1952001)"
+    },
+    {
+      "id": 1778568777280,
+      "timestamp": "2026-05-12 06:52:57",
+      "type": "auth_failure",
+      "user": "2313901",
+      "userId": "2313901",
+      "role": "Unknown",
+      "zone": "Zone A",
+      "gate": "Gate A1",
+      "vehicleId": "60A-12345",
+      "action": "SSO authentication failed: SSO_USER_NOT_FOUND"
+    },
+    {
+      "id": 1778568709906,
+      "timestamp": "2026-05-12 06:51:49",
+      "type": "auth_failure",
+      "user": "2313901",
+      "userId": "2313901",
+      "role": "Unknown",
+      "zone": "Zone C",
+      "gate": "Gate C1",
+      "vehicleId": "60A-123456",
+      "action": "SSO authentication failed: SSO_USER_NOT_FOUND"
+    },
+    {
+      "id": 1778568701421,
+      "timestamp": "2026-05-12 06:51:41",
+      "type": "auth_failure",
+      "user": "2313901",
+      "userId": "2313901",
+      "role": "Unknown",
+      "zone": "Zone C",
+      "gate": "Gate C1",
+      "vehicleId": "60A-123456",
+      "action": "SSO authentication failed: SSO_USER_NOT_FOUND"
+    },
+    {
+      "id": 1778568693868,
+      "timestamp": "2026-05-12 06:51:33",
+      "type": "auth_failure",
+      "user": "2313901",
+      "userId": "2313901",
+      "role": "Unknown",
+      "zone": "Zone C",
+      "gate": "Gate C1",
+      "vehicleId": "60A-123456",
+      "action": "SSO authentication failed: SSO_USER_NOT_FOUND"
+    },
+    {
+      "id": 1778568690945,
+      "timestamp": "2026-05-12 06:51:30",
+      "type": "auth_failure",
+      "user": "2313901",
+      "userId": "2313901",
+      "role": "Unknown",
+      "zone": "Zone C",
+      "gate": "Gate C1",
+      "vehicleId": "60A-123456",
+      "action": "SSO authentication failed: SSO_USER_NOT_FOUND"
+    },
+    {
+      "id": 1778568582504,
+      "timestamp": "2026-05-12 06:49:42",
+      "type": "system",
+      "user": "System Admin",
+      "userId": "admin",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Pricing policy updated: Faculty"
+    },
+    {
+      "id": 1778568564659,
+      "timestamp": "2026-05-12 06:49:24",
+      "type": "system",
+      "user": "System Admin",
+      "userId": "admin",
+      "role": "Admin",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Pricing policy updated: Faculty"
+    },
+    {
+      "id": 1778568514833,
+      "timestamp": "2026-05-12 06:48:34",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-95 maintenance mode deactivated"
+    },
+    {
+      "id": 1778568514461,
+      "timestamp": "2026-05-12 06:48:34",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-95 maintenance mode activated"
+    },
+    {
+      "id": 1778568513041,
+      "timestamp": "2026-05-12 06:48:33",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-4 maintenance mode deactivated"
+    },
+    {
+      "id": 1778568511884,
+      "timestamp": "2026-05-12 06:48:31",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-4 maintenance mode activated"
+    },
+    {
+      "id": 1778568511223,
+      "timestamp": "2026-05-12 06:48:31",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-4 maintenance mode deactivated"
+    },
+    {
+      "id": 1778568509939,
+      "timestamp": "2026-05-12 06:48:29",
+      "type": "sensor",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "N/A",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "Sensor S-E-4 maintenance mode activated"
+    },
+    {
+      "id": 1778568423968,
+      "timestamp": "2026-05-12 06:47:03",
+      "type": "system",
+      "user": "System",
+      "userId": "SYSTEM",
+      "role": "System",
+      "zone": "All Zones",
+      "gate": "N/A",
+      "vehicleId": "N/A",
+      "action": "DATACORE sync completed: 0 added, 0 updated (total DATACORE records: 7)"
+    },
     {
       "id": 1778563536321,
       "timestamp": "2026-05-12 05:25:36",
@@ -5938,8 +6349,8 @@
   },
   "metadata": {
     "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-05-12T05:25:36.321Z",
-    "lastDataCoreSync": "2026-05-12T05:25:08.769Z",
+    "updatedAt": "2026-05-12T08:06:04.187Z",
+    "lastDataCoreSync": "2026-05-12T08:06:04.187Z",
     "lastSyncStats": {
       "added": 0,
       "updated": 0,
@@ -5949,6 +6360,7 @@
   "slotAssignments": {
     "B": [],
     "E": [],
-    "A": []
+    "A": [],
+    "D": []
   }
 }

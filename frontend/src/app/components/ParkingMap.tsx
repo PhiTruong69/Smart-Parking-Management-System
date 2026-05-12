@@ -106,15 +106,15 @@ export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props)
   };
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {Object.keys(zonesData).map((zId) => {
           const status = getZoneStatus(zId);
           const slots = zonesData[zId] || [];
           const occupied = slots.filter((s) => s.status === 'occupied').length;
           return (
-            <Card key={zId} className="border-2 border-slate-800 bg-slate-900 text-white overflow-hidden">
-              <div className={`${status.color} px-2 py-1 text-[10px] font-bold text-center uppercase`}>ZONE {zId}</div>
+            <Card key={zId} className="overflow-hidden border-0 bg-slate-950 text-white ring-1 ring-white/10">
+              <div className={`${status.color} px-2 py-1.5 text-center text-[10px] font-bold uppercase tracking-wide`}>ZONE {zId}</div>
               <CardContent className="p-4 text-center">
                 <div className={`text-xl font-mono font-bold mb-1 ${status.text}`}>{status.label}</div>
                 <div className="text-2xl font-mono text-white">{slots.length - occupied} <span className="text-sm text-slate-400">TRỐNG</span></div>
@@ -127,14 +127,14 @@ export default function SmartParkingMap({ apiFetch, zoneUpdateTick = 0 }: Props)
       {!selectedZone ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.keys(zonesData).map((zId) => (
-            <Card key={zId} className="cursor-pointer hover:border-blue-500 transition-all" onClick={() => setSelectedZone(zId)}>
+            <Card key={zId} className="cursor-pointer border-0 bg-white/95 ring-1 ring-slate-200/70 transition-all hover:-translate-y-0.5 hover:ring-teal-300" onClick={() => setSelectedZone(zId)}>
               <CardHeader><CardTitle>Khu vực {zId}</CardTitle><CardDescription>Nhấn để xem 100 vị trí cụ thể</CardDescription></CardHeader>
               <CardContent><Badge variant="outline">Đã đỗ: {(zonesData[zId] || []).filter((s) => s.status === 'occupied').length}/100</Badge></CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <Card className="border-blue-200">
+        <Card className="border-0 bg-white/95 ring-1 ring-teal-200">
           <CardHeader className="flex flex-row items-center justify-between">
             <Button variant="ghost" size="sm" onClick={() => setSelectedZone(null)}><ArrowLeft className="w-4 h-4 mr-2" />Quay lại</Button>
             <CardTitle>Sơ đồ chi tiết Zone {selectedZone}</CardTitle>
