@@ -1099,9 +1099,9 @@ app.get("/api/billing/student-invoices", authenticateToken, (req, res) => {
   const db = readStore();
   const studentId = req.user.userId || req.user.id;
   
-  // Get only this student's invoices
+  // Get only this student's invoices (including pending parking fees)
   const invoices = db.billing.transactions.filter(
-    (t) => t.userId === studentId && (t.type === "Monthly Parking Invoice" || t.type === "Parking Fee")
+    (t) => t.userId === studentId && (t.type === "Monthly Parking Invoice" || t.type === "Parking Fee" || t.type === "Parking Fee (Pending)")
   );
   
   res.json({ items: invoices, total: invoices.length, studentId });
